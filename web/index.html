@@ -366,6 +366,20 @@
         }
         
         // 语音合成 (Speech Synthesis) - 朗读鸠摩罗什的回复
+        let chineseVoices = [];
+        
+        // 加载语音列表
+        function loadVoices() {
+            chineseVoices = window.speechSynthesis.getVoices().filter(v => 
+                v.lang.includes('zh') || v.lang.includes('cmn')
+            );
+        }
+        
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
+        
         function speakText(text) {
             if (!window.speechSynthesis) return;
             
@@ -374,15 +388,18 @@
             
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'zh-CN';
-            utterance.rate = 0.8;  // 较慢，苍老感
-            utterance.pitch = 0.7; // 较低，沉稳
+            utterance.rate = 0.75;  // 更慢
+            utterance.pitch = 0.6;  // 更低
             
-            // 尝试找一个中文男性语音
-            const voices = window.speechSynthesis.getVoices();
-            // 优先选择男声
-            const maleVoice = voices.find(v => v.lang.includes('zh') && v.name.includes('Male'));
-            const chineseVoice = voices.find(v => v.lang.includes('zh'));
-            utterance.voice = maleVoice || chineseVoice || null;
+            // 尝试找一个低沉的中文语音
+            if (chineseVoices.length > 0) {
+                // 尝试找男声或较深沉的
+                utterance.voice = chineseVoices.find(v => 
+                    v.name.toLowerCase().includes('male') || 
+                    v.name.toLowerCase().includes('国') ||
+                    v.name.toLowerCase().includes('普通')
+                ) || chineseVoices[0];
+            }
             
             window.speechSynthesis.speak(utterance);
         }
