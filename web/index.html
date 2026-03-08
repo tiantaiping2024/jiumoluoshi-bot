@@ -374,15 +374,15 @@
             
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'zh-CN';
-            utterance.rate = 0.9;  // 稍慢
-            utterance.pitch = 0.9; // 稍低
+            utterance.rate = 0.8;  // 较慢，苍老感
+            utterance.pitch = 0.7; // 较低，沉稳
             
-            // 尝试找一个中文语音
+            // 尝试找一个中文男性语音
             const voices = window.speechSynthesis.getVoices();
+            // 优先选择男声
+            const maleVoice = voices.find(v => v.lang.includes('zh') && v.name.includes('Male'));
             const chineseVoice = voices.find(v => v.lang.includes('zh'));
-            if (chineseVoice) {
-                utterance.voice = chineseVoice;
-            }
+            utterance.voice = maleVoice || chineseVoice || null;
             
             window.speechSynthesis.speak(utterance);
         }

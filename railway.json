@@ -21,11 +21,11 @@
     },
     "WECHAT_TOKEN": {
       "description": "企业微信Token",
-      "value": "Sj5eiUTyKeE5e"
+      "value": "8puiDV37qRviax0b8QG1IDeqfqQ"
     },
     "WECHAT_ENCODING_AES_KEY": {
       "description": "企业微信EncodingAESKey",
-      "value": "kE5sXAI1f74kjbpfpl0PytYNMYcnOW9Blik9lYDBtcX"
+      "value": "NRo67SYEcfLr1G1MWMS5pd8c2BzIbLRJiiZon68x3wj"
     },
     "WECHAT_AGENT_ID": {
       "description": "企业微信AgentID",
