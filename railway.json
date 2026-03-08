@@ -14,6 +14,22 @@
       "description": "DeepSeek API Key",
       "required": true,
       "value": ""
+    },
+    "WECHAT_CORP_ID": {
+      "description": "企业微信CorpID",
+      "value": "ww47ae0142fcfd5800"
+    },
+    "WECHAT_TOKEN": {
+      "description": "企业微信Token",
+      "value": "zItsL56MLnYjg7Udc"
+    },
+    "WECHAT_ENCODING_AES_KEY": {
+      "description": "企业微信EncodingAESKey",
+      "value": "4DkenCDax4XF8rAF5MBPVZknAH6giHnUmUp38JfLsXe"
+    },
+    "WECHAT_AGENT_ID": {
+      "description": "企业微信AgentID",
+      "value": "1000004"
     }
   }
 }

@@ -1,8 +1,12 @@
 """
 鸠摩罗什Bot API 接口
 """
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+import os
+import hashlib
+import time
+import xml.etree.ElementTree as ET
+from fastapi import FastAPI, HTTPException, Request, Query
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -12,6 +16,14 @@ from app.core.chat_engine import chat_engine
 from app.memory import memory
 
 app = FastAPI(title="鸠摩罗什Bot API", version="1.0.0")
+
+# 企业微信配置
+WECHAT_CONFIG = {
+    "corp_id": os.getenv("WECHAT_CORP_ID", "ww47ae0142fcfd5800"),
+    "token": os.getenv("WECHAT_TOKEN", "zItsL56MLnYjg7Udc"),
+    "encoding_aes_key": os.getenv("WECHAT_ENCODING_AES_KEY", "4DkenCDax4XF8rAF5MBPVZknAH6giHnUmUp38JfLsXe"),
+    "agent_id": os.getenv("WECHAT_AGENT_ID", "1000004"),
+}
 
 # 获取项目根目录
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -78,6 +90,69 @@ async def update_profile(session_id: str = "default", key: str = None, value: st
 async def health():
     """健康检查"""
     return {"status": "healthy", "name": "鸠摩罗什Bot"}
+
+# ========== 企业微信回调接口 ==========
+@app.get("/api/wechat")
+async def wechat_verify(
+    msg_signature: str = Query(""),
+    timestamp: str = Query(""),
+    nonce: str = Query(""),
+    echostr: str = Query("")
+):
+    """企业微信验证回调"""
+    # 验证签名
+    sorted_params = sorted([WECHAT_CONFIG["token"], timestamp, nonce])
+    signature = hashlib.sha1("".join(sorted_params).encode()).hexdigest()
+    
+    # 返回 echostr 完成验证
+    if echostr:
+        return PlainTextResponse(content=echostr)
+    
+    return PlainTextResponse(content="success")
+
+@app.post("/api/wechat")
+async def wechat_message(request: Request, msg_signature: str = Query(""), timestamp: str = Query(""), nonce: str = Query("")):
+    """企业微信消息接收"""
+    try:
+        body = await request.body()
+        xml_str = body.decode('utf-8')
+        
+        # 解析XML
+        root = ET.fromstring(xml_str)
+        msg_type = root.find("MsgType").text
+        from_user = root.find("FromUserName").text
+        content = root.find("Content").text if root.find("Content") is not None else ""
+        
+        # 生成回复
+        if msg_type == "text":
+            # 使用会话ID作为用户标识
+            session_id = f"wechat_{from_user}"
+            
+            # 获取对话历史
+            history = memory.get_history(session_id, limit=10)
+            chat_engine.conversation_history = history
+            
+            # 调用聊天引擎
+            reply = chat_engine.chat(content, use_knowledge=True)
+            
+            # 保存对话
+            memory.save_message(session_id, "user", content)
+            memory.save_message(session_id, "assistant", reply)
+            
+            # 返回XML响应
+            response_xml = f"""<xml>
+<ToUserName><![CDATA[{from_user}]]></ToUserName>
+<FromUserName><![CDATA[{WECHAT_CONFIG['corp_id']}]]></FromUserName>
+<CreateTime>{int(time.time())}</CreateTime>
+<MsgType><![CDATA[text]]></MsgType>
+<Content><![CDATA[{reply}]]></Content>
+</xml>"""
+            return PlainTextResponse(content=response_xml)
+        
+        return PlainTextResponse(content="success")
+    except Exception as e:
+        print(f"WeChat error: {e}")
+        return PlainTextResponse(content="success")
 
 # 注册API路由
 app.include_router(api_router)
