@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鸠摩罗什大师</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        header h1 {
+            color: #d4af37;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        header .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        #chat-container {
+            flex: 1;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .message.user {
+            justify-content: flex-end;
+        }
+        .message .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        .message.user .avatar {
+            background: #d4af37;
+            margin-left: 10px;
+        }
+        .message.assistant .avatar {
+            background: #2d4a3e;
+            margin-right: 10px;
+        }
+        .message .content {
+            max-width: 70%;
+            padding: 15px 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+        }
+        .message.user .content {
+            background: #d4af37;
+            color: #1a1a2e;
+            border-bottom-right-radius: 5px;
+        }
+        .message.assistant .content {
+            background: rgba(255,255,255,0.1);
+            color: #eee;
+            border-bottom-left-radius: 5px;
+        }
+        .input-area {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-top: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid rgba(212, 175, 55, 0.5);
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+        #user-input:focus {
+            border-color: #d4af37;
+            background: rgba(255,255,255,0.15);
+        }
+        #user-input::placeholder {
+            color: #888;
+        }
+        #send-btn {
+            padding: 15px 30px;
+            background: #d4af37;
+            color: #1a1a2e;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #send-btn:hover {
+            background: #e5c04b;
+            transform: scale(1.05);
+        }
+        #send-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #mic-btn {
+            padding: 15px;
+            background: #2d4a3e;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #mic-btn:hover {
+            background: #3d5a4e;
+        }
+        #mic-btn.recording {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .message .play-btn {
+            display: inline-block;
+            margin-left: 10px;
+            cursor: pointer;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+        .message .play-btn:hover {
+            opacity: 1;
+        }
+        .typing {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 20px;
+            color: #888;
+        }
+        .typing span {
+            width: 8px;
+            height: 8px;
+            background: #d4af37;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing span:nth-child(1) { animation-delay: 0s; }
+        .typing span:nth-child(2) { animation-delay: 0.2s; }
+        .typing span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🏛️ 鸠摩罗什大师</h1>
+        <div class="subtitle">东晋高僧 · 佛经翻译家</div>
+    </header>
+    
+    <div id="chat-container"></div>
+    
+    <div class="input-area">
+        <div class="input-wrapper">
+            <button id="mic-btn" title="按住说话">🎤</button>
+            <input type="text" id="user-input" placeholder="请输入您的问题，或按住🎤说话..." autocomplete="off">
+            <button id="send-btn">请教</button>
+        </div>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const micBtn = document.getElementById('mic-btn');
+        
+        // 持久化sessionId，不同浏览器/设备是不同的
+        let sessionId = localStorage.getItem('jiumo_session_id');
+        if (!sessionId) {
+            sessionId = 'web_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('jiumo_session_id', sessionId);
+        }
+        
+        // 加载历史记录
+        async function loadHistory() {
+            try {
+                const response = await fetch('/api/history?session_id=' + encodeURIComponent(sessionId) + '&limit=20');
+                const data = await response.json();
+                if (data.history && data.history.length > 0) {
+                    data.history.forEach(msg => {
+                        addMessage(msg.content, msg.role);
+                    });
+                }
+            } catch (e) {
+                console.log('加载历史失败', e);
+            }
+        }
+        
+        // 添加消息
+        function addMessage(content, role) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${role}`;
+            msgDiv.innerHTML = `
+                <div class="avatar">${role === 'assistant' ? '🏛️' : '👤'}</div>
+                <div class="content">${content}</div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 显示加载动画
+        function showTyping() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message assistant';
+            typingDiv.id = 'typing';
+            typingDiv.innerHTML = `
+                <div class="avatar">🏛️</div>
+                <div class="typing">
+                    <span></span><span></span><span></span>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        function hideTyping() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+        
+        // 发送消息
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            userInput.value = '';
+            sendBtn.disabled = true;
+            
+            addMessage(message, 'user');
+            showTyping();
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message, session_id: sessionId})
+                });
+                
+                const data = await response.json();
+                addMessage(data.reply, 'assistant');
+            } catch (error) {
+                hideTyping();
+                addMessage('🙏 抱歉，贫衲今日有些疲惫，请稍后再试。', 'assistant');
+            }
+            
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+        
+        // ========== 语音功能 ==========
+        
+        // 语音识别 (Speech Recognition)
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+        
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.lang = 'zh-CN';
+            
+            recognition.onstart = () => {
+                micBtn.classList.add('recording');
+                userInput.placeholder = '正在听...';
+            };
+            
+            recognition.onend = () => {
+                micBtn.classList.remove('recording');
+                userInput.placeholder = '请输入您的问题，或按住🎤说话...';
+            };
+            
+            recognition.onresult = (event) => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
+                userInput.value = transcript;
+            };
+            
+            // 按住说话
+            let isRecording = false;
+            micBtn.addEventListener('mousedown', () => {
+                if (!isRecording) {
+                    recognition.start();
+                    isRecording = true;
+                }
+            });
+            micBtn.addEventListener('mouseup', () => {
+                if (isRecording) {
+                    recognition.stop();
+                    isRecording = false;
+                }
+            });
+            micBtn.addEventListener('mouseleave', () => {
+                if (isRecording) {
+                    recognition.stop();
+                    isRecording = false;
+                }
+            });
+            // 移动端触摸支持
+            micBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (!isRecording) {
+                    recognition.start();
+                    isRecording = true;
+                }
+            });
+            micBtn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (isRecording) {
+                    recognition.stop();
+                    isRecording = false;
+                }
+            });
+        } else {
+            micBtn.style.display = 'none';
+        }
+        
+        // 语音合成 (Speech Synthesis) - 朗读鸠摩罗什的回复
+        function speakText(text) {
+            if (!window.speechSynthesis) return;
+            
+            // 停止当前朗读
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9;  // 稍慢
+            utterance.pitch = 0.9; // 稍低
+            
+            // 尝试找一个中文语音
+            const voices = window.speechSynthesis.getVoices();
+            const chineseVoice = voices.find(v => v.lang.includes('zh'));
+            if (chineseVoice) {
+                utterance.voice = chineseVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        // 在回复后添加播放按钮
+        const originalAddMessage = addMessage;
+        addMessage = function(content, role) {
+            originalAddMessage(content, role);
+            
+            // 如果是鸠摩罗什的回复，添加播放按钮
+            if (role === 'assistant') {
+                const lastMsg = chatContainer.lastElementChild;
+                const playBtn = document.createElement('span');
+                playBtn.className = 'play-btn';
+                playBtn.textContent = '🔊朗读';
+                playBtn.onclick = () => speakText(content.replace(/<[^>]+>/g, ''));
+                lastMsg.querySelector('.content').appendChild(playBtn);
+            }
+        };
+        
+        // 事件监听
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+        
+        // 欢迎消息或加载历史
+        window.onload = async () => {
+            await loadHistory();
+            // 如果没有历史，显示欢迎消息
+            if (chatContainer.children.length === 0) {
+                addMessage('阿弥陀佛，善哉善哉。施主远道而来，贫衲有礼了。<br><br>有何困惑，尽管道来。', 'assistant');
+            }
+        };
+    </script>
+</body>
+</html>
