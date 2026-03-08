@@ -20,8 +20,8 @@ app = FastAPI(title="鸠摩罗什Bot API", version="1.0.0")
 # 企业微信配置
 WECHAT_CONFIG = {
     "corp_id": os.getenv("WECHAT_CORP_ID", "ww47ae0142fcfd5800"),
-    "token": os.getenv("WECHAT_TOKEN", "zItsL56MLnYjg7Udc"),
-    "encoding_aes_key": os.getenv("WECHAT_ENCODING_AES_KEY", "4DkenCDax4XF8rAF5MBPVZknAH6giHnUmUp38JfLsXe"),
+    "token": os.getenv("WECHAT_TOKEN", "Sj5eiUTyKeE5e"),
+    "encoding_aes_key": os.getenv("WECHAT_ENCODING_AES_KEY", "kE5sXAI1f74kjbpfpl0PytYNMYcnOW9Blik9lYDBtcX"),
     "agent_id": os.getenv("WECHAT_AGENT_ID", "1000004"),
 }
 
