@@ -1,5 +1,5 @@
 """
-鸠摩罗什Bot API 接口
+鸠摩罗什Bot API 接口 (Agent版)
 """
 import os
 import hashlib
@@ -12,10 +12,13 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from pathlib import Path
 
-from app.core.chat_engine import chat_engine
+# 导入 Agent (新版本)
+from app.agents import create_jiumo_agent
+
+# 导入记忆模块
 from app.memory import memory
 
-app = FastAPI(title="鸠摩罗什Bot API", version="1.0.0")
+app = FastAPI(title="鸠摩罗什Bot API", version="2.0.0")
 
 # 企业微信配置
 WECHAT_CONFIG = {
@@ -27,6 +30,16 @@ WECHAT_CONFIG = {
 
 # 获取项目根目录
 ROOT_DIR = Path(__file__).parent.parent.parent
+
+# 初始化 Agent
+jiumo_agent = None
+
+def get_agent():
+    """获取 Agent 实例"""
+    global jiumo_agent
+    if jiumo_agent is None:
+        jiumo_agent = create_jiumo_agent()
+    return jiumo_agent
 
 # 根路径返回前端页面
 @app.get("/")
@@ -50,21 +63,34 @@ class ChatResponse(BaseModel):
 
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    """对话接口"""
+    """对话接口 (Agent模式)"""
     try:
+        agent = get_agent()
+        
+        # 加载会话历史
         history = memory.get_history(request.session_id, limit=10)
-        chat_engine.conversation_history = history
-        reply = chat_engine.chat(request.message, use_knowledge=request.use_knowledge)
+        agent.conversation_history = history
+        
+        # 调用 Agent
+        reply = agent.chat(request.message, session_id=request.session_id)
+        
+        # 保存对话
         memory.save_message(request.session_id, "user", request.message)
         memory.save_message(request.session_id, "assistant", reply)
+        
         return ChatResponse(reply=reply, session_id=request.session_id)
     except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        print(f"Chat error: {e}\n{error_detail}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/clear")
 async def clear_session(session_id: str = "default"):
     """清空会话"""
     memory.clear(session_id)
+    agent = get_agent()
+    agent.clear_history()
     return {"status": "ok", "message": "会话已清空"}
 
 @api_router.get("/history")
@@ -89,7 +115,18 @@ async def update_profile(session_id: str = "default", key: str = None, value: st
 @api_router.get("/health")
 async def health():
     """健康检查"""
-    return {"status": "healthy", "name": "鸠摩罗什Bot"}
+    return {"status": "healthy", "name": "鸠摩罗什Bot Agent", "version": "2.0.0"}
+
+@api_router.get("/tools")
+async def list_tools():
+    """列出可用工具"""
+    agent = get_agent()
+    return {
+        "tools": [
+            {"name": t.name, "description": t.description}
+            for t in agent.tools
+        ]
+    }
 
 # ========== 企业微信回调接口 ==========
 def verify_wechat_signature(token: str, timestamp: str, nonce: str, echostr: str = "") -> str:
@@ -107,17 +144,7 @@ async def wechat_verify(
 ):
     """企业微信验证回调 - 用于首次配置验证"""
     if echostr:
-        # 验证签名
-        expected_sig = verify_wechat_signature(
-            WECHAT_CONFIG["token"], 
-            timestamp, 
-            nonce, 
-            echostr
-        )
-        # 企业微信会验证签名，这里简化处理直接返回echostr
-        # 如果需要严格验证可以比较 msg_signature 和 expected_sig
         return PlainTextResponse(content=echostr)
-    
     return PlainTextResponse(content="success")
 
 @app.post("/api/wechat")
@@ -135,15 +162,15 @@ async def wechat_message(request: Request, msg_signature: str = Query(""), times
         
         # 生成回复
         if msg_type == "text":
-            # 使用会话ID作为用户标识
             session_id = f"wechat_{from_user}"
             
             # 获取对话历史
+            agent = get_agent()
             history = memory.get_history(session_id, limit=10)
-            chat_engine.conversation_history = history
+            agent.conversation_history = history
             
-            # 调用聊天引擎
-            reply = chat_engine.chat(content, use_knowledge=True)
+            # 调用 Agent
+            reply = agent.chat(content, session_id=session_id)
             
             # 保存对话
             memory.save_message(session_id, "user", content)
