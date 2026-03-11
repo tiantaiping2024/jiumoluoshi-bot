@@ -190,6 +190,127 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* ===== 拨打电话模式 ===== */
+        #call-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        #call-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.6);
+        }
+        
+        /* 通话中遮罩层 */
+        #call-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            z-index: 1000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        #call-overlay.active {
+            display: flex;
+        }
+        .call-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #2d4a3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            margin-bottom: 30px;
+            animation: avatarPulse 2s infinite;
+        }
+        @keyframes avatarPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); }
+            50% { box-shadow: 0 0 0 20px rgba(212, 175, 55, 0); }
+        }
+        .call-status {
+            color: #d4af37;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .call-status.listening {
+            color: #e74c3c;
+        }
+        .call-status.speaking {
+            color: #2ecc71;
+        }
+        .wave-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 60px;
+            margin-bottom: 40px;
+        }
+        .wave-bar {
+            width: 6px;
+            height: 20px;
+            background: #d4af37;
+            border-radius: 3px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.5s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.6s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.7s; }
+        @keyframes wave {
+            0%, 100% { height: 20px; }
+            50% { height: 50px; }
+        }
+        .wave-container.hidden .wave-bar {
+            animation: none;
+            height: 20px;
+            opacity: 0.3;
+        }
+        #end-call-btn {
+            padding: 15px 50px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #end-call-btn:hover {
+            background: #c0392b;
+            transform: scale(1.05);
+        }
+        .call-transcript {
+            position: absolute;
+            bottom: 150px;
+            color: #888;
+            font-size: 1rem;
+            text-align: center;
+            max-width: 80%;
+        }
     </style>
 </head>
 <body>
@@ -206,6 +327,27 @@
             <input type="text" id="user-input" placeholder="请输入您的问题，或按住🎤说话..." autocomplete="off">
             <button id="send-btn">请教</button>
         </div>
+    </div>
+
+    <!-- 拨打电话按钮 -->
+    <button id="call-btn" title="拨打电话">📞</button>
+    
+    <!-- 通话中遮罩层 -->
+    <div id="call-overlay">
+        <div class="call-avatar">🏛️</div>
+        <div class="call-status" id="call-status">正在连接...</div>
+        <div class="wave-container" id="wave-container">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+        </div>
+        <div class="call-transcript" id="call-transcript"></div>
+        <button id="end-call-btn">结束通话</button>
     </div>
 
     <script>
@@ -425,6 +567,294 @@
         userInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
+        
+        // ========== 拨打电话功能 ==========
+        const callBtn = document.getElementById('call-btn');
+        const callOverlay = document.getElementById('call-overlay');
+        const callStatus = document.getElementById('call-status');
+        const waveContainer = document.getElementById('wave-container');
+        const callTranscript = document.getElementById('call-transcript');
+        const endCallBtn = document.getElementById('end-call-btn');
+        
+        let isInCall = false;
+        let callRecognition = null;
+        let isListening = false;
+        let isSpeaking = false;
+        let silenceTimer = null;
+        
+        // 初始化通话语音识别
+        function initCallRecognition() {
+            if (!SpeechRecognition) {
+                alert('您的浏览器不支持语音识别功能');
+                return false;
+            }
+            
+            callRecognition = new SpeechRecognition();
+            callRecognition.continuous = true;  // 持续识别
+            callRecognition.interimResults = true;
+            callRecognition.lang = 'zh-CN';
+            callRecognition.maxAlternatives = 1;
+            
+            // 开始监听
+            callRecognition.onstart = () => {
+                isListening = true;
+                updateCallUI('listening');
+            };
+            
+            // 识别结果
+            callRecognition.onresult = (event) => {
+                let transcript = '';
+                let isFinal = false;
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        isFinal = true;
+                    }
+                }
+                
+                if (transcript.trim()) {
+                    callTranscript.textContent = transcript;
+                    resetSilenceTimer();
+                    
+                    if (isFinal && transcript.trim().length > 2) {
+                        // 用户说完一句话，处理发送
+                        clearTimeout(silenceTimer);
+                        handleUserSpeech(transcript.trim());
+                    }
+                }
+            };
+            
+            // 识别结束（自动重新开始）
+            callRecognition.onend = () => {
+                if (isInCall && !isSpeaking) {
+                    // 如果通话中且没有在说话，重新开始监听
+                    try {
+                        callRecognition.start();
+                    } catch(e) {
+                        console.log('重新启动识别失败', e);
+                    }
+                }
+            };
+            
+            callRecognition.onerror = (event) => {
+                console.log('识别错误:', event.error);
+                if (event.error === 'no-speech') {
+                    // 没有语音输入，重新开始监听
+                } else if (isInCall) {
+                    // 其他错误，重试
+                    setTimeout(() => {
+                        if (isInCall && !isSpeaking) {
+                            try { callRecognition.start(); } catch(e) {}
+                        }
+                    }, 1000);
+                }
+            };
+            
+            return true;
+        }
+        
+        // 重置静音计时器
+        function resetSilenceTimer() {
+            clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(() => {
+                // 用户停止说话一段时间后，发送当前输入
+                const text = callTranscript.textContent.trim();
+                if (text && text.length > 2) {
+                    handleUserSpeech(text);
+                }
+            }, 1500);  // 1.5秒静音后发送
+        }
+        
+        // 处理用户语音输入
+        async function handleUserSpeech(text) {
+            if (!text || isSpeaking) return;
+            
+            // 👏 中途打断：用户开始说话，立即停止当前AI语音
+            if (window.speechSynthesis && isSpeaking) {
+                window.speechSynthesis.cancel();
+                isSpeaking = false;
+            }
+            
+            // 停止识别
+            try { callRecognition.stop(); } catch(e) {}
+            isListening = false;
+            
+            // 显示用户说的话
+            addMessage(text, 'user');
+            callTranscript.textContent = '';
+            
+            // 等待鸠摩罗什回复
+            showTyping();
+            updateCallUI('thinking');
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: text, session_id: sessionId})
+                });
+                
+                const data = await response.json();
+                hideTyping();
+                
+                // 显示鸠摩罗什的回复
+                addMessage(data.reply, 'assistant');
+                
+                // 自动语音播放
+                await speakAndWait(data.reply);
+                
+                // 播放完毕，继续监听
+                if (isInCall) {
+                    updateCallUI('listening');
+                    try { callRecognition.start(); } catch(e) {}
+                }
+            } catch (error) {
+                hideTyping();
+                addMessage('🙏 抱歉，贫衲今日有些疲惫，请稍后再试。', 'assistant');
+                if (isInCall) {
+                    setTimeout(() => {
+                        try { callRecognition.start(); } catch(e) {}
+                    }, 1000);
+                }
+            }
+        }
+        
+        // 语音播放并等待完成
+        function speakAndWait(text) {
+            return new Promise((resolve) => {
+                if (!window.speechSynthesis) {
+                    setTimeout(resolve, 1000);
+                    return;
+                }
+                
+                isSpeaking = true;
+                updateCallUI('speaking');
+                
+                // 停止当前任何语音
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-CN';
+                utterance.rate = 0.8;
+                utterance.pitch = 0.6;
+                
+                // 选择低沉的中文男声
+                if (chineseVoices.length > 0) {
+                    utterance.voice = chineseVoices.find(v => 
+                        v.name.toLowerCase().includes('male') || 
+                        v.name.toLowerCase().includes('国') ||
+                        v.name.toLowerCase().includes('普通')
+                    ) || chineseVoices[0];
+                }
+                
+                utterance.onstart = () => {
+                    // 可以在这里显示"正在说话"
+                };
+                
+                utterance.onend = () => {
+                    isSpeaking = false;
+                    resolve();
+                };
+                
+                utterance.onerror = (e) => {
+                    console.log('语音播放错误', e);
+                    isSpeaking = false;
+                    resolve();
+                };
+                
+                window.speechSynthesis.speak(utterance);
+            });
+        }
+        
+        // 更新通话UI状态
+        function updateCallUI(status) {
+            waveContainer.classList.remove('hidden');
+            
+            switch(status) {
+                case 'listening':
+                    callStatus.textContent = '正在倾听...';
+                    callStatus.className = 'call-status listening';
+                    break;
+                case 'thinking':
+                    callStatus.textContent = '贫衲正在思考...';
+                    callStatus.className = 'call-status';
+                    break;
+                case 'speaking':
+                    callStatus.textContent = '鸠摩罗什正在讲话...';
+                    callStatus.className = 'call-status speaking';
+                    break;
+                default:
+                    callStatus.textContent = status;
+            }
+        }
+        
+        // 开始通话
+        async function startCall() {
+            if (isInCall) return;
+            
+            // 检查浏览器支持
+            if (!SpeechRecognition) {
+                alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器');
+                return;
+            }
+            
+            isInCall = true;
+            callOverlay.classList.add('active');
+            callStatus.textContent = '正在连接...';
+            callTranscript.textContent = '';
+            
+            // 初始化识别器
+            if (!initCallRecognition()) {
+                endCall();
+                return;
+            }
+            
+            // 开始识别
+            try {
+                callRecognition.start();
+            } catch(e) {
+                console.log('启动识别失败', e);
+                // 尝试重试
+                setTimeout(() => {
+                    try { callRecognition.start(); } catch(e2) {
+                        alert('无法启动语音识别，请检查麦克风权限');
+                        endCall();
+                    }
+                }, 500);
+            }
+        }
+        
+        // 结束通话
+        function endCall() {
+            isInCall = false;
+            
+            // 停止识别
+            if (callRecognition) {
+                try { callRecognition.stop(); } catch(e) {}
+            }
+            isListening = false;
+            clearTimeout(silenceTimer);
+            
+            // 停止语音
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            isSpeaking = false;
+            
+            // 隐藏遮罩
+            callOverlay.classList.remove('active');
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 通话按钮事件
+        callBtn.addEventListener('click', startCall);
+        endCallBtn.addEventListener('click', endCall);
+        
+        // 中途打断：用户开始说话时停止AI语音
+        // 注意：这个功能通过 resetSilenceTimer 中检测到新输入时处理
         
         // 欢迎消息或加载历史
         window.onload = async () => {
