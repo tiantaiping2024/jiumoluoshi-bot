@@ -12,6 +12,9 @@ COPY web/ ./web/
 COPY soul.md .
 COPY config/ ./config/
 
+# 设置环境变量
+ENV DEEPSEEK_API_KEY=sk-b2bc78855f1b4b21978532f879bc718f
+
 # 创建数据目录
 RUN mkdir -p data/memories
 

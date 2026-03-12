@@ -6,11 +6,14 @@ import hashlib
 import time
 import xml.etree.ElementTree as ET
 from fastapi import FastAPI, HTTPException, Request, Query
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 from pydantic import BaseModel
 from pathlib import Path
+
+# 导入 TTS
+from app.tools.tts import synthesize_speech_base64, synthesize_speech_wav_base64
 
 # 导入 Agent (新版本)
 from app.agents import create_jiumo_agent
@@ -117,6 +120,26 @@ async def health():
     """健康检查"""
     return {"status": "healthy", "name": "鸠摩罗什Bot Agent", "version": "2.0.0"}
 
+@api_router.get("/tts/voices")
+async def get_voices():
+    """获取可用的语音列表"""
+    return {"voices": [
+        {"id": "default", "name": "ChatTTS 默认", "description": "抑扬顿挫的对话语音"}
+    ]}
+
+@api_router.post("/tts/speak")
+async def tts_speak(request: ChatRequest):
+    """语音合成接口 - 使用 ChatTTS"""
+    try:
+        audio_base64 = synthesize_speech_wav_base64(request.message)
+        return {
+            "audio": audio_base64,
+            "format": "wav"
+        }
+    except Exception as e:
+        import traceback
+        return {"error": str(e) + "\n" + traceback.format_exc(), "audio": None}
+
 @api_router.get("/tools")
 async def list_tools():
     """列出可用工具"""
@@ -196,4 +219,5 @@ app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)

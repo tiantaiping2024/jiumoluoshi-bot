@@ -557,10 +557,46 @@
                 const playBtn = document.createElement('span');
                 playBtn.className = 'play-btn';
                 playBtn.textContent = '🔊朗读';
-                playBtn.onclick = () => speakText(content.replace(/<[^>]+>/g, ''));
+                playBtn.onclick = () => playAudioFromServer(content.replace(/<[^>]+>/g, ''));
                 lastMsg.querySelector('.content').appendChild(playBtn);
             }
         };
+        
+        // 从服务器获取语音并播放
+        async function playAudioFromServer(text) {
+            try {
+                const response = await fetch('/api/tts/speak', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({message: text, session_id: sessionId})
+                });
+                
+                const data = await response.json();
+                
+                if (data.audio) {
+                    // 解码 Base64 音频
+                    const audioBytes = atob(data.audio);
+                    const audioArray = new Uint8Array(audioBytes.length);
+                    for (let i = 0; i < audioBytes.length; i++) {
+                        audioArray[i] = audioBytes.charCodeAt(i);
+                    }
+                    
+                    // 根据格式创建 Blob
+                    const audioBlob = new Blob([audioArray], {type: data.format === 'wav' ? 'audio/wav' : 'audio/mp3'});
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                } else if (data.error) {
+                    // 回退到浏览器语音
+                    console.log('TTS 未配置，回退到浏览器语音');
+                    speakText(text);
+                }
+            } catch (e) {
+                console.error('TTS 播放失败', e);
+                // 回退到浏览器语音
+                speakText(text);
+            }
+        }
         
         // 事件监听
         sendBtn.addEventListener('click', sendMessage);
@@ -720,50 +756,63 @@
             }
         }
         
-        // 语音播放并等待完成
-        function speakAndWait(text) {
-            return new Promise((resolve) => {
-                if (!window.speechSynthesis) {
-                    setTimeout(resolve, 1000);
-                    return;
-                }
-                
+        // 语音播放并等待完成 - 使用服务器 TTS
+        async function speakAndWait(text) {
+            return new Promise(async (resolve) => {
                 isSpeaking = true;
                 updateCallUI('speaking');
                 
-                // 停止当前任何语音
-                window.speechSynthesis.cancel();
-                
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'zh-CN';
-                utterance.rate = 0.8;
-                utterance.pitch = 0.6;
-                
-                // 选择低沉的中文男声
-                if (chineseVoices.length > 0) {
-                    utterance.voice = chineseVoices.find(v => 
-                        v.name.toLowerCase().includes('male') || 
-                        v.name.toLowerCase().includes('国') ||
-                        v.name.toLowerCase().includes('普通')
-                    ) || chineseVoices[0];
+                try {
+                    const response = await fetch('/api/tts/speak', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({message: text, session_id: sessionId})
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.audio) {
+                        // 解码 Base64 音频
+                        const audioBytes = atob(data.audio);
+                        const audioArray = new Uint8Array(audioBytes.length);
+                        for (let i = 0; i < audioBytes.length; i++) {
+                            audioArray[i] = audioBytes.charCodeAt(i);
+                        }
+                        
+                        // 根据格式创建 Blob 并播放
+                        const audioBlob = new Blob([audioArray], {type: data.format === 'wav' ? 'audio/wav' : 'audio/mp3'});
+                        const audioUrl = URL.createObjectURL(audioBlob);
+                        const audio = new Audio(audioUrl);
+                        
+                        audio.onended = () => {
+                            isSpeaking = false;
+                            resolve();
+                        };
+                        
+                        audio.onerror = (e) => {
+                            console.log('音频播放错误', e);
+                            isSpeaking = false;
+                            resolve();
+                        };
+                        
+                        audio.play();
+                    } else {
+                        // 回退到浏览器语音
+                        console.log('TTS 未配置，回退到浏览器语音');
+                        window.speechSynthesis.cancel();
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'zh-CN';
+                        utterance.rate = 0.8;
+                        utterance.pitch = 0.6;
+                        utterance.onend = () => { isSpeaking = false; resolve(); };
+                        utterance.onerror = () => { isSpeaking = false; resolve(); };
+                        window.speechSynthesis.speak(utterance);
+                    }
+                } catch (e) {
+                    console.error('TTS 请求失败', e);
+                    isSpeaking = false;
+                    resolve();
                 }
-                
-                utterance.onstart = () => {
-                    // 可以在这里显示"正在说话"
-                };
-                
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    resolve();
-                };
-                
-                utterance.onerror = (e) => {
-                    console.log('语音播放错误', e);
-                    isSpeaking = false;
-                    resolve();
-                };
-                
-                window.speechSynthesis.speak(utterance);
             });
         }
         

@@ -7,13 +7,14 @@
   "deploy": {
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "restartPolicyMaxRetries": 10,
+    "port": 8000
   },
   "env": {
     "DEEPSEEK_API_KEY": {
       "description": "DeepSeek API Key",
       "required": true,
-      "value": ""
+      "value": "sk-b2bc78855f1b4b21978532f879bc718f"
     },
     "WECHAT_CORP_ID": {
       "description": "企业微信CorpID",
