@@ -621,7 +621,7 @@
         // Deepgram 录音相关
         let mediaRecorder = null;
         let audioChunks = [];
-        let useDeepgram = true;  // 使用 Deepgram
+        let useDeepgram = false;  // 暂时禁用 Deepgram，使用浏览器识别
         
         // 检查 STT 配置
         async function checkSTTConfig() {
@@ -717,6 +717,7 @@
         }
         
         // 初始化通话语音识别（根据配置选择）
+        // 优先使用浏览器识别，Deepgram 作为备用
         function initCallRecognition() {
             if (!SpeechRecognition) {
                 alert('您的浏览器不支持语音识别功能');
