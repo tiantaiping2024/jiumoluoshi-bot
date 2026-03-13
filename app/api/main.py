@@ -17,9 +17,12 @@ from pathlib import Path
 # 导入 Agent (新版本) - 延迟导入
 try:
     from app.agents import create_jiumo_agent
+    print("Agent module imported successfully")
     AGENT_AVAILABLE = True
 except Exception as e:
     print(f"Agent import error: {e}")
+    import traceback
+    traceback.print_exc()
     AGENT_AVAILABLE = False
     create_jiumo_agent = None
 
@@ -45,13 +48,19 @@ jiumo_agent = None
 def get_agent():
     """获取 Agent 实例"""
     global jiumo_agent
+    print(f"get_agent called, AGENT_AVAILABLE={AGENT_AVAILABLE}, create_jiumo_agent={create_jiumo_agent}")
     if not AGENT_AVAILABLE or create_jiumo_agent is None:
+        print("Agent not available, returning None")
         return None
     if jiumo_agent is None:
         try:
+            print("Creating new agent instance...")
             jiumo_agent = create_jiumo_agent()
+            print(f"Agent created: {jiumo_agent}")
         except Exception as e:
             print(f"Create agent error: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     return jiumo_agent
 
