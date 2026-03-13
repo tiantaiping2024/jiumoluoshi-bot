@@ -732,17 +732,20 @@
             
             // 开始监听
             callRecognition.onstart = () => {
+                console.log('浏览器识别已启动');
                 isListening = true;
                 updateCallUI('listening');
             };
             
             // 识别结果
             callRecognition.onresult = (event) => {
+                console.log('收到识别结果事件');
                 let transcript = '';
                 let isFinal = false;
                 
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     transcript += event.results[i][0].transcript;
+                    console.log('识别到文字:', event.results[i][0].transcript);
                     if (event.results[i].isFinal) {
                         isFinal = true;
                     }
