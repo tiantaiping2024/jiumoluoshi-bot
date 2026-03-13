@@ -85,6 +85,15 @@ class ChatResponse(BaseModel):
     reply: str
     session_id: str
 
+@api_router.get("/debug/env")
+async def debug_env():
+    """调试：查看环境变量"""
+    import os
+    return {
+        "DEEPSEEK_API_KEY": os.getenv("DEEPSEEK_API_KEY", "NOT FOUND")[:20] if os.getenv("DEEPSEEK_API_KEY") else "NOT FOUND",
+        "DEEPGRAM_API_KEY": os.getenv("DEEPGRAM_API_KEY", "NOT FOUND")[:20] if os.getenv("DEEPGRAM_API_KEY") else "NOT FOUND",
+    }
+
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """对话接口 (Agent模式)"""
