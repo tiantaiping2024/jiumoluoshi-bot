@@ -89,23 +89,22 @@ class ChatResponse(BaseModel):
 async def chat(request: ChatRequest):
     """对话接口 (Agent模式)"""
     try:
-        # 调试信息
-        debug_info = f"[AGENT_AVAILABLE={AGENT_AVAILABLE}, create_jiumo_agent={create_jiumo_agent}]"
+        import os
+        api_key = os.getenv("DEEPSEEK_API_KEY", "")
         
-        # 如果 Agent 不可用，使用简单响应
-        if not AGENT_AVAILABLE or create_jiumo_agent is None:
-            reply = f"Agent未加载 {debug_info}。施主所说：{request.message}。贫衲已记下。"
+        if not api_key:
+            reply = "API Key 未配置"
         else:
-            agent = get_agent()
-            if agent is None:
-                reply = f"Agent创建失败 {debug_info}。施主所说：{request.message}。贫衲已记下。"
-            else:
-                # 加载会话历史
-                history = memory.get_history(request.session_id, limit=10)
-                agent.conversation_history = history
-                
-                # 调用 Agent
-                reply = agent.chat(request.message, session_id=request.session_id)
+            # 直接创建 Agent
+            from app.agents.jiumo_agent import JiumoAgent
+            agent = JiumoAgent()
+            
+            # 加载会话历史
+            history = memory.get_history(request.session_id, limit=10)
+            agent.conversation_history = history
+            
+            # 调用 Agent
+            reply = agent.chat(request.message, session_id=request.session_id)
         
         # 保存对话
         memory.save_message(request.session_id, "user", request.message)
