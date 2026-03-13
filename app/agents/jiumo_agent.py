@@ -8,10 +8,10 @@ from pathlib import Path
 from typing import Optional, List, Dict, Any
 import openai
 
-# 优先使用系统环境变量
+# 优先使用系统环境变量（Railway 会设置这个）
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
-# 如果没有，尝试加载 config/.env
-if not DEEPSEEK_API_KEY:
+# 如果环境变量没有，尝试从 config/.env 加载
+if not DEEPSEEK_API_KEY or DEEPSEEK_API_KEY == "your-deepseek-api-key-here":
     from dotenv import load_dotenv
     load_dotenv(Path(__file__).parent.parent.parent / "config" / ".env")
     DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
