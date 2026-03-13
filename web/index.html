@@ -628,7 +628,9 @@
             try {
                 const response = await fetch('/api/stt/status');
                 const data = await response.json();
-                useDeepgram = data.deepgram_configured;
+                // 暂时不使用 Deepgram，使用浏览器识别
+                // useDeepgram = data.deepgram_configured;
+                useDeepgram = false;
                 console.log('STT 配置:', data);
             } catch(e) {
                 console.log('获取 STT 配置失败，使用浏览器识别');
