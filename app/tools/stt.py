@@ -15,9 +15,12 @@ def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
         return ""
     
     try:
+        # 检测音频格式
+        content_type = "audio/webm" if audio_data[:4] == b'\x1aE' else "audio/wav"
+        
         headers = {
             "Authorization": f"Token {DEEPGRAM_API_KEY}",
-            "Content-Type": "audio/wav"
+            "Content-Type": content_type
         }
         
         params = {
