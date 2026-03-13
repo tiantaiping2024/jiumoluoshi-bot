@@ -649,7 +649,9 @@
                     }
                 }
                 
-                if (transcript.trim() && !isSpeaking) {  // Bot 说话时不处理识别结果
+                // 只有在 Bot 不在说话时，才处理麦克风输入
+                // 这样 Bot 说的话不会被误识别
+                if (transcript.trim() && !isSpeaking) {
                     callTranscript.textContent = transcript;
                     resetSilenceTimer();
                     
@@ -658,6 +660,9 @@
                         clearTimeout(silenceTimer);
                         handleUserSpeech(transcript.trim());
                     }
+                } else if (isSpeaking) {
+                    // Bot 正在说话，静音处理，不显示
+                    console.log('Bot说话中，忽略麦克风输入');
                 }
             };
             

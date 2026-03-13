@@ -5,26 +5,13 @@ uvicorn>=0.23.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 
-# ChatTTS - 开源对话语音
-ChatTTS>=0.1
-torch>=2.1.0
-numpy>=1.24.0
+# Edge TTS - 微软免费语音合成（替代 ChatTTS）
+edge-tts>=6.1.0
+pydub>=0.25.0
 
-# LangChain Agent
+# LangChain Agent（可选）
 langchain>=0.3.0
 langchain-core>=0.3.0
-langchain-deepseek>=0.2.0
-langchain-community>=0.3.0
-langgraph>=0.2.0
-
-# RAG 向量存储
-langchain-chroma>=0.1.0
-chromadb>=0.5.0
-langchain-text-splitters>=0.3.0
 
 # 工具
-tavily>=0.3.0
 requests>=2.31.0
-
-# MCP 支持
-mcp>=1.0.0

@@ -1,138 +1,99 @@
 """
-ChatTTS 语音合成模块
-支持抑扬顿挫、情感停顿、对话语音 - 鸠摩罗什高僧音色
+Edge TTS 语音合成模块 - 鸠摩罗什高僧苍老声音
+使用微软免费 Edge TTS 服务
 """
+import asyncio
 import io
-import torch
-import ChatTTS
-import numpy as np
+import wave
+import json
 from base64 import b64encode
-import random
+import edge_tts
+from edge_tts import Communicate
 
 
-# 全局模型实例
-_chat_tts = None
-_ref_audio = None
+# 可用的中文男声（苍老/低沉）
+VOICES = {
+    # 苍老男声推荐
+    "zh-CN-YunxiNeural": "云希 - 青年男声",
+    "zh-CN-YunyangNeural": "云扬 - 标准男声", 
+    "zh-CN-XiaoxiaoNeural": "晓晓 - 女声",
+    "zh-CN-XiaoyiNeural": "晓伊 - 女声",
+    # 其他可选
+    "zh-HK-HiuGaaiNeural": "香港女声",
+    "zh-TW-HsiaoChenNeural": "台湾女声",
+}
+
+# 选择苍老声音：Yunxi 比较接近，但 edge-tts 没有真正的老年声音
+# 可以通过调整语速和音调来模拟
+DEFAULT_VOICE = "zh-CN-YunxiNeural"
 
 
-def get_chat_tts():
-    """获取 ChatTTS 模型实例"""
-    global _chat_tts, _ref_audio
-    
-    if _chat_tts is None:
-        # 加载模型
-        _chat_tts = ChatTTS.InferProcess()
-        
-        # 加载模型 - 使用较轻量的配置
-        _chat_tts.load(compile=False, source="custom")
-        
-        # 尝试加载参考音频来控制音色（如果有的话）
-        #ChatTTS 示例中可以通过 ref_audio 控制音色
-        
-    return _chat_tts
-
-
-def synthesize_speech(text: str, speed: float = 0.8) -> bytes:
+async def synthesize_speech_async(text: str, voice: str = DEFAULT_VOICE, rate: str = "-10%", pitch: str = "-10Hz") -> bytes:
     """
-    合成语音，返回 MP3 音频数据
+    异步合成语音
     
     Args:
         text: 要转换的文本
-        speed: 语速，0.6-1.0 之间，较慢更像高僧讲话
+        voice: 语音名称
+        rate: 语速调整，如 "-10%" 表示减慢10%
+        pitch: 音调调整，如 "-10Hz" 表示降低10Hz
     
     Returns:
-        MP3 音频数据
+        WAV 音频数据
     """
-    chat = get_chat_tts()
+    # 调整参数让声音更低沉、缓慢（像高僧）
+    communicate = Communicate(text, voice, rate=rate, pitch=pitch)
     
-    # 准备文本 - 添加停顿标记增强情感
-    texts = [text]
+    # 收集音频数据
+    audio_data = b""
+    async for chunk in communicate.stream():
+        if chunk["type"] == "audio":
+            audio_data += chunk["data"]
     
-    # 生成参数 - 调整参数让声音更低沉、更有情感
-    params_infer_code = {
-        'temperature': 0.3,       # 温度
-        'top_P': 0.8,            # 采样参数
-        'top_K': 40,             # K值采样
-        'prompt': '[oral_2][laugh_0][breathe_1]',  # 添加情感
-    }
-    
-    # 语速控制 - 更慢
-    params_refine_text = {
-        'prompt': f'[speed={speed}]',  # 控制语速
-    }
-    
-    # 推理
-    wavs = chat.infer(
-        texts,
-        params_refine_text=params_refine_text,
-        params_infer_code=params_infer_code,
-    )
-    
-    # 转换 numpy 为音频
-    wav = wavs[0].astype(np.float32)
-    
-    # 归一化
-    if wav.max() > 1:
-        wav = wav / np.abs(wav).max()
-    
-    # 转为 int16
-    wav = (wav * 32767).astype(np.int16)
-    
-    # 转为字节
-    return wav.tobytes()
-
-
-def synthesize_speech_base64(text: str) -> str:
-    """
-    合成语音，返回 Base64 编码（用于前端播放）
-    """
-    audio_data = synthesize_speech(text)
-    return b64encode(audio_data).decode('utf-8')
+    return audio_data
 
 
 def synthesize_speech_wav_base64(text: str) -> str:
     """
-    合成语音，返回 WAV 格式 Base64（更高质量）- 鸠摩罗什高僧苍老声音
+    合成语音，返回 WAV 格式 Base64 - 鸠摩罗什苍老僧人声音
     """
-    import wave
+    # 使用云希声音，调整参数使其更低沉缓慢
+    # rate: -15% 较慢，pitch: -10Hz 较低
+    audio_data = asyncio.run(synthesize_speech_async(
+        text, 
+        voice="zh-CN-YunxiNeural",
+        rate="-15%",      # 较慢，像高僧讲话
+        pitch="-10Hz"     # 较低沉
+    ))
     
-    chat = get_chat_tts()
-    texts = [text]
+    # 如果是 MP3，转为 WAV
+    # edge-tts 返回的是 MP3，需要转换
+    from pydub import AudioSegment
     
-    # 苍老声音参数调优
-    params_infer_code = {
-        'temperature': 0.2,        # 较低温度，更稳定
-        'top_P': 0.75,
-        'top_K': 30,
-        # 情感参数：更低的音调、更多的呼吸声
-        'prompt': '[oral_2][laugh_0][breathe_2]',  
-    }
+    audio_file = io.BytesIO(audio_data)
+    try:
+        sound = AudioSegment.from_file(audio_file, format="mp3")
+        
+        # 转为 WAV 格式
+        wav_buffer = io.BytesIO()
+        sound.export(wav_buffer, format="wav")
+        wav_data = wav_buffer.getvalue()
+    except Exception as e:
+        # 如果转换失败，直接返回原始数据
+        print(f"音频转换错误: {e}")
+        wav_data = audio_data
     
-    # 语速较慢，模仿老年人的节奏
-    params_refine_text = {
-        'prompt': '[speed=0.75]',  # 较慢的语速
-    }
-    
-    wavs = chat.infer(
-        texts,
-        params_refine_text=params_refine_text,
-        params_infer_code=params_infer_code,
-    )
-    
-    wav = wavs[0].astype(np.float32)
-    
-    # 降低音调（简单的处理）
-    # 注意：ChatTTS 本身不支持变调，这里是音量归一化
-    if wav.max() > 1:
-        wav = wav / np.abs(wav).max()
-    wav = (wav * 32767).astype(np.int16)
-    
-    # 转为 WAV
-    buffer = io.BytesIO()
-    with wave.open(buffer, 'wb') as f:
-        f.setnchannels(1)  # 单声道
-        f.setsampwidth(2)  # 16-bit
-        f.setframerate(24000)  # 24kHz
-        f.writeframes(wav.tobytes())
-    
-    return b64encode(buffer.getvalue()).decode('utf-8')
+    return b64encode(wav_data).decode('utf-8')
+
+
+def synthesize_speech_base64(text: str) -> str:
+    """兼容旧接口"""
+    return synthesize_speech_wav_base64(text)
+
+
+# 测试
+if __name__ == "__main__":
+    import sys
+    text = sys.argv[1] if len(sys.argv) > 1 else "阿弥陀佛，施主你好贫衲是鸠摩罗什"
+    result = synthesize_speech_wav_base64(text)
+    print(f"Generated {len(result)} chars base64")
