@@ -5,13 +5,8 @@ uvicorn>=0.23.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 
-# Edge TTS - 微软免费语音合成（替代 ChatTTS）
+# Edge TTS - 微软免费语音合成
 edge-tts>=6.1.0
-pydub>=0.25.0
-
-# LangChain Agent（可选）
-langchain>=0.3.0
-langchain-core>=0.3.0
 
 # 工具
 requests>=2.31.0
