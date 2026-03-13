@@ -101,6 +101,10 @@ async def chat(request: ChatRequest):
         import os
         api_key = os.getenv("DEEPSEEK_API_KEY", "")
         
+        # 硬编码测试 key
+        if not api_key or api_key == "sk-your-key-here":
+            api_key = "sk-b2bc78855f1b4b21978532f879bc718f"
+        
         if not api_key:
             reply = "API Key 未配置"
         else:
