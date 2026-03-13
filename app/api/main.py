@@ -48,21 +48,16 @@ jiumo_agent = None
 def get_agent():
     """获取 Agent 实例"""
     global jiumo_agent
-    print(f"get_agent called, AGENT_AVAILABLE={AGENT_AVAILABLE}, create_jiumo_agent={create_jiumo_agent}")
+    import os
+    api_key = os.getenv("DEEPSEEK_API_KEY", "")
+    print(f"get_agent: AGENT_AVAILABLE={AGENT_AVAILABLE}, api_key={'已设置' if api_key else '未设置'}")
+    
     if not AGENT_AVAILABLE or create_jiumo_agent is None:
-        print("Agent not available, returning None")
         return None
     if jiumo_agent is None:
         try:
-            print("Creating new agent instance...")
             jiumo_agent = create_jiumo_agent()
-            print(f"Agent created: {jiumo_agent}")
-            # 检查 API key
-            if not jiumo_agent.api_key:
-                print("Error: No API key")
-                jiumo_agent = None
-                return None
-            print(f"API key: {jiumo_agent.api_key[:10]}...")
+            print(f"Agent created: {jiumo_agent}, api_key: {jiumo_agent.api_key[:10] if jiumo_agent.api_key else 'None'}...")
         except Exception as e:
             print(f"Create agent error: {e}")
             import traceback
