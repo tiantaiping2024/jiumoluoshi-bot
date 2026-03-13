@@ -649,7 +649,7 @@
                     }
                 }
                 
-                if (transcript.trim()) {
+                if (transcript.trim() && !isSpeaking) {  // Bot 说话时不处理识别结果
                     callTranscript.textContent = transcript;
                     resetSilenceTimer();
                     
