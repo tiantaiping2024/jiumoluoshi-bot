@@ -167,11 +167,14 @@ async def transcribe_audio(request: STTRequest):
     """语音识别接口 - 使用 Deepgram"""
     try:
         from app.tools.stt import transcribe_base64
+        print(f"收到音频请求，长度: {len(request.audio)}")
         transcript = transcribe_base64(request.audio, request.language)
+        print(f"转录结果: '{transcript}'")
         
         return {"transcript": transcript}
     except Exception as e:
         import traceback
+        print(f"转录错误: {e}")
         return {"error": str(e), "transcript": ""}
 
 @api_router.get("/stt/status")
