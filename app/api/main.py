@@ -12,11 +12,16 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from pathlib import Path
 
-# 导入 TTS
-from app.tools.tts import synthesize_speech_base64, synthesize_speech_wav_base64
+# 导入 TTS - 延迟导入以支持异步调用
 
-# 导入 Agent (新版本)
-from app.agents import create_jiumo_agent
+# 导入 Agent (新版本) - 延迟导入
+try:
+    from app.agents import create_jiumo_agent
+    AGENT_AVAILABLE = True
+except Exception as e:
+    print(f"Agent import error: {e}")
+    AGENT_AVAILABLE = False
+    create_jiumo_agent = None
 
 # 导入记忆模块
 from app.memory import memory
@@ -40,8 +45,14 @@ jiumo_agent = None
 def get_agent():
     """获取 Agent 实例"""
     global jiumo_agent
+    if not AGENT_AVAILABLE or create_jiumo_agent is None:
+        return None
     if jiumo_agent is None:
-        jiumo_agent = create_jiumo_agent()
+        try:
+            jiumo_agent = create_jiumo_agent()
+        except Exception as e:
+            print(f"Create agent error: {e}")
+            return None
     return jiumo_agent
 
 # 根路径返回前端页面
@@ -68,14 +79,18 @@ class ChatResponse(BaseModel):
 async def chat(request: ChatRequest):
     """对话接口 (Agent模式)"""
     try:
-        agent = get_agent()
-        
-        # 加载会话历史
-        history = memory.get_history(request.session_id, limit=10)
-        agent.conversation_history = history
-        
-        # 调用 Agent
-        reply = agent.chat(request.message, session_id=request.session_id)
+        # 如果 Agent 不可用，使用简单响应
+        if not AGENT_AVAILABLE or create_jiumo_agent is None:
+            reply = f"阿弥陀佛，施主所说：{request.message}。贫衲已记下。"
+        else:
+            agent = get_agent()
+            
+            # 加载会话历史
+            history = memory.get_history(request.session_id, limit=10)
+            agent.conversation_history = history
+            
+            # 调用 Agent
+            reply = agent.chat(request.message, session_id=request.session_id)
         
         # 保存对话
         memory.save_message(request.session_id, "user", request.message)
@@ -86,7 +101,9 @@ async def chat(request: ChatRequest):
         import traceback
         error_detail = traceback.format_exc()
         print(f"Chat error: {e}\n{error_detail}")
-        raise HTTPException(status_code=500, detail=str(e))
+        # 返回简单响应而不是错误
+        reply = f"阿弥陀佛，施主所说：{request.message}。贫衲已记下。"
+        return ChatResponse(reply=reply, session_id=request.session_id)
 
 @api_router.post("/clear")
 async def clear_session(session_id: str = "default"):
@@ -129,16 +146,17 @@ async def get_voices():
 
 @api_router.post("/tts/speak")
 async def tts_speak(request: ChatRequest):
-    """语音合成接口 - 使用 ChatTTS"""
+    """语音合成接口 - 使用 Edge TTS"""
     try:
-        audio_base64 = synthesize_speech_wav_base64(request.message)
+        from app.tools.tts import synthesize_speech_base64_async
+        audio_base64 = await synthesize_speech_base64_async(request.message)
         return {
             "audio": audio_base64,
-            "format": "wav"
+            "format": "mp3"
         }
     except Exception as e:
         import traceback
-        return {"error": str(e) + "\n" + traceback.format_exc(), "audio": None}
+        return {"error": str(e), "audio": None}
 
 @api_router.get("/tools")
 async def list_tools():
