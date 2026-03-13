@@ -648,14 +648,17 @@
                 
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
+                let lastSendTime = 0;
                 
                 mediaRecorder.ondataavailable = async (event) => {
                     if (event.data.size > 0) {
                         console.log('收到音频数据:', event.data.size, 'bytes');
                         audioChunks.push(event.data);
                         
-                        // 音频数据累积到一定大小后发送到服务器识别
-                        if (audioChunks.length >= 1) {
+                        const now = Date.now();
+                        // 每 3 秒发送一次
+                        if (now - lastSendTime >= 3000 && audioChunks.length > 0) {
+                            console.log('发送音频到服务器...');
                             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                             const reader = new FileReader();
                             reader.onloadend = async () => {
@@ -668,6 +671,8 @@
                                         body: JSON.stringify({ audio: base64, language: 'zh-CN' })
                                     });
                                     const data = await response.json();
+                                    
+                                    console.log('服务器响应:', data);
                                     
                                     if (data.transcript && data.transcript.trim() && !isSpeaking) {
                                         const transcript = data.transcript.trim();
@@ -684,13 +689,14 @@
                                 }
                             };
                             reader.readAsDataURL(audioBlob);
-                            audioChunks = [];  // 清空准备下一轮
+                            audioChunks = [];
+                            lastSendTime = now;
                         }
                     }
                 };
                 
-                // 每 3 秒发送一次录音进行识别
-                mediaRecorder.start(3000);
+                // 开始持续录音，每100ms收集一次数据
+                mediaRecorder.start(100);
                 isListening = true;
                 updateCallUI('listening');
                 
