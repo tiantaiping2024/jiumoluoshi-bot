@@ -639,10 +639,10 @@
         // 使用 Deepgram 进行语音识别
         async function startDeepgramRecognition() {
             try {
-                // 请求麦克风权限 - 启用回声消除和噪声抑制
+                // 请求麦克风权限 - 启用噪声抑制，但减弱回声消除
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     audio: {
-                        echoCancellation: true,    // 回声消除
+                        echoCancellation: { exact: false },  // 减弱回声消除
                         noiseSuppression: true,    // 噪声抑制
                         autoGainControl: true      // 自动增益控制
                     } 
@@ -860,6 +860,11 @@
                 isSpeaking = true;
                 updateCallUI('speaking');
                 
+                // Bot 说话时暂停录音
+                if (mediaRecorder && mediaRecorder.state === 'recording') {
+                    mediaRecorder.pause();
+                }
+                
                 try {
                     const response = await fetch('/api/tts/speak', {
                         method: 'POST',
@@ -885,12 +890,20 @@
                         
                         audio.onended = () => {
                             isSpeaking = false;
+                            // Bot 说完后恢复录音
+                            if (mediaRecorder && mediaRecorder.state === 'paused') {
+                                mediaRecorder.resume();
+                            }
                             resolve();
                         };
                         
                         audio.onerror = (e) => {
                             console.log('音频播放错误', e);
                             isSpeaking = false;
+                            // Bot 说完后恢复录音
+                            if (mediaRecorder && mediaRecorder.state === 'paused') {
+                                mediaRecorder.resume();
+                            }
                             resolve();
                         };
                         
