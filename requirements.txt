@@ -11,5 +11,10 @@ edge-tts>=6.1.0
 # Deepgram 语音识别
 deepgram-sdk>=6.0.0
 
+# LangChain Agent
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+
 # 工具
 requests>=2.31.0
