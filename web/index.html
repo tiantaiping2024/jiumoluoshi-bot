@@ -639,8 +639,14 @@
         // 使用 Deepgram 进行语音识别
         async function startDeepgramRecognition() {
             try {
-                // 请求麦克风权限
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                // 请求麦克风权限 - 启用回声消除和噪声抑制
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,    // 回声消除
+                        noiseSuppression: true,    // 噪声抑制
+                        autoGainControl: true      // 自动增益控制
+                    } 
+                });
                 
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
