@@ -6,11 +6,15 @@ import os
 import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
-from dotenv import load_dotenv
 import openai
 
-# 加载环境变量
-load_dotenv(Path(__file__).parent.parent.parent / "config" / ".env")
+# 优先使用系统环境变量
+DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+# 如果没有，尝试加载 config/.env
+if not DEEPSEEK_API_KEY:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent.parent.parent / "config" / ".env")
+    DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
 
 
 class JiumoAgent:
@@ -23,10 +27,13 @@ class JiumoAgent:
         base_url: str = "https://api.deepseek.com",
         temperature: float = 0.7
     ):
-        self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY")
+        # 优先使用参数，然后是环境变量
+        self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY", "") or DEEPSEEK_API_KEY
         self.model = model
         self.base_url = base_url
         self.temperature = temperature
+        
+        print(f"Initializing Agent with API key: {self.api_key[:10] if self.api_key else 'None'}...")
         
         # 初始化 OpenAI 客户端
         self.client = openai.OpenAI(
