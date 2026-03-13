@@ -639,16 +639,19 @@
         // 使用 Deepgram 进行语音识别
         async function startDeepgramRecognition() {
             try {
+                console.log('请求麦克风权限...');
                 // 请求麦克风权限
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     audio: true
                 });
+                console.log('麦克风权限已获取', stream);
                 
                 mediaRecorder = new MediaRecorder(stream);
                 audioChunks = [];
                 
                 mediaRecorder.ondataavailable = async (event) => {
                     if (event.data.size > 0) {
+                        console.log('收到音频数据:', event.data.size, 'bytes');
                         audioChunks.push(event.data);
                         
                         // 音频数据累积到一定大小后发送到服务器识别
