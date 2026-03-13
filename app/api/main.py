@@ -166,8 +166,8 @@ class STTRequest(BaseModel):
 async def transcribe_audio(request: STTRequest):
     """语音识别接口 - 使用 Deepgram"""
     try:
-        from app.tools.stt import transcribe_base64_async
-        transcript = await transcribe_base64_async(request.audio, request.language)
+        from app.tools.stt import transcribe_base64
+        transcript = transcribe_base64(request.audio, request.language)
         
         return {"transcript": transcript}
     except Exception as e:
