@@ -871,9 +871,14 @@
                 isSpeaking = true;
                 updateCallUI('speaking');
                 
-                // Bot 说话时暂停录音
+                // Bot 说话时暂停录音和识别
                 if (mediaRecorder && mediaRecorder.state === 'recording') {
                     mediaRecorder.pause();
+                }
+                
+                // 暂停浏览器识别
+                if (callRecognition && isListening) {
+                    try { callRecognition.stop(); } catch(e) {}
                 }
                 
                 try {
@@ -901,9 +906,13 @@
                         
                         audio.onended = () => {
                             isSpeaking = false;
-                            // Bot 说完后恢复录音
+                            // Bot 说完后恢复录音和识别
                             if (mediaRecorder && mediaRecorder.state === 'paused') {
                                 mediaRecorder.resume();
+                            }
+                            // 恢复浏览器识别
+                            if (callRecognition && isInCall) {
+                                try { callRecognition.start(); } catch(e) {}
                             }
                             resolve();
                         };
@@ -911,9 +920,12 @@
                         audio.onerror = (e) => {
                             console.log('音频播放错误', e);
                             isSpeaking = false;
-                            // Bot 说完后恢复录音
+                            // 恢复录音和识别
                             if (mediaRecorder && mediaRecorder.state === 'paused') {
                                 mediaRecorder.resume();
+                            }
+                            if (callRecognition && isInCall) {
+                                try { callRecognition.start(); } catch(e) {}
                             }
                             resolve();
                         };
