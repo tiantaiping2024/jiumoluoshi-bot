@@ -574,15 +574,15 @@
                 const data = await response.json();
                 
                 if (data.audio) {
-                    // 解码 Base64 音频
-                    const audioBytes = atob(data.audio);
-                    const audioArray = new Uint8Array(audioBytes.length);
-                    for (let i = 0; i < audioBytes.length; i++) {
-                        audioArray[i] = audioBytes.charCodeAt(i);
+                    // 解码 Base64 音频 - 使用更可靠的方式
+                    const binaryString = atob(data.audio);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
                     }
                     
-                    // 根据格式创建 Blob
-                    const audioBlob = new Blob([audioArray], {type: data.format === 'wav' ? 'audio/wav' : 'audio/mp3'});
+                    // 创建 Blob 并播放
+                    const audioBlob = new Blob([bytes], {type: 'audio/mpeg'});
                     const audioUrl = URL.createObjectURL(audioBlob);
                     const audio = new Audio(audioUrl);
                     audio.play();
@@ -777,15 +777,16 @@
                     const data = await response.json();
                     
                     if (data.audio) {
-                        // 解码 Base64 音频
-                        const audioBytes = atob(data.audio);
-                        const audioArray = new Uint8Array(audioBytes.length);
-                        for (let i = 0; i < audioBytes.length; i++) {
-                            audioArray[i] = audioBytes.charCodeAt(i);
+                        // 解码 Base64 音频 - 使用更可靠的方式
+                        const binaryString = atob(data.audio);
+                        const bytes = new Uint8Array(binaryString.length);
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
                         }
                         
                         // 根据格式创建 Blob 并播放
-                        const audioBlob = new Blob([audioArray], {type: data.format === 'wav' ? 'audio/wav' : 'audio/mp3'});
+                        const audioFormat = data.format || 'mp3';
+                        const audioBlob = new Blob([bytes], {type: 'audio/mpeg'});
                         const audioUrl = URL.createObjectURL(audioBlob);
                         const audio = new Audio(audioUrl);
                         

@@ -8,5 +8,8 @@ python-dotenv>=1.0.0
 # Edge TTS - 微软免费语音合成
 edge-tts>=6.1.0
 
+# Deepgram 语音识别
+deepgram-sdk>=6.0.0
+
 # 工具
 requests>=2.31.0

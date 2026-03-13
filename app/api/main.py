@@ -158,6 +158,31 @@ async def tts_speak(request: ChatRequest):
         import traceback
         return {"error": str(e), "audio": None}
 
+class STTRequest(BaseModel):
+    audio: str  # Base64 编码的音频
+    language: str = "zh-CN"
+
+@api_router.post("/stt/transcribe")
+async def transcribe_audio(request: STTRequest):
+    """语音识别接口 - 使用 Deepgram"""
+    try:
+        from app.tools.stt import transcribe_base64_async
+        transcript = await transcribe_base64_async(request.audio, request.language)
+        
+        return {"transcript": transcript}
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "transcript": ""}
+
+@api_router.get("/stt/status")
+async def stt_status():
+    """检查 STT 服务状态"""
+    from app.tools.stt import DEEPGRAM_API_KEY
+    return {
+        "deepgram_configured": bool(DEEPGRAM_API_KEY),
+        "provider": "deepgram" if DEEPGRAM_API_KEY else "browser"
+    }
+
 @api_router.get("/tools")
 async def list_tools():
     """列出可用工具"""
