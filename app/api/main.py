@@ -108,16 +108,25 @@ async def chat(request: ChatRequest):
         if not api_key:
             reply = "API Key 未配置"
         else:
-            # 直接创建 Agent
-            from app.agents.jiumo_agent import JiumoAgent
-            agent = JiumoAgent()
-            
-            # 加载会话历史
-            history = memory.get_history(request.session_id, limit=10)
-            agent.conversation_history = history
-            
-            # 调用 Agent
-            reply = agent.chat(request.message, session_id=request.session_id)
+            try:
+                # 直接创建 Agent
+                from app.agents.jiumo_agent import JiumoAgent
+                agent = JiumoAgent()
+                
+                print(f"Agent created with API key: {agent.api_key[:10]}...")
+                
+                # 加载会话历史
+                history = memory.get_history(request.session_id, limit=10)
+                agent.conversation_history = history
+                
+                # 调用 Agent
+                reply = agent.chat(request.message, session_id=request.session_id)
+                print(f"Agent response: {reply[:50]}...")
+            except Exception as e:
+                print(f"Agent error: {e}")
+                import traceback
+                traceback.print_exc()
+                reply = f"Agent调用失败: {str(e)[:50]}"
         
         # 保存对话
         memory.save_message(request.session_id, "user", request.message)
