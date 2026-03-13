@@ -618,7 +618,94 @@
         let isSpeaking = false;
         let silenceTimer = null;
         
-        // 初始化通话语音识别
+        // Deepgram 录音相关
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let useDeepgram = true;  // 使用 Deepgram
+        
+        // 检查 STT 配置
+        async function checkSTTConfig() {
+            try {
+                const response = await fetch('/api/stt/status');
+                const data = await response.json();
+                useDeepgram = data.deepgram_configured;
+                console.log('STT 配置:', data);
+            } catch(e) {
+                console.log('获取 STT 配置失败，使用浏览器识别');
+                useDeepgram = false;
+            }
+        }
+        
+        // 使用 Deepgram 进行语音识别
+        async function startDeepgramRecognition() {
+            try {
+                // 请求麦克风权限
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = async (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    // 发送音频到服务器进行识别
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = async () => {
+                        const base64 = reader.result.split(',')[1];
+                        
+                        try {
+                            const response = await fetch('/api/stt/transcribe', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/json'},
+                                body: JSON.stringify({ audio: base64, language: 'zh-CN' })
+                            });
+                            const data = await response.json();
+                            
+                            if (data.transcript && data.transcript.trim() && !isSpeaking) {
+                                const transcript = data.transcript.trim();
+                                callTranscript.textContent = transcript;
+                                resetSilenceTimer();
+                                
+                                if (transcript.length > 2) {
+                                    handleUserSpeech(transcript);
+                                }
+                            }
+                        } catch(e) {
+                            console.log('Deepgram 转录失败', e);
+                        }
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    
+                    audioChunks = [];
+                };
+                
+                // 每 3 秒发送一次录音
+                mediaRecorder.start(3000);
+                isListening = true;
+                updateCallUI('listening');
+                
+            } catch(e) {
+                console.log('Deepgram 识别初始化失败', e);
+                // 回退到浏览器识别
+                initCallRecognition();
+            }
+        }
+        
+        // 停止 Deepgram 识别
+        function stopDeepgramRecognition() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            isListening = false;
+        }
+        
+        // 初始化通话语音识别（根据配置选择）
         function initCallRecognition() {
             if (!SpeechRecognition) {
                 alert('您的浏览器不支持语音识别功能');
@@ -848,35 +935,41 @@
         async function startCall() {
             if (isInCall) return;
             
-            // 检查浏览器支持
-            if (!SpeechRecognition) {
-                alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器');
-                return;
-            }
+            // 先检查 STT 配置
+            await checkSTTConfig();
             
             isInCall = true;
             callOverlay.classList.add('active');
             callStatus.textContent = '正在连接...';
             callTranscript.textContent = '';
             
-            // 初始化识别器
-            if (!initCallRecognition()) {
-                endCall();
-                return;
-            }
-            
-            // 开始识别
-            try {
-                callRecognition.start();
-            } catch(e) {
-                console.log('启动识别失败', e);
-                // 尝试重试
-                setTimeout(() => {
-                    try { callRecognition.start(); } catch(e2) {
-                        alert('无法启动语音识别，请检查麦克风权限');
-                        endCall();
-                    }
-                }, 500);
+            if (useDeepgram) {
+                // 使用 Deepgram
+                await startDeepgramRecognition();
+            } else {
+                // 使用浏览器识别
+                if (!SpeechRecognition) {
+                    alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器');
+                    endCall();
+                    return;
+                }
+                
+                if (!initCallRecognition()) {
+                    endCall();
+                    return;
+                }
+                
+                try {
+                    callRecognition.start();
+                } catch(e) {
+                    console.log('启动识别失败', e);
+                    setTimeout(() => {
+                        try { callRecognition.start(); } catch(e2) {
+                            alert('无法启动语音识别，请检查麦克风权限');
+                            endCall();
+                        }
+                    }, 500);
+                }
             }
         }
         
@@ -885,7 +978,9 @@
             isInCall = false;
             
             // 停止识别
-            if (callRecognition) {
+            if (useDeepgram) {
+                stopDeepgramRecognition();
+            } else if (callRecognition) {
                 try { callRecognition.stop(); } catch(e) {}
             }
             isListening = false;
