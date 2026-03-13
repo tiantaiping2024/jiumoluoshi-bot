@@ -1,0 +1,9 @@
+.git
+.gitignore
+*.md
+.env.docker
+docker-compose.yml
+nginx.conf
+railway.json
+DEPLOY.md
+README.md

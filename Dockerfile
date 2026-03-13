@@ -8,18 +8,35 @@ RUN apt-get update && apt-get install -y \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装依赖
+# 安装轻量级 torch（CPU-only，大幅减小镜像）
+RUN pip install --no-cache-dir torch==2.1.0 --index-url https://download.pytorch.org/whl/cpu
+
+# 安装 ChatTTS 和其他依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    ChatTTS \
+    fastapi \
+    uvicorn \
+    openai \
+    pydantic \
+    python-dotenv \
+    langchain \
+    langchain-core \
+    langchain-deepseek \
+    langchain-community \
+    langgraph \
+    langchain-chroma \
+    chromadb \
+    langchain-text-splitters \
+    tavily \
+    requests \
+    numpy
 
 # 复制代码
 COPY app/ ./app/
 COPY web/ ./web/
 COPY soul.md .
 COPY config/ ./config/
-
-# 设置环境变量
-ENV DEEPSEEK_API_KEY=sk-b2bc78855f1b4b21978532f879bc718f
 
 # 创建数据目录
 RUN mkdir -p data/memories
