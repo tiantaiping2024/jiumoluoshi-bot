@@ -57,6 +57,10 @@ def get_agent():
             print("Creating new agent instance...")
             jiumo_agent = create_jiumo_agent()
             print(f"Agent created: {jiumo_agent}")
+            # 检查 API key
+            if not jiumo_agent.api_key or jiumo_agent.api_key.startswith("your-"):
+                print("Warning: Invalid API key")
+                return None
         except Exception as e:
             print(f"Create agent error: {e}")
             import traceback
