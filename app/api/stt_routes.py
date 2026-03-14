@@ -1,28 +1,30 @@
 """
-Deepgram STT 语音识别 - 流式识别
+阿里云百炼 STT 语音识别 - 使用 Paraformer
 """
 import os
 import base64
 import json
 import asyncio
 import aiohttp
+import tempfile
+import shutil
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 
 stt_router = APIRouter()
 
 
 @stt_router.post("/stream")
 async def stream_stt():
-    """Deepgram 流式语音识别接口"""
+    """阿里云百炼流式语音识别"""
     return JSONResponse({"status": "deprecated"})
 
 
 @stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
-    """使用 Deepgram 转录音频"""
+    """使用阿里云百炼 Paraformer 转录音频"""
     try:
         body = await request.body()
         
@@ -45,34 +47,52 @@ async def transcribe_audio(request: Request):
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid audio data: {e}")
         
-        if not DEEPGRAM_API_KEY:
-            return {"transcript": "", "error": "Deepgram API key not configured"}
+        if not DASHSCOPE_API_KEY:
+            return {"transcript": "", "error": "DASHSCOPE_API_KEY not configured"}
         
-        # 检测音频格式
-        content_type = "audio/webm" if audio_data[:4] == b'\x1aE' else "audio/wav"
+        # 使用阿里云百炼 Paraformer
+        import dashscope
+        from dashscope import MultiModalConversation
         
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.deepgram.com/v1/listen",
-                headers={
-                    "Authorization": f"Token {DEEPGRAM_API_KEY}",
-                    "Content-Type": content_type
-                },
-                params={
-                    "punctuate": "true",
-                    "language": "zh-CN",
-                    "model": "nova-2"
-                },
-                data=audio_data,
-                timeout=aiohttp.ClientTimeout(total=30)
-            ) as resp:
-                if resp.status == 200:
-                    result = await resp.json()
-                    if result.get("results", {}).get("channels"):
-                        transcript = result["results"]["channels"][0]["alternatives"][0]["transcript"]
-                        return {"transcript": transcript}
-                
-                return {"transcript": "", "error": f"Deepgram error: {resp.status}"}
+        dashscope.api_key = DASHSCOPE_API_KEY
+        
+        # 保存临时文件
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav', mode='wb') as f:
+            f.write(audio_data)
+            temp_file = f.name
+        
+        try:
+            # 调用 Paraformer
+            resp = MultiModalConversation.call(
+                model='paraformer-realtime-v2',
+                messages=[{
+                    'role': 'user',
+                    'content': [{'audio': f'file://{temp_file}'}]
+                }],
+                stream=False
+            )
+            
+            if resp.get("status_code") != 200:
+                return {"transcript": "", "error": resp.get('message', 'Unknown error')}
+            
+            # 提取文本
+            output = resp.get("output", {})
+            choices = output.get("choices", [])
+            if choices:
+                message = choices[0].get("message", {})
+                content = message.get("content", [])
+                if content:
+                    transcript = content[0].get("text", "")
+                    return {"transcript": transcript}
+            
+            return {"transcript": ""}
+            
+        finally:
+            # 删除临时文件
+            try:
+                os.unlink(temp_file)
+            except:
+                pass
                 
     except Exception as e:
         print(f"STT error: {e}")

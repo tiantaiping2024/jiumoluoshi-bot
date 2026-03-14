@@ -24,7 +24,7 @@ VOICES = {
     "Matthew": "Matthew - 男声",
 }
 
-DEFAULT_VOICE = "Dylan"  # 声音更低沉
+DEFAULT_VOICE = "Bodega"  # 男性音色
 
 
 def filter_action_descriptions(text: str) -> str:
