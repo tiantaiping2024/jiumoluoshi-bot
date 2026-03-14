@@ -117,22 +117,25 @@ async def health():
     """健康检查"""
     return {"status": "healthy", "name": "鸠摩罗什Bot Agent", "version": "2.0.0"}
 
-# ========== 阿里云 DashScope TTS 接口 ==========
-import os
+# ========== Edge TTS 接口 (免费，国内可用) ==========
+import edge_tts
+import asyncio
 
-# 阿里云 DashScope TTS 配置
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
-TTS_MODEL = "qwen-tts-2025-05-22"
-TTS_VOICE = "xiaogang"  # 中文男声，苍老浑厚
+# Edge TTS 语音配置 - 苍老男声
+TTS_VOICE = "zh-CN-YunxiNeural"  # 中文男声，成熟稳重
 
 @api_router.post("/tts")
 async def text_to_speech(text: str):
-    """将文本转换为语音 (阿里云 DashScope TTS)"""
+    """将文本转换为语音 (Edge TTS)"""
     try:
-        from app.tools.tts import synthesize_speech
+        # 使用 Edge TTS 生成语音
+        communicate = edge_tts.Communicate(text, TTS_VOICE, rate="-15%", pitch="-10Hz")
         
-        # 使用阿里云 TTS 生成语音
-        audio_data = synthesize_speech(text, voice=TTS_VOICE)
+        # 收集音频数据
+        audio_data = b""
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_data += chunk["data"]
         
         if not audio_data:
             raise Exception("No audio generated")
@@ -150,14 +153,12 @@ async def text_to_speech(text: str):
 
 @api_router.get("/voices")
 async def list_voices():
-    """列出可用的阿里云 TTS 语音"""
+    """列出可用的 Edge TTS 语音"""
     return {
         "voices": [
-            {"name": "xiaogang", "gender": "male", "description": "小刚 - 苍老男声"},
-            {"name": "xiaoyun", "gender": "female", "description": "小云 - 女声"},
-            {"name": "ronnie", "gender": "male", "description": "罗尼 - 男声"},
-            {"name": "chengyang", "gender": "male", "description": "程阳 - 男声"},
-            {"name": "shaun", "gender": "male", "description": "肖恩 - 男声"},
+            {"name": "zh-CN-YunxiNeural", "gender": "male", "description": "云希 - 成熟男声"},
+            {"name": "zh-CN-YunyangNeural", "gender": "male", "description": "云扬 - 男声"},
+            {"name": "zh-CN-XiaoxiaoNeural", "gender": "female", "description": "晓晓 - 女声"},
         ]
     }
 
