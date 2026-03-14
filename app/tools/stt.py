@@ -1,19 +1,59 @@
 """
-阿里云百炼 STT 语音识别模块 - 使用 Qwen3-ASR-Flash
+语音识别模块 - 优先 Deepgram，备选阿里云百炼
 """
 import os
 import base64
 import requests
 
 
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 STT_MODEL = "qwen3-asr-flash-2026-02-10"
 
 
-def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
-    """使用阿里云百炼 ASR 转录音频"""
+def transcribe_deepgram(audio_data: bytes, language: str = "zh-CN") -> str:
+    """使用 Deepgram 转录"""
+    if not DEEPGRAM_API_KEY:
+        return None
+    
+    try:
+        # 检测音频格式
+        content_type = "audio/webm" if audio_data[:4] == b'\x1aE' else "audio/wav"
+        
+        headers = {
+            "Authorization": f"Token {DEEPGRAM_API_KEY}",
+            "Content-Type": content_type
+        }
+        
+        params = {
+            "punctuate": "true",
+            "language": language,
+            "model": "nova-2"
+        }
+        
+        response = requests.post(
+            "https://api.deepgram.com/v1/listen",
+            headers=headers,
+            params=params,
+            data=audio_data,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result.get("results", {}).get("channels"):
+                return result["results"]["channels"][0]["alternatives"][0]["transcript"]
+        
+        return None
+    except Exception as e:
+        print(f"Deepgram 转录错误: {e}")
+        return None
+
+
+def transcribe_aliyun(audio_data: bytes, language: str = "zh-CN") -> str:
+    """使用阿里云百炼 ASR 转录"""
     if not DASHSCOPE_API_KEY:
-        return ""
+        return None
     
     try:
         import dashscope
@@ -30,7 +70,6 @@ def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
             temp_file = f.name
         
         try:
-            # 调用 ASR
             resp = MultiModalConversation.call(
                 model=STT_MODEL,
                 messages=[{
@@ -41,10 +80,8 @@ def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
             )
             
             if resp.get("status_code") != 200:
-                print(f"ASR error: {resp.get('message')}")
-                return ""
+                return None
             
-            # 提取文本
             output = resp.get("output", {})
             choices = output.get("choices", [])
             if choices:
@@ -53,15 +90,33 @@ def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
                 if content:
                     return content[0].get("text", "")
             
-            return ""
+            return None
             
         finally:
-            # 删除临时文件
             os.unlink(temp_file)
             
     except Exception as e:
-        print(f"ASR 转录错误: {e}")
-        return ""
+        print(f"阿里云 ASR 转录错误: {e}")
+        return None
+
+
+def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
+    """转录音频 - 优先 Deepgram，备选阿里云"""
+    # 优先用 Deepgram
+    if DEEPGRAM_API_KEY:
+        result = transcribe_deepgram(audio_data, language)
+        if result:
+            print(f"使用 Deepgram 转录: {result}")
+            return result
+    
+    # 备选阿里云
+    if DASHSCOPE_API_KEY:
+        result = transcribe_aliyun(audio_data, language)
+        if result:
+            print(f"使用阿里云转录: {result}")
+            return result
+    
+    return ""
 
 
 def transcribe_base64(audio_base64: str, language: str = "zh-CN") -> str:
@@ -70,7 +125,6 @@ def transcribe_base64(audio_base64: str, language: str = "zh-CN") -> str:
         return ""
     
     try:
-        # 处理 data URL 格式
         if "," in audio_base64:
             audio_base64 = audio_base64.split(",")[1]
         

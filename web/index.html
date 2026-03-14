@@ -523,21 +523,33 @@
         loadVoices();
         
         function speakText(text) {
-            // 使用 Edge TTS 后端接口
-            fetch('/api/tts', {
+            // 使用阿里云百炼 TTS 后端接口
+            fetch('/api/tts/speak', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({text: text})
+                body: JSON.stringify({message: text})  // 使用 message 字段
             })
             .then(response => {
                 if (!response.ok) throw new Error('TTS failed');
-                return response.blob();
+                return response.json();
             })
-            .then(blob => {
-                const audioUrl = URL.createObjectURL(blob);
-                const audio = new Audio(audioUrl);
-                audio.play();
-                audio.onended = () => URL.revokeObjectURL(audioUrl);
+            .then(data => {
+                // 解析 JSON 响应，包含 base64 音频
+                if (data.audio) {
+                    const audioBytes = atob(data.audio);
+                    const arrayBuffer = new ArrayBuffer(audioBytes.length);
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    for (let i = 0; i < audioBytes.length; i++) {
+                        uint8Array[i] = audioBytes.charCodeAt(i);
+                    }
+                    const blob = new Blob([uint8Array], {type: 'audio/mp3'});
+                    const audioUrl = URL.createObjectURL(blob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                    audio.onended = () => URL.revokeObjectURL(audioUrl);
+                } else {
+                    throw new Error('No audio data');
+                }
             })
             .catch(err => {
                 console.error('TTS error:', err);
@@ -747,29 +759,52 @@
                 isSpeaking = true;
                 updateCallUI('speaking');
                 
-                // 使用 Edge TTS 后端接口
-                fetch('/api/tts', {
+                // 使用阿里云百炼 TTS 后端接口
+                fetch('/api/tts/speak', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({text: text})
+                    body: JSON.stringify({message: text})
                 })
                 .then(response => {
                     if (!response.ok) throw new Error('TTS failed');
-                    return response.blob();
+                    return response.json();
                 })
-                .then(blob => {
-                    const audioUrl = URL.createObjectURL(blob);
-                    const audio = new Audio(audioUrl);
-                    
-                    audio.onended = () => {
-                        isSpeaking = false;
-                        URL.revokeObjectURL(audioUrl);
-                        resolve();
-                    };
-                    
-                    audio.onerror = () => {
-                        isSpeaking = false;
-                        // 回退到浏览器 TTS
+                .then(data => {
+                    if (data.audio) {
+                        const audioBytes = atob(data.audio);
+                        const arrayBuffer = new ArrayBuffer(audioBytes.length);
+                        const uint8Array = new Uint8Array(arrayBuffer);
+                        for (let i = 0; i < audioBytes.length; i++) {
+                            uint8Array[i] = audioBytes.charCodeAt(i);
+                        }
+                        const blob = new Blob([uint8Array], {type: 'audio/mp3'});
+                        const audioUrl = URL.createObjectURL(blob);
+                        const audio = new Audio(audioUrl);
+                        
+                        audio.onended = () => {
+                            isSpeaking = false;
+                            URL.revokeObjectURL(audioUrl);
+                            resolve();
+                        };
+                        
+                        audio.onerror = () => {
+                            isSpeaking = false;
+                            // 回退到浏览器 TTS
+                            fallbackSpeakCall(text, resolve);
+                        };
+                        
+                        audio.play();
+                    } else {
+                        throw new Error('No audio data');
+                    }
+                })
+                .catch(err => {
+                    console.error('TTS error:', err);
+                    // 回退到浏览器 TTS
+                    fallbackSpeakCall(text, resolve);
+                });
+            });
+        }
                         fallbackSpeakCall(text, resolve);
                     };
                     
