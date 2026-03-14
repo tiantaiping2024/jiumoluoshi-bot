@@ -615,88 +615,95 @@
         let isSpeaking = false;
         let silenceTimer = null;
         
-        // 初始化通话语音识别
+        // 初始化通话语音识别 - 使用 Deepgram
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let deepgramWs = null;
+        
         function initCallRecognition() {
-            if (!SpeechRecognition) {
-                alert('您的浏览器不支持语音识别功能');
+            // 使用 MediaRecorder + Deepgram
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('您的浏览器不支持录音功能');
                 return false;
             }
             
-            callRecognition = new SpeechRecognition();
-            callRecognition.continuous = true;  // 持续识别
-            callRecognition.interimResults = true;
-            callRecognition.lang = 'zh-CN';
-            callRecognition.maxAlternatives = 1;
-            
-            // 开始监听
-            callRecognition.onstart = () => {
+            return true;
+        }
+        
+        // 开始 Deepgram 识别
+        async function startDeepgramRecognition() {
+            try {
+                // 获取麦克风权限
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // 创建 MediaRecorder
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm;codecs=opus'
+                });
+                
+                audioChunks = [];
+                
+                mediaRecorder.ondataavailable = async (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                        
+                        // 转换为 base64 并发送到后端识别
+                        const reader = new FileReader();
+                        reader.onloadend = async () => {
+                            const base64 = reader.result.split(',')[1];
+                            try {
+                                const response = await fetch('/api/stt/transcribe', {
+                                    method: 'POST',
+                                    headers: {'Content-Type': 'application/json'},
+                                    body: JSON.stringify({audio: base64})
+                                });
+                                const result = await response.json();
+                                
+                                if (result.transcript && result.transcript.trim()) {
+                                    const transcript = result.transcript.trim();
+                                    console.log('识别到:', transcript);
+                                    callTranscript.textContent = transcript;
+                                    
+                                    // 如果识别结果稳定，发送
+                                    if (transcript.length > 2) {
+                                        handleUserSpeech(transcript);
+                                    }
+                                }
+                            } catch (e) {
+                                console.log('识别请求失败', e);
+                            }
+                        };
+                        reader.readAsDataURL(event.data);
+                    }
+                };
+                
+                // 每2秒发送一次音频进行识别
+                mediaRecorder.start(2000);
+                
                 isListening = true;
                 updateCallUI('listening');
-            };
-            
-            // 识别结果
-            callRecognition.onresult = (event) => {
-                let transcript = '';
-                let isFinal = false;
+                return true;
                 
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    transcript += event.results[i][0].transcript;
-                    if (event.results[i].isFinal) {
-                        isFinal = true;
-                    }
-                }
-                
-                if (transcript.trim()) {
-                    callTranscript.textContent = transcript;
-                    resetSilenceTimer();
-                    
-                    if (isFinal && transcript.trim().length > 2) {
-                        // 用户说完一句话，处理发送
-                        clearTimeout(silenceTimer);
-                        handleUserSpeech(transcript.trim());
-                    }
-                }
-            };
-            
-            // 识别结束（自动重新开始）
-            callRecognition.onend = () => {
-                if (isInCall && !isSpeaking) {
-                    // 如果通话中且没有在说话，重新开始监听
-                    try {
-                        callRecognition.start();
-                    } catch(e) {
-                        console.log('重新启动识别失败', e);
-                    }
-                }
-            };
-            
-            callRecognition.onerror = (event) => {
-                console.log('识别错误:', event.error);
-                if (event.error === 'no-speech') {
-                    // 没有语音输入，重新开始监听
-                } else if (isInCall) {
-                    // 其他错误，重试
-                    setTimeout(() => {
-                        if (isInCall && !isSpeaking) {
-                            try { callRecognition.start(); } catch(e) {}
-                        }
-                    }, 1000);
-                }
-            };
-            
-            return true;
+            } catch (e) {
+                console.log('启动 Deepgram 识别失败', e);
+                alert('无法启动录音，请检查麦克风权限');
+                return false;
+            }
+        }
+        
+        // 停止 Deepgram 识别
+        function stopDeepgramRecognition() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                // 停止所有轨道
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            isListening = false;
         }
         
         // 重置静音计时器
         function resetSilenceTimer() {
             clearTimeout(silenceTimer);
-            silenceTimer = setTimeout(() => {
-                // 用户停止说话一段时间后，发送当前输入
-                const text = callTranscript.textContent.trim();
-                if (text && text.length > 2) {
-                    handleUserSpeech(text);
-                }
-            }, 1500);  // 1.5秒静音后发送
         }
         
         // 处理用户语音输入
@@ -712,8 +719,8 @@
                 isSpeaking = false;
             }
             
-            // 停止识别
-            try { callRecognition.stop(); } catch(e) {}
+            // 停止 Deepgram 识别
+            stopDeepgramRecognition();
             isListening = false;
             
             // 显示用户说的话
@@ -743,14 +750,14 @@
                 // 播放完毕，继续监听
                 if (isInCall) {
                     updateCallUI('listening');
-                    try { callRecognition.start(); } catch(e) {}
+                    await startDeepgramRecognition();
                 }
             } catch (error) {
                 hideTyping();
                 addMessage('🙏 抱歉，贫衲今日有些疲惫，请稍后再试。', 'assistant');
                 if (isInCall) {
                     setTimeout(() => {
-                        try { callRecognition.start(); } catch(e) {}
+                        startDeepgramRecognition();
                     }, 1000);
                 }
             } finally {
@@ -874,27 +881,24 @@
             }
         }
         
-        // 开始通话
+        // 开始通话 - 使用 Deepgram
         async function startCall() {
             if (isInCall) return;
             
             // 检查浏览器支持
-            if (!SpeechRecognition) {
-                alert('您的浏览器不支持语音识别，请使用Chrome或Edge浏览器');
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert('您的浏览器不支持录音功能，请使用Chrome或Edge浏览器');
                 return;
             }
             
-            // 停止之前的识别器（如果存在）
-            if (callRecognition) {
-                try { callRecognition.stop(); } catch(e) {}
-            }
-            callRecognition = null;
+            // 停止之前的识别器
+            stopDeepgramRecognition();
             
             isInCall = true;
             callOverlay.classList.add('active');
             callStatus.textContent = '正在连接...';
             callTranscript.textContent = '';
-            isProcessingSpeech = false;  // 重置处理状态
+            isProcessingSpeech = false;
             
             // 初始化识别器
             if (!initCallRecognition()) {
@@ -902,17 +906,15 @@
                 return;
             }
             
-            // 开始识别
-            try {
-                callRecognition.start();
-            } catch(e) {
-                console.log('启动识别失败', e);
-                // 尝试重试
-                setTimeout(() => {
-                    try { callRecognition.start(); } catch(e2) {
-                        alert('无法启动语音识别，请检查麦克风权限');
-                        endCall();
-                    }
+            // 开始 Deepgram 识别
+            const success = await startDeepgramRecognition();
+            if (!success) {
+                endCall();
+                return;
+            }
+            
+            callStatus.textContent = '请说话...';
+        }
                 }, 500);
             }
         }
@@ -921,10 +923,8 @@
         function endCall() {
             isInCall = false;
             
-            // 停止识别
-            if (callRecognition) {
-                try { callRecognition.stop(); } catch(e) {}
-            }
+            // 停止 Deepgram 识别
+            stopDeepgramRecognition();
             isListening = false;
             clearTimeout(silenceTimer);
             
