@@ -884,10 +884,17 @@
                 return;
             }
             
+            // 停止之前的识别器（如果存在）
+            if (callRecognition) {
+                try { callRecognition.stop(); } catch(e) {}
+            }
+            callRecognition = null;
+            
             isInCall = true;
             callOverlay.classList.add('active');
             callStatus.textContent = '正在连接...';
             callTranscript.textContent = '';
+            isProcessingSpeech = false;  // 重置处理状态
             
             // 初始化识别器
             if (!initCallRecognition()) {

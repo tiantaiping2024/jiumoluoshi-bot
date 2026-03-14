@@ -24,7 +24,7 @@ VOICES = {
     "Matthew": "Matthew - 男声",
 }
 
-DEFAULT_VOICE = "Ryan"  # 苍老男声
+DEFAULT_VOICE = "Dylan"  # 声音更低沉
 
 
 def filter_action_descriptions(text: str) -> str:
@@ -98,16 +98,16 @@ def synthesize_speech(text: str, voice: str = DEFAULT_VOICE, format: str = "wav"
 
 def synthesize_speech_base64(text: str, emotion: str = "neutral") -> str:
     """返回 Base64 编码的音频"""
-    # 根据情感调整语速和音调
-    rate = 0.9  # 稍慢，更稳重
-    pitch = -1  # 稍低，更苍老
+    # 更慢、更低沉的苍老声音
+    rate = 0.8  # 慢速，更稳重
+    pitch = -3  # 更低的音调，更苍老
     
     if emotion == "happy":
-        rate = 1.0
-        pitch = 0
+        rate = 0.9
+        pitch = -1
     elif emotion == "sad":
-        rate = 0.8
-        pitch = -2
+        rate = 0.7
+        pitch = -4
     
     audio_data = synthesize_speech(text, rate=rate, pitch=pitch)
     return b64encode(audio_data).decode('utf-8')
