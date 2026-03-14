@@ -614,12 +614,10 @@
         let isListening = false;
         let isSpeaking = false;
         let silenceTimer = null;
-        
-        // 初始化通话语音识别 - 使用 Deepgram
         let mediaRecorder = null;
         let audioChunks = [];
-        let deepgramWs = null;
         
+        // 初始化通话语音识别 - 使用 Deepgram
         function initCallRecognition() {
             // 使用 MediaRecorder + Deepgram
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
