@@ -689,14 +689,16 @@
             }
         }
         
-        // 停止 Deepgram 识别
+        // 停止 Deepgram 识别（不停止录音，只是暂停处理）
         function stopDeepgramRecognition() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-                // 停止所有轨道
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            }
             isListening = false;
+        }
+        
+        // 重新开始 Deepgram 识别
+        async function restartDeepgramRecognition() {
+            if (isInCall && !isListening && !isSpeaking) {
+                await startDeepgramRecognition();
+            }
         }
         
         // 重置静音计时器
@@ -918,8 +920,14 @@
         function endCall() {
             isInCall = false;
             
-            // 停止 Deepgram 识别
-            stopDeepgramRecognition();
+            // 完全停止并清理 Deepgram 识别
+            if (mediaRecorder) {
+                try { mediaRecorder.stop(); } catch(e) {}
+                if (mediaRecorder.stream) {
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+                mediaRecorder = null;
+            }
             isListening = false;
             clearTimeout(silenceTimer);
             

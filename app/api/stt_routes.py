@@ -6,7 +6,7 @@ import base64
 import json
 import asyncio
 import aiohttp
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
 DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
@@ -14,13 +14,13 @@ DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
 stt_router = APIRouter()
 
 
-@stt_router.post("/api/stt/stream")
+@stt_router.post("/stream")
 async def stream_stt():
     """Deepgram 流式语音识别接口"""
     return JSONResponse({"status": "deprecated"})
 
 
-@stt_router.post("/api/stt/transcribe")
+@stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
     """使用 Deepgram 转录音频"""
     try:

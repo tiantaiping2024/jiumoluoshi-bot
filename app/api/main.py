@@ -253,7 +253,7 @@ app.include_router(api_router)
 
 # 注册STT路由
 from app.api import stt_routes
-app.include_router(stt_routes.stt_router)
+app.include_router(stt_routes.stt_router, prefix="/api/stt")
 
 if __name__ == "__main__":
     import uvicorn
