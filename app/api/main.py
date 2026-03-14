@@ -117,25 +117,20 @@ async def health():
     """健康检查"""
     return {"status": "healthy", "name": "鸠摩罗什Bot Agent", "version": "2.0.0"}
 
-# ========== Edge TTS 接口 (免费，国内可用) ==========
-import edge_tts
-import asyncio
+# ========== 阿里云百炼 TTS 接口 ==========
+import os
 
-# Edge TTS 语音配置 - 苍老男声
-TTS_VOICE = "zh-CN-YunxiNeural"  # 中文男声，成熟稳重
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+TTS_VOICE = "Ethan"  # 苍老男声
 
 @api_router.post("/tts")
 async def text_to_speech(text: str):
-    """将文本转换为语音 (Edge TTS)"""
+    """将文本转换为语音 (阿里云百炼 Qwen3-TTS)"""
     try:
-        # 使用 Edge TTS 生成语音
-        communicate = edge_tts.Communicate(text, TTS_VOICE, rate="-15%", pitch="-10Hz")
+        from app.tools.tts import synthesize_speech
         
-        # 收集音频数据
-        audio_data = b""
-        async for chunk in communicate.stream():
-            if chunk["type"] == "audio":
-                audio_data += chunk["data"]
+        # 使用阿里云百炼 TTS 生成语音
+        audio_data = synthesize_speech(text, voice=TTS_VOICE)
         
         if not audio_data:
             raise Exception("No audio generated")
@@ -144,8 +139,8 @@ async def text_to_speech(text: str):
         from fastapi.responses import Response
         return Response(
             content=audio_data,
-            media_type="audio/mp3",
-            headers={"Content-Disposition": f"inline; filename=tts.mp3"}
+            media_type="audio/wav",
+            headers={"Content-Disposition": f"inline; filename=tts.wav"}
         )
     except Exception as e:
         print(f"TTS error: {e}")
@@ -153,12 +148,19 @@ async def text_to_speech(text: str):
 
 @api_router.get("/voices")
 async def list_voices():
-    """列出可用的 Edge TTS 语音"""
+    """列出可用的阿里云百炼 TTS 语音"""
     return {
         "voices": [
-            {"name": "zh-CN-YunxiNeural", "gender": "male", "description": "云希 - 成熟男声"},
-            {"name": "zh-CN-YunyangNeural", "gender": "male", "description": "云扬 - 男声"},
-            {"name": "zh-CN-XiaoxiaoNeural", "gender": "female", "description": "晓晓 - 女声"},
+            {"name": "Ethan", "gender": "male", "description": "Ethan - 苍老男声"},
+            {"name": "Dylan", "gender": "male", "description": "Dylan - 男声"},
+            {"name": "Alex", "gender": "male", "description": "Alex - 男声"},
+            {"name": "Ryan", "gender": "male", "description": "Ryan - 男声"},
+            {"name": "Daniel", "gender": "male", "description": "Daniel - 男声"},
+            {"name": "Cherry", "gender": "female", "description": "Cherry - 女声"},
+            {"name": "Sunny", "gender": "female", "description": "Sunny - 女声"},
+            {"name": "Amy", "gender": "female", "description": "Amy - 女声"},
+            {"name": "Luna", "gender": "female", "description": "Luna - 女声"},
+            {"name": "Jessica", "gender": "female", "description": "Jessica - 女声"},
         ]
     }
 

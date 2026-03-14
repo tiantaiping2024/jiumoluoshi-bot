@@ -1,51 +1,66 @@
 """
-Deepgram 语音识别模块 - 使用 REST API (免费额度)
+阿里云百炼 STT 语音识别模块 - 使用 Qwen3-ASR-Flash
 """
 import os
+import base64
 import requests
 
 
-DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
-DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+STT_MODEL = "qwen3-asr-flash-2026-02-10"
 
 
 def transcribe_audio(audio_data: bytes, language: str = "zh-CN") -> str:
-    """使用 Deepgram REST API 转录音频"""
-    if not DEEPGRAM_API_KEY:
+    """使用阿里云百炼 ASR 转录音频"""
+    if not DASHSCOPE_API_KEY:
         return ""
     
     try:
-        # 检测音频格式
-        content_type = "audio/webm" if audio_data[:4] == b'\x1aE' else "audio/wav"
+        import dashscope
+        from dashscope import MultiModalConversation
         
-        headers = {
-            "Authorization": f"Token {DEEPGRAM_API_KEY}",
-            "Content-Type": content_type
-        }
+        dashscope.api_key = DASHSCOPE_API_KEY
         
-        params = {
-            "punctuate": "true",
-            "language": language,
-            "model": "nova-2"
-        }
+        # 保存临时文件
+        import tempfile
+        import os
         
-        response = requests.post(
-            DEEPGRAM_URL,
-            headers=headers,
-            params=params,
-            data=audio_data,
-            timeout=30
-        )
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as f:
+            f.write(audio_data)
+            temp_file = f.name
         
-        if response.status_code == 200:
-            result = response.json()
-            if result.get("results", {}).get("channels"):
-                transcript = result["results"]["channels"][0]["alternatives"][0]["transcript"]
-                return transcript
-        
-        return ""
+        try:
+            # 调用 ASR
+            resp = MultiModalConversation.call(
+                model=STT_MODEL,
+                messages=[{
+                    'role': 'user',
+                    'content': [{'audio': f'file://{temp_file}'}]
+                }],
+                stream=False
+            )
+            
+            if resp.get("status_code") != 200:
+                print(f"ASR error: {resp.get('message')}")
+                return ""
+            
+            # 提取文本
+            output = resp.get("output", {})
+            choices = output.get("choices", [])
+            if choices:
+                message = choices[0].get("message", {})
+                content = message.get("content", [])
+                if content:
+                    return content[0].get("text", "")
+            
+            return ""
+            
+        finally:
+            # 删除临时文件
+            os.unlink(temp_file)
+            
     except Exception as e:
-        print(f"Deepgram 转录错误: {e}")
+        print(f"ASR 转录错误: {e}")
         return ""
 
 
@@ -55,7 +70,10 @@ def transcribe_base64(audio_base64: str, language: str = "zh-CN") -> str:
         return ""
     
     try:
-        import base64
+        # 处理 data URL 格式
+        if "," in audio_base64:
+            audio_base64 = audio_base64.split(",")[1]
+        
         audio_data = base64.b64decode(audio_base64)
         return transcribe_audio(audio_data, language)
     except Exception as e:
@@ -65,9 +83,11 @@ def transcribe_base64(audio_base64: str, language: str = "zh-CN") -> str:
 
 async def transcribe_audio_async(audio_data: bytes, language: str = "zh-CN") -> str:
     """异步封装"""
-    return transcribe_audio(audio_data, language)
+    import asyncio
+    return await asyncio.to_thread(transcribe_audio, audio_data, language)
 
 
 async def transcribe_base64_async(audio_base64: str, language: str = "zh-CN") -> str:
     """异步封装"""
-    return transcribe_base64(audio_base64, language)
+    import asyncio
+    return await asyncio.to_thread(transcribe_base64, audio_base64, language)
