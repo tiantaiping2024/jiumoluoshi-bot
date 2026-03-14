@@ -805,18 +805,6 @@
                 });
             });
         }
-                        fallbackSpeakCall(text, resolve);
-                    };
-                    
-                    audio.play();
-                })
-                .catch(err => {
-                    console.error('TTS error:', err);
-                    // 回退到浏览器 TTS
-                    fallbackSpeakCall(text, resolve);
-                });
-            });
-        }
         
         // 通话模式浏览器原生 TTS 回退
         function fallbackSpeakCall(text, resolve) {
@@ -839,25 +827,24 @@
                     v.name.toLowerCase().includes('国') ||
                     v.name.toLowerCase().includes('普通')
                 ) || chineseVoices[0];
-                }
+            }
                 
-                utterance.onstart = () => {
-                    // 可以在这里显示"正在说话"
-                };
-                
-                utterance.onend = () => {
-                    isSpeaking = false;
-                    resolve();
-                };
-                
-                utterance.onerror = (e) => {
-                    console.log('语音播放错误', e);
-                    isSpeaking = false;
-                    resolve();
-                };
-                
-                window.speechSynthesis.speak(utterance);
-            });
+            utterance.onstart = () => {
+                // 可以在这里显示"正在说话"
+            };
+            
+            utterance.onend = () => {
+                isSpeaking = false;
+                resolve();
+            };
+            
+            utterance.onerror = (e) => {
+                console.log('语音播放错误', e);
+                isSpeaking = false;
+                resolve();
+            };
+            
+            window.speechSynthesis.speak(utterance);
         }
         
         // 更新通话UI状态
