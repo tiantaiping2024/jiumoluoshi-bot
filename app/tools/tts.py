@@ -1,42 +1,78 @@
 """
-Edge TTS 语音合成模块 - 鸠摩罗什高僧苍老声音
-使用微软免费 Edge TTS 服务
+阿里云 DashScope TTS 语音合成模块 - 鸠摩罗什高僧苍老声音
+使用阿里云 DashScope 语音合成服务
 """
-import asyncio
+import os
+import json
+import requests
 from base64 import b64encode
-import edge_tts
 
 
-DEFAULT_VOICE = "zh-CN-YunxiNeural"
+DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
+TTS_MODEL = "qwen-tts-2025-05-22"
+
+# 可选的中文男声
+VOICES = {
+    "xiaogang": "小刚",
+    "xiaoyun": "小云", 
+    "ronnie": "罗尼",
+    "chengyang": "程阳",
+    "shaun": "肖恩",
+}
+
+DEFAULT_VOICE = "xiaogang"
 
 
-async def synthesize_speech_async(text: str, voice: str = DEFAULT_VOICE, rate: str = "-15%", pitch: str = "-10Hz") -> bytes:
-    """异步合成语音"""
-    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
+def synthesize_speech(text: str, voice: str = DEFAULT_VOICE, format: str = "mp3") -> bytes:
+    """使用阿里云 DashScope TTS 合成语音"""
+    if not DASHSCOPE_API_KEY:
+        raise Exception("DASHSCOPE_API_KEY 未配置")
     
-    audio_data = b""
-    async for chunk in communicate.stream():
-        if chunk["type"] == "audio":
-            audio_data += chunk["data"]
+    url = "https://dashscope.aliyuncs.com/api/v1/services/audio/tts/generation"
     
-    return audio_data
+    headers = {
+        "Authorization": f"Bearer {DASHSCOPE_API_KEY}",
+        "Content-Type": "application/json",
+        "X-DashScope-ApiAccept": "audio/*"
+    }
+    
+    payload = {
+        "model": TTS_MODEL,
+        "input": {"text": text},
+        "parameters": {
+            "voice": voice,
+            "format": format,
+            "rate": 0.8,  # 语速
+            "pitch": -2   # 音调，低一点更苍老
+        }
+    }
+    
+    response = requests.post(url, headers=headers, json=payload, timeout=30)
+    
+    if response.status_code == 200:
+        # 返回二进制音频数据
+        return response.content
+    else:
+        error = response.json()
+        raise Exception(f"TTS error: {error}")
 
 
-async def synthesize_speech_base64_async(text: str) -> str:
-    """异步接口"""
-    audio_data = await synthesize_speech_async(
-        text, 
-        voice="zh-CN-YunxiNeural",
-        rate="-15%",
-        pitch="-10Hz"
-    )
+def synthesize_speech_base64(text: str) -> str:
+    """返回 Base64 编码的音频"""
+    audio_data = synthesize_speech(text)
     return b64encode(audio_data).decode('utf-8')
 
 
-# 同步版本（尽量避免使用）
-def synthesize_speech_base64(text: str) -> str:
-    """同步封装 - 不推荐在 async 上下文中使用"""
-    return asyncio.run(synthesize_speech_base64_async(text))
+async def synthesize_speech_async(text: str, voice: str = DEFAULT_VOICE) -> bytes:
+    """异步接口"""
+    import asyncio
+    return await asyncio.to_thread(synthesize_speech, text, voice)
+
+
+async def synthesize_speech_base64_async(text: str) -> str:
+    """异步接口返回 Base64"""
+    audio_data = await synthesize_speech_async(text)
+    return b64encode(audio_data).decode('utf-8')
 
 
 def synthesize_speech_wav_base64(text: str) -> str:
