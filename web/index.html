@@ -614,96 +614,100 @@
         let isListening = false;
         let isSpeaking = false;
         let silenceTimer = null;
-        let mediaRecorder = null;
-        let audioChunks = [];
+        // 初始化通话语音识别 - 使用浏览器原生 SpeechRecognition
+        let callRecognition = null;
         
-        // 初始化通话语音识别 - 使用 Deepgram
         function initCallRecognition() {
-            // 使用 MediaRecorder + Deepgram
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('您的浏览器不支持录音功能');
+            // 优先使用浏览器原生语音识别
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('您的浏览器不支持语音识别功能');
                 return false;
             }
+            
+            callRecognition = new SpeechRecognition();
+            callRecognition.continuous = true;
+            callRecognition.interimResults = true;
+            callRecognition.lang = 'zh-CN';
+            callRecognition.maxAlternatives = 1;
+            
+            // 识别结果
+            callRecognition.onresult = (event) => {
+                let transcript = '';
+                let isFinal = false;
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        isFinal = true;
+                    }
+                }
+                
+                if (transcript.trim()) {
+                    console.log('识别到:', transcript);
+                    callTranscript.textContent = transcript;
+                    resetSilenceTimer();
+                    
+                    if (isFinal && transcript.trim().length > 2) {
+                        handleUserSpeech(transcript.trim());
+                    }
+                }
+            };
+            
+            // 识别结束自动重启
+            callRecognition.onend = () => {
+                if (isInCall && !isSpeaking) {
+                    try { callRecognition.start(); } catch(e) {}
+                }
+            };
+            
+            callRecognition.onerror = (event) => {
+                console.log('识别错误:', event.error);
+                if (isInCall && !isSpeaking) {
+                    setTimeout(() => {
+                        try { callRecognition.start(); } catch(e) {}
+                    }, 1000);
+                }
+            };
             
             return true;
         }
         
-        // 开始 Deepgram 识别
+        // 开始识别
         async function startDeepgramRecognition() {
+            if (!callRecognition) {
+                if (!initCallRecognition()) return false;
+            }
+            
             try {
-                // 获取麦克风权限
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // 创建 MediaRecorder
-                mediaRecorder = new MediaRecorder(stream, {
-                    mimeType: 'audio/webm;codecs=opus'
-                });
-                
-                audioChunks = [];
-                
-                mediaRecorder.ondataavailable = async (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                        
-                        // 转换为 base64 并发送到后端识别
-                        const reader = new FileReader();
-                        reader.onloadend = async () => {
-                            const base64 = reader.result.split(',')[1];
-                            try {
-                                const response = await fetch('/api/stt/transcribe', {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({audio: base64})
-                                });
-                                const result = await response.json();
-                                
-                                if (result.transcript && result.transcript.trim()) {
-                                    const transcript = result.transcript.trim();
-                                    console.log('识别到:', transcript);
-                                    callTranscript.textContent = transcript;
-                                    
-                                    // 如果识别结果稳定，发送
-                                    if (transcript.length > 2) {
-                                        handleUserSpeech(transcript);
-                                    }
-                                }
-                            } catch (e) {
-                                console.log('识别请求失败', e);
-                            }
-                        };
-                        reader.readAsDataURL(event.data);
-                    }
-                };
-                
-                // 每2秒发送一次音频进行识别
-                mediaRecorder.start(2000);
-                
+                callRecognition.start();
                 isListening = true;
                 updateCallUI('listening');
                 return true;
-                
             } catch (e) {
-                console.log('启动 Deepgram 识别失败', e);
-                alert('无法启动录音，请检查麦克风权限');
+                console.log('启动识别失败', e);
                 return false;
             }
         }
         
-        // 停止 Deepgram 识别（不停止录音，只是暂停处理）
+        // 停止识别
         function stopDeepgramRecognition() {
-            isListening = false;
-        }
-        
-        // 重新开始 Deepgram 识别
-        async function restartDeepgramRecognition() {
-            if (isInCall && !isListening && !isSpeaking) {
-                await startDeepgramRecognition();
+            if (callRecognition) {
+                try { callRecognition.stop(); } catch(e) {}
             }
+            isListening = false;
         }
         
         // 重置静音计时器
         function resetSilenceTimer() {
             clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(() => {
+                const text = callTranscript.textContent.trim();
+                if (text && text.length > 2) {
+                    handleUserSpeech(text);
+                }
+            }, 1500);
         }
         
         // 处理用户语音输入
@@ -920,13 +924,11 @@
         function endCall() {
             isInCall = false;
             
-            // 完全停止并清理 Deepgram 识别
-            if (mediaRecorder) {
-                try { mediaRecorder.stop(); } catch(e) {}
-                if (mediaRecorder.stream) {
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                }
-                mediaRecorder = null;
+            // 停止识别
+            stopDeepgramRecognition();
+            if (callRecognition) {
+                try { callRecognition.stop(); } catch(e) {}
+                callRecognition = null;
             }
             isListening = false;
             clearTimeout(silenceTimer);
