@@ -39,7 +39,7 @@
     },
     "DEEPGRAM_API_KEY": {
       "description": "Deepgram API Key (STT, 优先)",
-      "value": ""
+      "value": "b5c070284fbd04d7cc1f3c6e3f6092967b4d0116"
     }
   }
 }
