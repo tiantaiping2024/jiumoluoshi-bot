@@ -524,7 +524,7 @@
         
         function speakText(text) {
             // 使用阿里云百炼 TTS 后端接口
-            fetch('/api/tts/speak', {
+            fetch('/api/tts', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({message: text})  // 使用 message 字段
@@ -542,7 +542,7 @@
                     for (let i = 0; i < audioBytes.length; i++) {
                         uint8Array[i] = audioBytes.charCodeAt(i);
                     }
-                    const blob = new Blob([uint8Array], {type: 'audio/mp3'});
+                    const blob = new Blob([uint8Array], {type: 'audio/wav'});
                     const audioUrl = URL.createObjectURL(blob);
                     const audio = new Audio(audioUrl);
                     audio.play();
@@ -760,7 +760,7 @@
                 updateCallUI('speaking');
                 
                 // 使用阿里云百炼 TTS 后端接口
-                fetch('/api/tts/speak', {
+                fetch('/api/tts', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({message: text})
@@ -777,7 +777,7 @@
                         for (let i = 0; i < audioBytes.length; i++) {
                             uint8Array[i] = audioBytes.charCodeAt(i);
                         }
-                        const blob = new Blob([uint8Array], {type: 'audio/mp3'});
+                        const blob = new Blob([uint8Array], {type: 'audio/wav'});
                         const audioUrl = URL.createObjectURL(blob);
                         const audio = new Audio(audioUrl);
                         

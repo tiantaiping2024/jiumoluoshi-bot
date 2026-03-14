@@ -123,11 +123,22 @@ import os
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 TTS_VOICE = "Ryan"  # 成熟男声
 
+
+class TTSRequest(BaseModel):
+    message: str = ""
+    text: str = ""
+
+
 @api_router.post("/tts")
-async def text_to_speech(text: str):
+async def text_to_speech(request: TTSRequest):
     """将文本转换为语音 (阿里云百炼 Qwen3-TTS)"""
     try:
         from app.tools.tts import synthesize_speech
+        
+        # 兼容 message 和 text 两种参数
+        text = request.message or request.text
+        if not text:
+            raise Exception("No text provided")
         
         # 使用阿里云百炼 TTS 生成语音
         audio_data = synthesize_speech(text, voice=TTS_VOICE)
@@ -135,13 +146,12 @@ async def text_to_speech(text: str):
         if not audio_data:
             raise Exception("No audio generated")
         
-        # 返回音频文件
-        from fastapi.responses import Response
-        return Response(
-            content=audio_data,
-            media_type="audio/wav",
-            headers={"Content-Disposition": f"inline; filename=tts.wav"}
-        )
+        # 返回 JSON 格式（包含 base64 音频）
+        import base64
+        return {
+            "audio": base64.b64encode(audio_data).decode('utf-8'),
+            "format": "wav"
+        }
     except Exception as e:
         print(f"TTS error: {e}")
         raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
