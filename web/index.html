@@ -700,8 +700,11 @@
         }
         
         // 处理用户语音输入
+        let isProcessingSpeech = false;  // 防止重复处理
+        
         async function handleUserSpeech(text) {
-            if (!text || isSpeaking) return;
+            if (!text || isSpeaking || isProcessingSpeech) return;
+            isProcessingSpeech = true;
             
             // 👏 中途打断：用户开始说话，立即停止当前AI语音
             if (window.speechSynthesis && isSpeaking) {
@@ -750,6 +753,8 @@
                         try { callRecognition.start(); } catch(e) {}
                     }, 1000);
                 }
+            } finally {
+                isProcessingSpeech = false;
             }
         }
         
