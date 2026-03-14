@@ -6,25 +6,14 @@ import hashlib
 import time
 import xml.etree.ElementTree as ET
 from fastapi import FastAPI, HTTPException, Request, Query
-from fastapi.responses import FileResponse, PlainTextResponse, StreamingResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import APIRouter
 from pydantic import BaseModel
 from pathlib import Path
 
-# 导入 TTS - 延迟导入以支持异步调用
-
-# 导入 Agent (新版本) - 延迟导入
-try:
-    from app.agents import create_jiumo_agent
-    print("Agent module imported successfully")
-    AGENT_AVAILABLE = True
-except Exception as e:
-    print(f"Agent import error: {e}")
-    import traceback
-    traceback.print_exc()
-    AGENT_AVAILABLE = False
-    create_jiumo_agent = None
+# 导入 Agent (新版本)
+from app.agents import create_jiumo_agent
 
 # 导入记忆模块
 from app.memory import memory
@@ -48,21 +37,8 @@ jiumo_agent = None
 def get_agent():
     """获取 Agent 实例"""
     global jiumo_agent
-    import os
-    api_key = os.getenv("DEEPSEEK_API_KEY", "")
-    print(f"get_agent: AGENT_AVAILABLE={AGENT_AVAILABLE}, api_key={'已设置' if api_key else '未设置'}")
-    
-    if not AGENT_AVAILABLE or create_jiumo_agent is None:
-        return None
     if jiumo_agent is None:
-        try:
-            jiumo_agent = create_jiumo_agent()
-            print(f"Agent created: {jiumo_agent}, api_key: {jiumo_agent.api_key[:10] if jiumo_agent.api_key else 'None'}...")
-        except Exception as e:
-            print(f"Create agent error: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+        jiumo_agent = create_jiumo_agent()
     return jiumo_agent
 
 # 根路径返回前端页面
@@ -85,48 +61,18 @@ class ChatResponse(BaseModel):
     reply: str
     session_id: str
 
-@api_router.get("/debug/env")
-async def debug_env():
-    """调试：查看环境变量"""
-    import os
-    return {
-        "DEEPSEEK_API_KEY": os.getenv("DEEPSEEK_API_KEY", "NOT FOUND")[:20] if os.getenv("DEEPSEEK_API_KEY") else "NOT FOUND",
-        "DEEPGRAM_API_KEY": os.getenv("DEEPGRAM_API_KEY", "NOT FOUND")[:20] if os.getenv("DEEPGRAM_API_KEY") else "NOT FOUND",
-    }
-
 @api_router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     """对话接口 (Agent模式)"""
     try:
-        import os
-        api_key = os.getenv("DEEPSEEK_API_KEY", "")
+        agent = get_agent()
         
-        # 硬编码测试 key
-        if not api_key or api_key == "sk-your-key-here":
-            api_key = "sk-b2bc78855f1b4b21978532f879bc718f"
+        # 加载会话历史
+        history = memory.get_history(request.session_id, limit=10)
+        agent.conversation_history = history
         
-        if not api_key:
-            reply = "API Key 未配置"
-        else:
-            try:
-                # 直接创建 Agent
-                from app.agents.jiumo_agent import JiumoAgent
-                agent = JiumoAgent()
-                
-                print(f"Agent created with API key: {agent.api_key[:10]}...")
-                
-                # 加载会话历史
-                history = memory.get_history(request.session_id, limit=10)
-                agent.conversation_history = history
-                
-                # 调用 Agent
-                reply = agent.chat(request.message, session_id=request.session_id)
-                print(f"Agent response: {reply[:50]}...")
-            except Exception as e:
-                print(f"Agent error: {e}")
-                import traceback
-                traceback.print_exc()
-                reply = f"Agent调用失败: {str(e)[:50]}"
+        # 调用 Agent
+        reply = agent.chat(request.message, session_id=request.session_id)
         
         # 保存对话
         memory.save_message(request.session_id, "user", request.message)
@@ -137,9 +83,7 @@ async def chat(request: ChatRequest):
         import traceback
         error_detail = traceback.format_exc()
         print(f"Chat error: {e}\n{error_detail}")
-        # 返回简单响应而不是错误
-        reply = f"阿弥陀佛，施主所说：{request.message}。贫衲已记下。"
-        return ChatResponse(reply=reply, session_id=request.session_id)
+        raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/clear")
 async def clear_session(session_id: str = "default"):
@@ -173,54 +117,59 @@ async def health():
     """健康检查"""
     return {"status": "healthy", "name": "鸠摩罗什Bot Agent", "version": "2.0.0"}
 
-@api_router.get("/tts/voices")
-async def get_voices():
-    """获取可用的语音列表"""
-    return {"voices": [
-        {"id": "default", "name": "ChatTTS 默认", "description": "抑扬顿挫的对话语音"}
-    ]}
+# ========== Edge TTS 接口 ==========
+import edge_tts
+import asyncio
+import io
 
-@api_router.post("/tts/speak")
-async def tts_speak(request: ChatRequest):
-    """语音合成接口 - 使用 Edge TTS"""
+# Edge TTS 语音配置 - 苍老男声
+TTS_VOICE = "zh-CN-YunxiNeural"  # 中文男声，成熟稳重
+
+@api_router.post("/tts")
+async def text_to_speech(text: str):
+    """将文本转换为语音 (Edge TTS)"""
     try:
-        from app.tools.tts import synthesize_speech_base64_async
-        audio_base64 = await synthesize_speech_base64_async(request.message)
-        return {
-            "audio": audio_base64,
-            "format": "mp3"
-        }
-    except Exception as e:
-        import traceback
-        return {"error": str(e), "audio": None}
-
-class STTRequest(BaseModel):
-    audio: str  # Base64 编码的音频
-    language: str = "zh-CN"
-
-@api_router.post("/stt/transcribe")
-async def transcribe_audio(request: STTRequest):
-    """语音识别接口 - 使用 Deepgram"""
-    try:
-        from app.tools.stt import transcribe_base64
-        print(f"收到音频请求，长度: {len(request.audio)}")
-        transcript = transcribe_base64(request.audio, request.language)
-        print(f"转录结果: '{transcript}'")
+        # 使用 Edge TTS 生成语音
+        communicate = edge_tts.Communicate(text, TTS_VOICE)
         
-        return {"transcript": transcript}
+        # 收集音频数据
+        audio_data = b""
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                audio_data += chunk["data"]
+        
+        if not audio_data:
+            raise Exception("No audio generated")
+        
+        # 返回音频文件
+        from fastapi.responses import Response
+        return Response(
+            content=audio_data,
+            media_type="audio/mp3",
+            headers={"Content-Disposition": f"inline; filename=tts.mp3"}
+        )
     except Exception as e:
-        import traceback
-        print(f"转录错误: {e}")
-        return {"error": str(e), "transcript": ""}
+        print(f"TTS error: {e}")
+        raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
 
-@api_router.get("/stt/status")
-async def stt_status():
-    """检查 STT 服务状态"""
-    from app.tools.stt import DEEPGRAM_API_KEY
-    return {
-        "deepgram_configured": bool(DEEPGRAM_API_KEY),
-        "provider": "deepgram" if DEEPGRAM_API_KEY else "browser"
-    }
+@api_router.get("/voices")
+async def list_voices():
+    """列出可用的 Edge TTS 语音"""
+    try:
+        voices = await edge_tts.list_voices()
+        # 过滤中文语音
+        chinese_voices = [
+            {
+                "name": v["ShortName"],
+                "gender": v["Gender"],
+                "locale": v["Locale"]
+            }
+            for v in voices
+            if v["Locale"].startswith("zh-")
+        ]
+        return {"voices": chinese_voices}
+    except Exception as e:
+        return {"error": str(e), "voices": []}
 
 @api_router.get("/tools")
 async def list_tools():
@@ -301,5 +250,4 @@ app.include_router(api_router)
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -5,16 +5,24 @@ uvicorn>=0.23.0
 pydantic>=2.0.0
 python-dotenv>=1.0.0
 
-# Edge TTS - 微软免费语音合成
-edge-tts>=6.1.0
-
-# Deepgram 语音识别
-deepgram-sdk>=6.0.0
-
 # LangChain Agent
 langchain>=0.3.0
 langchain-core>=0.3.0
-langchain-openai>=0.2.0
+langchain-deepseek>=0.2.0
+langchain-community>=0.3.0
+langgraph>=0.2.0
+
+# RAG 向量存储
+langchain-chroma>=0.1.0
+chromadb>=0.5.0
+langchain-text-splitters>=0.3.0
 
 # 工具
+tavily>=0.3.0
 requests>=2.31.0
+
+# MCP 支持
+mcp>=1.0.0
+
+# TTS
+edge-tts>=7.0.0
