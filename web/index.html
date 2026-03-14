@@ -305,14 +305,11 @@
         }
         .call-transcript {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #d4af37;
-            font-size: 1.2rem;
+            bottom: 150px;
+            color: #888;
+            font-size: 1rem;
             text-align: center;
             max-width: 80%;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
     </style>
 </head>
@@ -613,91 +610,82 @@
         const endCallBtn = document.getElementById('end-call-btn');
         
         let isInCall = false;
+        let callRecognition = null;
         let isListening = false;
         let isSpeaking = false;
         let silenceTimer = null;
-        let mediaRecorder = null;
-        let audioStream = null;
-        
-        // 初始化通话语音识别 - 使用阿里云百炼 Paraformer
+        // 初始化通话语音识别 - 使用浏览器原生 SpeechRecognition
         let callRecognition = null;
         
         function initCallRecognition() {
-            // 使用 MediaRecorder 录音 + 阿里云百炼识别
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                alert('您的浏览器不支持录音功能');
+            // 优先使用浏览器原生语音识别
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            
+            if (!SpeechRecognition) {
+                alert('您的浏览器不支持语音识别功能');
                 return false;
             }
+            
+            callRecognition = new SpeechRecognition();
+            callRecognition.continuous = true;
+            callRecognition.interimResults = true;
+            callRecognition.lang = 'zh-CN';
+            callRecognition.maxAlternatives = 1;
+            
+            // 识别结果
+            callRecognition.onresult = (event) => {
+                let transcript = '';
+                let isFinal = false;
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        isFinal = true;
+                    }
+                }
+                
+                if (transcript.trim()) {
+                    console.log('识别到:', transcript);
+                    callTranscript.textContent = transcript;
+                    resetSilenceTimer();
+                    
+                    if (isFinal && transcript.trim().length > 2) {
+                        handleUserSpeech(transcript.trim());
+                    }
+                }
+            };
+            
+            // 识别结束自动重启
+            callRecognition.onend = () => {
+                if (isInCall && !isSpeaking) {
+                    try { callRecognition.start(); } catch(e) {}
+                }
+            };
+            
+            callRecognition.onerror = (event) => {
+                console.log('识别错误:', event.error);
+                if (isInCall && !isSpeaking) {
+                    setTimeout(() => {
+                        try { callRecognition.start(); } catch(e) {}
+                    }, 1000);
+                }
+            };
+            
             return true;
         }
         
-        // 开始阿里云百炼语音识别
+        // 开始识别
         async function startDeepgramRecognition() {
+            if (!callRecognition) {
+                if (!initCallRecognition()) return false;
+            }
+            
             try {
-                // 获取麦克风
-                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // 创建 MediaRecorder
-                mediaRecorder = new MediaRecorder(audioStream, {
-                    mimeType: 'audio/webm;codecs=opus'
-                });
-                
-                mediaRecorder.ondataavailable = async (event) => {
-                    if (event.data.size > 0) {
-                        // 转换为 base64
-                        const reader = new FileReader();
-                        reader.onloadend = async () => {
-                            const base64 = reader.result.split(',')[1];
-                            try {
-                                const response = await fetch('/api/stt/transcribe', {
-                                    method: 'POST',
-                                    headers: {'Content-Type': 'application/json'},
-                                    body: JSON.stringify({audio: base64})
-                                });
-                                const result = await response.json();
-                                
-                                if (result.transcript && result.transcript.trim()) {
-                                    const transcript = result.transcript.trim();
-                                    console.log('识别到:', transcript);
-                                    callTranscript.textContent = transcript;
-                                    
-                                    // 识别到稳定结果后发送
-                                    if (transcript.length > 2) {
-                                        handleUserSpeech(transcript);
-                                    }
-                                }
-                            } catch (e) {
-                                console.log('识别请求失败', e);
-                            }
-                        };
-                        reader.readAsDataURL(event.data);
-                    }
-                };
-                
-                // 每2秒发送一次音频进行识别
-                mediaRecorder.start(2000);
-                
+                callRecognition.start();
                 isListening = true;
                 updateCallUI('listening');
                 return true;
-                
             } catch (e) {
-                console.log('启动识别失败', e);
-                alert('无法启动录音，请检查麦克风权限');
-                return false;
-            }
-        }
-        
-        // 停止识别
-        function stopDeepgramRecognition() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            if (audioStream) {
-                audioStream.getTracks().forEach(track => track.stop());
-            }
-            isListening = false;
-        }
                 console.log('启动识别失败', e);
                 return false;
             }
