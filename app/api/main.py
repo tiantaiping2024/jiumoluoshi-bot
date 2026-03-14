@@ -121,7 +121,7 @@ async def health():
 import os
 
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
-TTS_VOICE = "Ethan"  # 苍老男声
+TTS_VOICE = "Ryan"  # 成熟男声
 
 @api_router.post("/tts")
 async def text_to_speech(text: str):
