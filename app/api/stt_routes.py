@@ -53,22 +53,30 @@ async def transcribe_audio(request: Request):
         
         dashscope.api_key = DASHSCOPE_API_KEY
         
-        # 保存临时文件
+        # 保存临时文件 - 必须是 wav 格式
         with tempfile.NamedTemporaryFile(delete=False, suffix='.wav', mode='wb') as f:
             f.write(audio_data)
             temp_file = f.name
         
         try:
             # 调用 Paraformer 实时识别
-            recognition = Recognition(model='paraformer-realtime-v2')
+            recognition = Recognition(
+                model='paraformer-realtime-v2',
+                format='wav',
+                sample_rate=16000,
+                language_hints=['zh', 'en'],
+                callback=None
+            )
             result = recognition.call(temp_file)
             
             if result.status_code != 200:
                 return {"transcript": "", "error": result.message}
             
             # 提取文本
-            if hasattr(result, 'text') and result.text:
-                return {"transcript": result.text}
+            sentences = result.get_sentence()
+            if sentences:
+                transcript = "".join([s.text for s in sentences])
+                return {"transcript": transcript}
             
             return {"transcript": ""}
             
