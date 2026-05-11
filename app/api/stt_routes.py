@@ -1,11 +1,12 @@
 """
 阿里云百炼 STT 语音识别 - 使用 Paraformer 实时识别
-支持本地 wav 文件
+支持 webm 格式输入（前端 MediaRecorder 默认格式）
 """
 import os
 import base64
 import json
 import tempfile
+import subprocess
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
@@ -53,11 +54,28 @@ async def transcribe_audio(request: Request):
         
         dashscope.api_key = DASHSCOPE_API_KEY
         
-        # 保存临时文件 - 必须是 wav 格式
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav', mode='wb') as f:
-            f.write(audio_data)
-            temp_file = f.name
-        
+        # 将 webm/ogg 转换为 wav（16kHz 单声道），ffmpeg 已在 Docker 中安装
+        try:
+            # 先保存原始音频
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.webm', mode='wb') as f:
+                f.write(audio_data)
+                webm_file = f.name
+            # 转换为目标 wav 文件
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav', mode='wb') as f:
+                wav_file = f.name
+            subprocess.run([
+                'ffmpeg', '-y', '-i', webm_file,
+                '-ar', '16000', '-ac', '1', '-acodec', 'pcm_s16le',
+                wav_file
+            ], check=True, capture_output=True)
+        except subprocess.CalledProcessError as e:
+            return {"transcript": "", "error": f"Audio conversion failed: {e.stderr.decode() if e.stderr else str(e)}"}
+        finally:
+            try:
+                os.unlink(webm_file)
+            except:
+                pass
+
         try:
             # 调用 Paraformer 实时识别
             recognition = Recognition(
@@ -67,7 +85,7 @@ async def transcribe_audio(request: Request):
                 language_hints=['zh', 'en'],
                 callback=None
             )
-            result = recognition.call(temp_file)
+            result = recognition.call(wav_file)
             
             if result.status_code != 200:
                 return {"transcript": "", "error": result.message}
@@ -82,7 +100,7 @@ async def transcribe_audio(request: Request):
             
         finally:
             try:
-                os.unlink(temp_file)
+                os.unlink(wav_file)
             except:
                 pass
                 
