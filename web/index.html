@@ -642,12 +642,11 @@
                 audioChunks = [];
                 
                 mediaRecorder.ondataavailable = async (event) => {
-                    if (event.data.size > 0) {
-                        audioChunks.push(event.data);
-                        
+                    if (event.data.size > 0 && isInCall) {
                         // 转换为 base64 并发送到后端识别
                         const reader = new FileReader();
                         reader.onloadend = async () => {
+                            if (!isInCall) return; // 防止 endCall 后继续处理
                             const base64 = reader.result.split(',')[1];
                             try {
                                 const response = await fetch('/api/stt/transcribe', {
@@ -693,9 +692,12 @@
         function stopDeepgramRecognition() {
             if (mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                // 停止所有轨道
+            }
+            // 停止所有轨道
+            if (mediaRecorder && mediaRecorder.stream) {
                 mediaRecorder.stream.getTracks().forEach(track => track.stop());
             }
+            mediaRecorder = null; // 防止 endCall 后继续触发 ondataavailable
             isListening = false;
         }
         
