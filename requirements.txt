@@ -26,5 +26,5 @@ mcp>=1.0.0
 
 # TTS
 edge-tts>=7.0.0
-dashscope>=2.0.0
-dashscope>=2.0.0
+dashscope>=1.0.0
+dashscope>=1.0.0
