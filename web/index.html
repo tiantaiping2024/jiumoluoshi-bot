@@ -725,7 +725,7 @@
             
             // 显示用户说的话
             addMessage(text, 'user');
-            callTranscript.textContent = '';
+            // 不清空 callTranscript，让它持续显示直到 AI 开始回复
             
             // 等待鸠摩罗什回复
             showTyping();
@@ -799,13 +799,20 @@
                             resolve();
                         };
                         
-                        audio.onerror = () => {
+                        audio.onerror = (e) => {
+                            console.error('Audio play error:', e);
                             isSpeaking = false;
                             // 回退到浏览器 TTS
                             fallbackSpeakCall(text, resolve);
                         };
                         
-                        audio.play();
+                        const playPromise = audio.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(err => {
+                                console.error('Play promise rejected:', err);
+                                audio.onerror && audio.onerror(err);
+                            });
+                        }
                     } else {
                         throw new Error('No audio data');
                     }
