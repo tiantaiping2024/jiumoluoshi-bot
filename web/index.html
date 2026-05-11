@@ -305,11 +305,14 @@
         }
         .call-transcript {
             position: absolute;
-            bottom: 150px;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
             color: #888;
             font-size: 1rem;
             text-align: center;
             max-width: 80%;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -690,14 +693,15 @@
         
         // 停止 Deepgram 识别
         function stopDeepgramRecognition() {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
+            if (mediaRecorder) {
+                if (mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                if (mediaRecorder.stream) {
+                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                }
+                mediaRecorder = null;
             }
-            // 停止所有轨道
-            if (mediaRecorder && mediaRecorder.stream) {
-                mediaRecorder.stream.getTracks().forEach(track => track.stop());
-            }
-            mediaRecorder = null; // 防止 endCall 后继续触发 ondataavailable
             isListening = false;
         }
         
@@ -802,8 +806,8 @@
                         audio.onerror = (e) => {
                             console.error('Audio play error:', e);
                             isSpeaking = false;
-                            // 回退到浏览器 TTS
-                            fallbackSpeakCall(text, resolve);
+                            // 不再回退，直接结束
+                            resolve();
                         };
                         
                         const playPromise = audio.play();
@@ -819,8 +823,8 @@
                 })
                 .catch(err => {
                     console.error('TTS error:', err);
-                    // 回退到浏览器 TTS
-                    fallbackSpeakCall(text, resolve);
+                    // 不回退，直接结束通话
+                    resolve();
                 });
             });
         }
