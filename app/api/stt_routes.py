@@ -88,12 +88,13 @@ async def transcribe_audio(request: Request):
             result = recognition.call(wav_file)
             
             if result.status_code != 200:
-                return {"transcript": "", "error": result.message}
+                return {"transcript": "", "error": result.message if hasattr(result, 'message') else str(result)}
             
             # 提取文本
             sentences = result.get_sentence()
             if sentences:
-                transcript = "".join([s.text for s in sentences])
+                # 兼容 dict 和对象两种格式
+                transcript = "".join([s['text'] if isinstance(s, dict) else s.text for s in sentences])
                 return {"transcript": transcript}
             
             return {"transcript": ""}
