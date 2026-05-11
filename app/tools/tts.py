@@ -7,10 +7,12 @@ import os
 import re
 import requests
 from base64 import b64encode
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
 
 
 DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
 TTS_MODEL = "qwen3-tts-flash"
+TTS_TIMEOUT_SEC = 25  # Render 30s 超时保护
 
 # 可用的中文声音
 VOICES = {
@@ -50,32 +52,31 @@ def synthesize_speech(text: str, voice: str = DEFAULT_VOICE, format: str = "wav"
     if not text:
         text = "你好"
     
-    try:
+    # 使用 SSML 添加情感控制
+    ssml_text = f"<speak><voice name='{voice}'><prosody rate='{rate}' pitch='{pitch}'>{text}</prosody></voice></speak>"
+    
+    def _do_tts_call(tts_text, tts_voice):
         import dashscope
         from dashscope import MultiModalConversation
-        
         dashscope.api_key = DASHSCOPE_API_KEY
-        
-        # 使用 SSML 添加情感控制
-        # emotion: happy, sad, angry, neutral
-        ssml_text = f"<speak><voice name='{voice}'><prosody rate='{rate}' pitch='{pitch}'>{text}</prosody></voice></speak>"
-        
-        # 调用 TTS
-        resp = MultiModalConversation.call(
+        return MultiModalConversation.call(
             model=TTS_MODEL,
-            text=ssml_text,  # 使用 SSML
-            voice=voice,
+            text=tts_text,
+            voice=tts_voice,
             stream=False
         )
+    
+    try:
+        # 使用线程池包装，防止卡死（Render 30s 超时保护）
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(_do_tts_call, ssml_text, voice)
+            resp = future.result(timeout=TTS_TIMEOUT_SEC)
         
         if resp.get("status_code") != 200:
             # 如果 SSML 不支持，回退到普通文本
-            resp = MultiModalConversation.call(
-                model=TTS_MODEL,
-                text=text,
-                voice=voice,
-                stream=False
-            )
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(_do_tts_call, text, voice)
+                resp = future.result(timeout=TTS_TIMEOUT_SEC)
         
         if resp.get("status_code") != 200:
             raise Exception(f"TTS error: {resp.get('message')}")
@@ -88,10 +89,12 @@ def synthesize_speech(text: str, voice: str = DEFAULT_VOICE, format: str = "wav"
         if not audio_url:
             raise Exception("No audio URL returned")
         
-        # 下载音频
-        audio_data = requests.get(audio_url).content
+        # 下载音频（带超时）
+        audio_data = requests.get(audio_url, timeout=10).content
         return audio_data
         
+    except FuturesTimeoutError:
+        raise Exception(f"TTS timeout after {TTS_TIMEOUT_SEC}s")
     except Exception as e:
         raise Exception(f"TTS failed: {e}")
 
