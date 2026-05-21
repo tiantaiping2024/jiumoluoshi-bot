@@ -756,10 +756,13 @@
                 // 自动语音播放
                 await speakAndWait(data.reply);
                 
-                // 播放完毕，继续监听
+                // 播放完毕，继续监听（不等待上一次startDeepgramRecognition完成）
                 if (isInCall) {
                     updateCallUI('listening');
-                    await startDeepgramRecognition();
+                    // 延迟启动，等待音频通道释放
+                    setTimeout(() => {
+                        if (isInCall) startDeepgramRecognition();
+                    }, 500);
                 }
             } catch (error) {
                 hideTyping();
