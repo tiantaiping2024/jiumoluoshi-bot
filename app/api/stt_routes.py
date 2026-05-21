@@ -1,29 +1,23 @@
 """
-阿里云百炼 STT 语音识别 - 使用 Paraformer 实时识别
-支持 webm 格式输入（前端 MediaRecorder 默认格式）
+Deepgram STT 语音识别 - 使用 REST API 直接调用
+前端 MediaRecorder 采集的 webm/opus 音频流转为 base64 发送至此
 """
 import os
 import base64
 import json
-import tempfile
-import subprocess
+import requests
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-DASHSCOPE_API_KEY = os.getenv("DASHSCOPE_API_KEY", "")
-
 stt_router = APIRouter()
 
-
-@stt_router.post("/stream")
-async def stream_stt():
-    """阿里云百炼流式语音识别（已弃用）"""
-    return JSONResponse({"status": "deprecated"})
+DEEPGRAM_API_KEY = os.getenv("DEEPGRAM_API_KEY", "")
+DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
 
 
 @stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
-    """使用阿里云百炼 Paraformer 转录音频（支持本地文件）"""
+    """使用 Deepgram 转录音频（支持 webm/opus）"""
     try:
         body = await request.body()
         
@@ -45,66 +39,49 @@ async def transcribe_audio(request: Request):
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid audio data: {e}")
         
-        if not DASHSCOPE_API_KEY:
-            return {"transcript": "", "error": "DASHSCOPE_API_KEY not configured"}
+        if not DEEPGRAM_API_KEY:
+            return {"transcript": "", "error": "DEEPGRAM_API_KEY not configured"}
         
-        # 使用阿里云百炼实时识别 API
-        import dashscope
-        from dashscope.audio.asr import Recognition
+        # 直接调用 Deepgram REST API
+        headers = {
+            "Authorization": f"Token {DEEPGRAM_API_KEY}",
+            "Content-Type": "audio/webm",
+        }
+        params = {
+            "model": "nova-2",
+            "language": "zh-CN",
+            "smart_format": "true",
+            "punctuate": "true",
+        }
         
-        dashscope.api_key = DASHSCOPE_API_KEY
+        response = requests.post(
+            DEEPGRAM_URL,
+            headers=headers,
+            params=params,
+            data=audio_data,
+            timeout=30
+        )
         
-        # 将 webm/ogg 转换为 wav（16kHz 单声道），ffmpeg 已在 Docker 中安装
+        if response.status_code != 200:
+            return {"transcript": "", "error": f"Deepgram error: {response.status_code} {response.text}"}
+        
+        result = response.json()
+        
+        # 提取 transcript
+        transcript = ""
         try:
-            # 先保存原始音频
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.webm', mode='wb') as f:
-                f.write(audio_data)
-                webm_file = f.name
-            # 转换为目标 wav 文件
-            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav', mode='wb') as f:
-                wav_file = f.name
-            subprocess.run([
-                'ffmpeg', '-y', '-i', webm_file,
-                '-ar', '16000', '-ac', '1', '-acodec', 'pcm_s16le',
-                wav_file
-            ], check=True, capture_output=True)
-        except subprocess.CalledProcessError as e:
-            return {"transcript": "", "error": f"Audio conversion failed: {e.stderr.decode() if e.stderr else str(e)}"}
-        finally:
-            try:
-                os.unlink(webm_file)
-            except:
-                pass
-
-        try:
-            # 调用 Paraformer 实时识别
-            recognition = Recognition(
-                model='paraformer-realtime-v2',
-                format='wav',
-                sample_rate=16000,
-                language_hints=['zh', 'en'],
-                callback=None
-            )
-            result = recognition.call(wav_file)
-            
-            if result.status_code != 200:
-                return {"transcript": "", "error": result.message if hasattr(result, 'message') else str(result)}
-            
-            # 提取文本
-            sentences = result.get_sentence()
-            if sentences:
-                # 兼容 dict 和对象两种格式
-                transcript = "".join([s['text'] if isinstance(s, dict) else s.text for s in sentences])
-                return {"transcript": transcript}
-            
-            return {"transcript": ""}
-            
-        finally:
-            try:
-                os.unlink(wav_file)
-            except:
-                pass
-                
+            for channel in result.get("results", {}).get("channels", []):
+                for alternative in channel.get("alternatives", []):
+                    if alternative.get("transcript"):
+                        transcript += alternative["transcript"] + " "
+        except Exception as e:
+            return {"transcript": "", "error": f"Parse error: {e}"}
+        
+        transcript = transcript.strip()
+        return {"transcript": transcript}
+        
+    except requests.exceptions.Timeout:
+        return {"transcript": "", "error": "Deepgram request timeout"}
     except Exception as e:
         print(f"STT error: {e}")
         return {"transcript": "", "error": str(e)}

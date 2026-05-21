@@ -24,7 +24,5 @@ requests>=2.31.0
 # MCP 支持
 mcp>=1.0.0
 
-# TTS
-edge-tts>=7.0.0
-dashscope>=1.0.0
+# 阿里云百炼
 dashscope>=1.0.0
