@@ -1,10 +1,13 @@
 """
-Deepgram STT 语音识别 - 使用 REST API 直接调用
+Deepgram STT 语音识别
 前端 MediaRecorder 采集的 webm/opus 音频流转为 base64 发送至此
+转换为 16kHz mono linear16 PCM WAV 后发送给 Deepgram
 """
 import os
 import base64
 import json
+import tempfile
+import subprocess
 import requests
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import JSONResponse
@@ -17,7 +20,7 @@ DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
 
 @stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
-    """使用 Deepgram 转录音频（支持 webm/opus）"""
+    """使用 Deepgram 转录音频（webm/opus → 16kHz PCM WAV）"""
     try:
         body = await request.body()
         
@@ -42,14 +45,42 @@ async def transcribe_audio(request: Request):
         if not DEEPGRAM_API_KEY:
             return {"transcript": "", "error": "DEEPGRAM_API_KEY not configured"}
         
-        # 直接调用 Deepgram REST API
+        # 转换格式：webm/opus → 16kHz mono linear16 PCM WAV
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.webm', mode='wb') as f:
+                f.write(audio_data)
+                webm_file = f.name
+            
+            wav_file = tempfile.mktemp(suffix='.wav')
+            result = subprocess.run([
+                'ffmpeg', '-y', '-i', webm_file,
+                '-ar', '16000', '-ac', '1', '-acodec', 'pcm_s16le',
+                '-f', 'wav', wav_file
+            ], capture_output=True, timeout=30)
+            
+            if result.returncode != 0:
+                return {"transcript": "", "error": f"ffmpeg error: {result.stderr.decode()}"}
+            
+            # 读取转换后的 WAV 数据
+            with open(wav_file, 'rb') as f:
+                wav_data = f.read()
+                
+        finally:
+            for f in [webm_file, wav_file]:
+                try:
+                    os.unlink(f)
+                except:
+                    pass
+        
+        # 发送给 Deepgram
         headers = {
             "Authorization": f"Token {DEEPGRAM_API_KEY}",
-            "Content-Type": "audio/webm",
+            "Content-Type": "audio/l16",
         }
         params = {
             "model": "nova-2",
             "language": "zh-CN",
+            "sample_rate": "16000",
             "smart_format": "true",
             "punctuate": "true",
         }
@@ -58,7 +89,7 @@ async def transcribe_audio(request: Request):
             DEEPGRAM_URL,
             headers=headers,
             params=params,
-            data=audio_data,
+            data=wav_data,
             timeout=30
         )
         
@@ -80,6 +111,8 @@ async def transcribe_audio(request: Request):
         transcript = transcript.strip()
         return {"transcript": transcript}
         
+    except subprocess.TimeoutExpired:
+        return {"transcript": "", "error": "Audio conversion timeout"}
     except requests.exceptions.Timeout:
         return {"transcript": "", "error": "Deepgram request timeout"}
     except Exception as e:
