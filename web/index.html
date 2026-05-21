@@ -304,15 +304,13 @@
             transform: scale(1.05);
         }
         .call-transcript {
-            position: absolute;
-            top: 80px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #888;
-            font-size: 1rem;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            color: #aaa;
+            font-size: 0.95rem;
             text-align: center;
             max-width: 80%;
-            pointer-events: none;
+            min-height: 24px;
         }
     </style>
 </head>
@@ -619,6 +617,7 @@
         let silenceTimer = null;
         let mediaRecorder = null;
         let audioChunks = [];
+        let activeStream = null;  // 追踪活跃的音频流
         
         // 初始化通话语音识别 - 使用 Deepgram
         function initCallRecognition() {
@@ -638,6 +637,11 @@
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 
                 // 创建 MediaRecorder
+                if (activeStream) {
+                    activeStream.getTracks().forEach(track => track.stop());
+                }
+                activeStream = stream;
+                
                 mediaRecorder = new MediaRecorder(stream, {
                     mimeType: 'audio/webm;codecs=opus'
                 });
@@ -697,10 +701,11 @@
                 if (mediaRecorder.state !== 'inactive') {
                     mediaRecorder.stop();
                 }
-                if (mediaRecorder.stream) {
-                    mediaRecorder.stream.getTracks().forEach(track => track.stop());
-                }
                 mediaRecorder = null;
+            }
+            if (activeStream) {
+                activeStream.getTracks().forEach(track => track.stop());
+                activeStream = null;
             }
             isListening = false;
         }
@@ -822,7 +827,8 @@
                 })
                 .catch(err => {
                     console.error('TTS error:', err);
-                    resolve();
+                    // TTS 失败，尝试浏览器原生 TTS
+                    fallbackSpeakCall(text, resolve);
                 });
             });
         }
