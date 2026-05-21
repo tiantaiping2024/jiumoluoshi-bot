@@ -790,16 +790,19 @@
                     body: JSON.stringify({message: text})
                 })
                 .then(response => {
-                    if (!response.ok) throw new Error('TTS failed');
+                    if (!response.ok) {
+                        console.error('TTS HTTP error:', response.status, response.statusText);
+                        throw new Error('TTS HTTP ' + response.status);
+                    }
                     return response.json();
                 })
                 .then(data => {
                     // 检查 audio 字段是否存在且非空
                     if (!data.audio || data.audio.length < 100) {
-                        console.warn('TTS returned no audio data, skipping playback');
-                        resolve();
-                        return;
+                        console.error('TTS no audio data, raw response:', JSON.stringify(data).substring(0, 200));
+                        throw new Error('No audio data');
                     }
+                    console.log('TTS got audio, size:', data.audio.length, 'format:', data.format);
                     const audioBytes = atob(data.audio);
                     const arrayBuffer = new ArrayBuffer(audioBytes.length);
                     const uint8Array = new Uint8Array(arrayBuffer);
