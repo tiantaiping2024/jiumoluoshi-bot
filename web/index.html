@@ -655,13 +655,16 @@
                         reader.onloadend = async () => {
                             if (!isInCall) return; // 防止 endCall 后继续处理
                             const base64 = reader.result.split(',')[1];
+                            console.log('发送音频大小:', base64.length, 'bytes');
                             try {
                                 const response = await fetch('/api/stt/transcribe', {
                                     method: 'POST',
                                     headers: {'Content-Type': 'application/json'},
                                     body: JSON.stringify({audio: base64})
                                 });
+                                console.log('STT响应状态:', response.status);
                                 const result = await response.json();
+                                console.log('STT结果:', result);
                                 
                                 if (result.transcript && result.transcript.trim()) {
                                     const transcript = result.transcript.trim();
