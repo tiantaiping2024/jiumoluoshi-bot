@@ -632,6 +632,10 @@
         
         // 开始 Deepgram 识别
         async function startDeepgramRecognition() {
+            // 重置状态，防止残留事件干扰
+            stopDeepgramRecognition();
+            audioChunks = [];
+            
             try {
                 // 获取麦克风权限
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -645,8 +649,6 @@
                 mediaRecorder = new MediaRecorder(stream, {
                     mimeType: 'audio/webm;codecs=opus'
                 });
-                
-                audioChunks = [];
                 
                 mediaRecorder.ondataavailable = async (event) => {
                     if (event.data.size > 0 && isInCall) {
