@@ -677,7 +677,7 @@
                                     }
                                 }
                             } catch (e) {
-                                console.log('识别请求失败', e);
+                                console.log('识别请求失败:', e.message, 'Status:', e instanceof TypeError ? 'NetworkError' : 'Unknown');
                             }
                         };
                         reader.readAsDataURL(event.data);
@@ -701,15 +701,19 @@
         // 停止 Deepgram 识别
         function stopDeepgramRecognition() {
             if (mediaRecorder) {
-                if (mediaRecorder.state !== 'inactive') {
-                    mediaRecorder.stop();
-                }
+                try {
+                    if (mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                    }
+                    mediaRecorder.ondataavailable = null;  // 断开事件防止幽灵触发
+                } catch(e) {}
                 mediaRecorder = null;
             }
             if (activeStream) {
                 activeStream.getTracks().forEach(track => track.stop());
                 activeStream = null;
             }
+            audioChunks = [];
             isListening = false;
         }
         
