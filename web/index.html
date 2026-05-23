@@ -630,9 +630,9 @@
             return true;
         }
         
-        // 开始 Deepgram 识别
         async function startDeepgramRecognition() {
             // 重置状态，防止残留事件干扰
+            console.log('[STT] startDeepgramRecognition called, isInCall=', isInCall, 'isProcessingSpeech=', isProcessingSpeech);
             stopDeepgramRecognition();
             audioChunks = [];
             
@@ -656,7 +656,12 @@
                         const reader = new FileReader();
                         reader.onloadend = async () => {
                             if (!isInCall) return; // 防止 endCall 后继续处理
-                            const base64 = reader.result.split(',')[1];
+                            const b64 = reader.result.split(',')[1];
+                            if (!b64 || b64.length < 1000) {
+                                console.log('音频太小，跳过:', b64 ? b64.length : 'null');
+                                return;
+                            }
+                            const base64 = b64;
                             console.log('发送音频大小:', base64.length, 'bytes');
                             try {
                                 const response = await fetch('/api/stt/transcribe', {
