@@ -1,7 +1,7 @@
 """
 Deepgram STT 语音识别
-前端 MediaRecorder 采集的 webm/opus 音频流转为 base64 发送至此
-后端转换为 16kHz mono linear16 PCM 发送
+前端通过 Web Audio API + MediaRecorder 录制完整音频
+结束时将整个录音转为 base64 发送
 """
 import os
 import base64
@@ -20,7 +20,7 @@ DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
 
 @stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
-    """使用 Deepgram 转录音频（webm → 16kHz PCM L16）"""
+    """使用 Deepgram 转录音频（完整录音模式）"""
     try:
         body = await request.body()
         
@@ -42,10 +42,10 @@ async def transcribe_audio(request: Request):
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid audio data: {e}")
         
-        print(f"[STT] Received {len(audio_data)} bytes, DEEPGRAM_API_KEY present: {bool(DEEPGRAM_API_KEY)}")
-        
         if not DEEPGRAM_API_KEY:
             return {"transcript": "", "error": "DEEPGRAM_API_KEY not configured"}
+        
+        print(f"[STT] Received {len(audio_data)} bytes")
         
         # 保存为 webm 文件
         debug_dir = "/tmp/stt_debug"
@@ -67,8 +67,8 @@ async def transcribe_audio(request: Request):
         os.unlink(webm_file)
         
         if result.returncode != 0:
-            print(f"[STT] ffmpeg error: {result.stderr.decode()[:200]}")
-            return {"transcript": "", "error": f"ffmpeg: {result.stderr.decode()[:100]}"}
+            print(f"[STT] ffmpeg error: {result.stderr.decode()[:300]}")
+            return {"transcript": "", "error": f"ffmpeg: {result.stderr.decode()[:150]}"}
         
         # 读取 WAV 数据
         with open(wav_file, 'rb') as f:
@@ -97,8 +97,6 @@ async def transcribe_audio(request: Request):
             data=wav_data,
             timeout=30
         )
-        
-        print(f"[STT] Deepgram response: {response.status_code}")
         
         if response.status_code != 200:
             return {"transcript": "", "error": f"Deepgram {response.status_code}: {response.text[:100]}"}
