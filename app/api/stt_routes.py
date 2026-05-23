@@ -1,7 +1,7 @@
 """
 Deepgram STT 语音识别
 前端 MediaRecorder 采集的 webm/opus 音频流转为 base64 发送至此
-尝试 ogg/opus 格式（Deepgram 原生支持）
+后端转换为 16kHz mono linear16 PCM 发送
 """
 import os
 import base64
@@ -20,7 +20,7 @@ DEEPGRAM_URL = "https://api.deepgram.com/v1/listen"
 
 @stt_router.post("/transcribe")
 async def transcribe_audio(request: Request):
-    """使用 Deepgram 转录音频"""
+    """使用 Deepgram 转录音频（webm → 16kHz PCM L16）"""
     try:
         body = await request.body()
         
@@ -42,119 +42,81 @@ async def transcribe_audio(request: Request):
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Invalid audio data: {e}")
         
+        print(f"[STT] Received {len(audio_data)} bytes, DEEPGRAM_API_KEY present: {bool(DEEPGRAM_API_KEY)}")
+        
         if not DEEPGRAM_API_KEY:
             return {"transcript": "", "error": "DEEPGRAM_API_KEY not configured"}
         
-        # 保存调试文件
+        # 保存为 webm 文件
         debug_dir = "/tmp/stt_debug"
         os.makedirs(debug_dir, exist_ok=True)
         import time
         ts = int(time.time() * 1000)
-        debug_file = f"{debug_dir}/audio_{ts}.webm"
-        with open(debug_file, "wb") as f:
+        webm_file = f"{debug_dir}/audio_{ts}.webm"
+        with open(webm_file, "wb") as f:
             f.write(audio_data)
-        print(f"[STT] Saved {len(audio_data)} bytes to {debug_file}")
         
-        # 方法1：尝试直接用 webm 发送（Deepgram 官方支持）
-        for content_type, ext in [
-            ("audio/webm", "webm"),
-            ("audio/ogg", "ogg"),
-            ("audio/opus", "opus"),
-        ]:
-            print(f"[STT] Trying {content_type}...")
-            params = {
-                "model": "nova-2",
-                "language": "zh-CN",
-                "smart_format": "true",
-                "punctuate": "true",
-            }
-            headers = {
-                "Authorization": f"Token {DEEPGRAM_API_KEY}",
-                "Content-Type": content_type,
-            }
-            
-            response = requests.post(
-                DEEPGRAM_URL,
-                headers=headers,
-                params=params,
-                data=audio_data,
-                timeout=30
-            )
-            
-            print(f"[STT] {content_type} → {response.status_code}")
-            if response.status_code == 200:
-                result = response.json()
-                transcript = ""
-                try:
-                    for channel in result.get("results", {}).get("channels", []):
-                        for alternative in channel.get("alternatives", []):
-                            if alternative.get("transcript"):
-                                transcript += alternative["transcript"] + " "
-                except Exception as e:
-                    print(f"[STT] Parse error: {e}")
-                print(f"[STT] Transcript: '{transcript.strip()}'")
-                return {"transcript": transcript.strip()}
-            else:
-                print(f"[STT] {content_type} failed: {response.text[:200]}")
+        # 转换: webm → 16kHz mono linear16 PCM WAV
+        wav_file = f"{debug_dir}/audio_{ts}.wav"
+        result = subprocess.run([
+            'ffmpeg', '-y', '-i', webm_file,
+            '-ar', '16000', '-ac', '1', '-acodec', 'pcm_s16le',
+            '-f', 'wav', '-hide_banner', wav_file
+        ], capture_output=True, timeout=30)
         
-        # 方法2：尝试 ffmpeg 转换
-        print("[STT] Trying ffmpeg conversion...")
+        os.unlink(webm_file)
+        
+        if result.returncode != 0:
+            print(f"[STT] ffmpeg error: {result.stderr.decode()[:200]}")
+            return {"transcript": "", "error": f"ffmpeg: {result.stderr.decode()[:100]}"}
+        
+        # 读取 WAV 数据
+        with open(wav_file, 'rb') as f:
+            wav_data = f.read()
+        os.unlink(wav_file)
+        
+        print(f"[STT] Converted to {len(wav_data)} bytes PCM WAV")
+        
+        # 发送 L16 PCM 到 Deepgram
+        headers = {
+            "Authorization": f"Token {DEEPGRAM_API_KEY}",
+            "Content-Type": "audio/l16",
+        }
+        params = {
+            "model": "nova-2",
+            "language": "zh-CN",
+            "sample_rate": "16000",
+            "smart_format": "true",
+            "punctuate": "true",
+        }
+        
+        response = requests.post(
+            DEEPGRAM_URL,
+            headers=headers,
+            params=params,
+            data=wav_data,
+            timeout=30
+        )
+        
+        print(f"[STT] Deepgram response: {response.status_code}")
+        
+        if response.status_code != 200:
+            return {"transcript": "", "error": f"Deepgram {response.status_code}: {response.text[:100]}"}
+        
+        result_data = response.json()
+        
+        # 提取 transcript
+        transcript = ""
         try:
-            wav_file = f"{debug_dir}/audio_{ts}.wav"
-            result = subprocess.run([
-                'ffmpeg', '-y', '-i', debug_file,
-                '-ar', '16000', '-ac', '1', '-acodec', 'pcm_s16le',
-                '-f', 'wav', wav_file
-            ], capture_output=True, timeout=30)
-            
-            if result.returncode == 0:
-                with open(wav_file, 'rb') as f:
-                    wav_data = f.read()
-                print(f"[STT] ffmpeg converted to {len(wav_data)} bytes WAV")
-                
-                headers = {
-                    "Authorization": f"Token {DEEPGRAM_API_KEY}",
-                    "Content-Type": "audio/l16",
-                }
-                params = {
-                    "model": "nova-2",
-                    "language": "zh-CN",
-                    "sample_rate": "16000",
-                    "smart_format": "true",
-                    "punctuate": "true",
-                }
-                
-                response = requests.post(
-                    DEEPGRAM_URL,
-                    headers=headers,
-                    params=params,
-                    data=wav_data,
-                    timeout=30
-                )
-                
-                if response.status_code == 200:
-                    result = response.json()
-                    transcript = ""
-                    try:
-                        for channel in result.get("results", {}).get("channels", []):
-                            for alternative in channel.get("alternatives", []):
-                                if alternative.get("transcript"):
-                                    transcript += alternative["transcript"] + " "
-                    except Exception as e:
-                        pass
-                    return {"transcript": transcript.strip()}
-                else:
-                    print(f"[STT] WAV failed: {response.text[:200]}")
-            else:
-                print(f"[STT] ffmpeg error: {result.stderr.decode()[:200]}")
-        finally:
-            for f in [debug_file, wav_file]:
-                try:
-                    os.unlink(f)
-                except:
-                    pass
+            for channel in result_data.get("results", {}).get("channels", []):
+                for alternative in channel.get("alternatives", []):
+                    if alternative.get("transcript"):
+                        transcript += alternative["transcript"] + " "
+        except Exception as e:
+            print(f"[STT] Parse error: {e}")
         
-        return {"transcript": "", "error": "All STT methods failed"}
+        print(f"[STT] Transcript: '{transcript.strip()}'")
+        return {"transcript": transcript.strip()}
         
     except requests.exceptions.Timeout:
         return {"transcript": "", "error": "Deepgram request timeout"}
