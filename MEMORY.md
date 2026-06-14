@@ -11,7 +11,10 @@
 
 ### Cron Jobs
 - **`team-deep-check`** (每4小时): 深检报告，调度: `0 0,4,8,12,16,20 * * *`，sessionTarget=isolated
-- **`team-coordinator-hourly`** (每小时): 每小时状态报告，已于 2026-06-13 02:01 后失联，cron 列表中未见 ⚠️
+- **`team-coordinator-hourly`** (每小时): 每小时状态报告，运行于**两处**: 本地机器 + Render worker/CI (team-coordinator@jiumoluoshi.bot)，两地各自提交导致 Git 分叉 ⚠️
+  - 本地: `tiantaiping2024@users.noreply.github.com` 推送 local commits
+  - Render CI: `team-coordinator@jiumoluoshi.bot` 推送 origin commits
+  - **已合并** (2026-06-14 12:00): `90718307` = origin/main
 
 ### 报告存储
 - `memory/team-deep-check-YYYY-MM-DD-HH.md` — 4小时深检报告（workspace memory/）
@@ -32,9 +35,11 @@
 - **问题**: 回调 URL 已更新为 Render 生产地址，需田太平在企业微信应用后台"发送测试"确认消息能到达
 - **状态**: 持续多日未解决，不影响核心闭环
 
-### team-coordinator-hourly 状态（已澄清）
-- **澄清**: 2026-06-13 13:00 确认 cron job `team-coordinator-hourly` 持续正常运行，lastRunStatus: ok，consecutiveErrors: 0
-- MEMORY.md 此前「停摆」记载系有误，已更正
+### team-coordinator-hourly 状态（双实例运行）
+- **双实例确认**: `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，导致 Git 分叉
+  - 本地 commit author: `tiantaiping2024@users.noreply.github.com`
+  - Render CI commit author: `team-coordinator@jiumoluoshi.bot`
+- **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD，解决了 team-coordinator-status.md 冲突 ✅
 
 ## 稳定运行记录
 
