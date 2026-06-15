@@ -1,6 +1,6 @@
 # 团队协调员最新状态
 
-**更新时间**: 2026-06-15 20:03 (Asia/Shanghai)
+**更新时间**: 2026-06-15 22:03 (Asia/Shanghai)
 
 ## 状态总览
 
@@ -9,7 +9,7 @@
 | Render 生产 | 🟢 健康 v2.0.0 |
 | Git 同步 | 🟢 完全同步 `6d7c541` = origin/main ✅ |
 | 闭环 | 🟢 测试/验收/部署/运营 全绿 ✅ |
-| Cron | 🟢 team-coordinator-hourly 20:00 UTC 本次运行中 |
+| Cron | 🟢 team-coordinator-hourly 22:00 北京时间 本次运行中 |
 | 阻塞 | ⚠️ P2+ staggerMs 偏置；P3 企业微信 |
 
 ## 当前 Git HEAD
@@ -26,4 +26,4 @@
 
 ---
 
-*最后更新: 2026-06-15 20:03*
+*最后更新: 2026-06-15 22:03*
