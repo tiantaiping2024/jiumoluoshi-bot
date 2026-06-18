@@ -1,48 +1,15 @@
-# team-coordinator-status.md
+# team-coordinator-status
 
-**最后更新**: 2026-06-19 03:01 (Asia/Shanghai) / 丑时四刻
+**last updated**: 2026-06-19 06:01 (Asia/Shanghai)
 
-## 最新报告
-- `team-coordinator-2026-06-19-03.md` — 丑时四刻状态（本次）
-- `team-deep-check-2026-06-19-00.md` — 子时深检（2026-06-19 00:00）
+## current status
 
-## 关键状态
+- **Render 生产**: 🟢 healthy, v2.0.0
+- **Git sync**: 🟢 workspace `ef33738` = origin/main, jiumoluoshi-bot `5e90cba` = origin/main
+- **闭环**: 🟢 无中断
+- **P0/P1/P2 阻塞**: 无
+- **P3 待处理**: 企业微信回调 URL 验证
 
-| 项目 | 状态 |
-|------|------|
-| Render 生产 | 🟢 健康 v2.0.0 `/api/health` HTTP 200 ✅ |
-| Git 同步 | 🟢 `0e772e4` = origin/main |
-| 闭环链路 | 🟢 全部正常 |
-| P0 阻塞 | ✅ 无 |
-| P1 阻塞 | ✅ 无 |
-| P2 阻塞 | ✅ 无 |
+## last check
 
-## 闭环状态（7x24 全绿）
-
-| 环节 | 状态 |
-|------|------|
-| 开发 | 🟢 `0e772e4` 已 push 到 origin/main |
-| 测试 | 🟢 Render `/api/health` HTTP 200 |
-| 验收 | 🟢 公网 HTTPS 可访问 |
-| 部署 | 🟢 Render 生产 v2.0.0 运行中 |
-| 运营 | 🟢 每小时/4小时 cron 正常 |
-
-## Cron 调度状态
-
-| Job | 状态 | 上次运行 |
-|-----|------|----------|
-| `team-deep-check` (每4h) | 🟢 | 2026-06-19 00:00 ✅ |
-| `team-coordinator-hourly` | 🟢 | 2026-06-19 03:00 ✅ |
-
-> ⚠️ `team-coordinator-hourly` 的 `staggerMs` 仍为 `300000`（5分钟随机偏移），P3 未解决，不影响运行
-
-## 待田太平处理
-
-| 优先级 | 事项 | 说明 |
-|--------|------|------|
-| 🟡 P3 | 企业微信回调验证 | 在企业微信应用后台"发送测试"确认消息能到达 Render 生产 |
-| 🟡 P3 | `staggerMs` 修复 | `gateway config.patch` 将 `staggerMs` 改为 `0`（可选，不影响运行） |
-
----
-
-*team-coordinator — 2026-06-19 03:01 (Asia/Shanghai)*
+2026-06-19 06:01 (卯时二刻) - team-coordinator-hourly
