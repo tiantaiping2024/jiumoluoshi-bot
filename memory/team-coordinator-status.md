@@ -1,66 +1,22 @@
----
+# team-coordinator-status.md
 
-# 🕉️ 鸠摩罗什Bot 团队协调员最新状态
+**最后更新**: 2026-06-18 11:00 (Asia/Shanghai) / 午时初刻
 
-**最后更新**: 2026-06-18 14:00 (Asia/Shanghai) / **周四未时正刻**
+## 最新报告
+- `team-coordinator-2026-06-18-11.md` — 午时初刻状态
 
----
+## 关键状态
 
-## 📊 服务健康
-
-| 服务 | 状态 |
+| 项目 | 状态 |
 |------|------|
-| **Render 生产** (`jiumoluoshi-bot.onrender.com`) | 🟢 v2.0.0 healthy ✅ |
-| **OpenClaw Gateway** (port 18789) | 🟢 运行中 ✅ |
+| Render 生产 | 🟢 健康 v2.0.0 |
+| Git 同步 | 🟢 `f104e42` = origin/main |
+| 闭环链路 | 🟢 全部正常 |
+| P0 阻塞 | 🚨 `team-coordinator-hourly` 连续4次 LLM 错误 |
+| P3 阻塞 | ⚠️ `staggerMs=300000` 需修复为 0 |
+| P3 阻塞 | ⚠️ 企业微信回调验证待人工确认 |
 
----
-
-## ✅ Git 同步
-
-| 仓库 | HEAD | origin/main | 状态 |
-|------|------|-------------|------|
-| `workspace` | `74ef650` | `74ef650` | 🟢 完全同步 ✅ |
-| `jiumoluoshi-bot`（子模块） | `0398511` | — | 🟢 落后1个 commit，无阻塞 |
-
----
-
-## 🔄 闭环状态（7x24 全绿）
-
-开发 → Git push → Render 自动部署 → health check → 运营闭环
-
-| 环节 | 状态 |
-|------|------|
-| **开发** | 🟢 |
-| **测试** | 🟢 |
-| **验收** | 🟢 |
-| **部署** | 🟢 |
-| **运营** | 🟢 |
-
----
-
-## 📋 阻塞清单
-
-| 优先级 | 事项 | 状态 |
-|--------|------|------|
-| 🟢 P0 | 无 | ✅ |
-| 🟢 P1 | 无 | ✅ |
-| 🟢 P2 | 无 | ✅ |
-| 🟡 P3 | 企业微信回调 URL 验证 | ⚠️ 待田太平人工确认 |
-
----
-
-## 📈 近期运行记录
-
-- **14:00 CST** 🟢 未时正刻报告，服务健康，Git 完全同步，无阻塞
-- **13:00 CST** 🟢 午时正刻报告，/api/health HTTP 200 ✅
-- **12:00 CST** 🟢 team-deep-check 深度检查正常
-- **11:00 CST** 🟢 午时初刻报告
-
----
-
-🎊 **鸠摩罗什Bot 生产服务 v2.0.0 稳定运行，闭环核心链路正常，Git 完全同步，无 P0/P1/P2 阻塞。** 🙏
-
----
-
-*最后报告: `memory/team-coordinator-2026-06-18-14.md`*
-*team-coordinator-hourly - 2026-06-18 14:00 (Asia/Shanghai)*
+## 待田太平处理
+1. 🔴 **紧急**: 排查 `team-coordinator-hourly` LLM API 错误 (`api_error: unknown error, 999 (1000)`)
+2. 🟡 **中**: `gateway config.patch` 将 `staggerMs` 改为 `0`
+3. 🟡 **低**: 企业微信应用后台测试消息回调
