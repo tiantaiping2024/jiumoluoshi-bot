@@ -1,23 +1,23 @@
 # team-coordinator-status
 
-**last updated**: 2026-06-19 20:03 (Asia/Shanghai)
+**last updated**: 2026-06-20 02:03 (Asia/Shanghai)
 
 ## current status
 
-- **Render 生产**: 🟢 healthy, v2.0.0
-- **Git sync**: 🟢 workspace `7fb3c92` = origin/main ✅ | jiumoluoshi-bot `7fb3c921` = origin/main ✅
+- **Render 生产**: 🟢 healthy, HTTP 200, v2.0.0
+- **Git sync**: 🟢 workspace `524d3fc` = origin/main ✅ | jiumoluoshi-bot `72d16b4` = origin/main ✅
 - **闭环**: 🟢 无中断，自 2026-06-06 稳定运行
 - **P0/P1/P2 阻塞**: 无
 - **P3 待处理**: 企业微信回调 URL 验证、Codex + CC Switch + MiniMax 方案决策
 
 ## last check
 
-2026-06-19 20:03 (戌时) - team-coordinator-hourly
+2026-06-20 02:03 (丑时) - team-coordinator-hourly
 
 ## 分叉修复记录
 
 - **2026-06-19 16:05**: `git reset --hard origin/main && git cherry-pick e200d74` 合并分叉 ✅
-- Git 已恢复同步（`7fb3c92` = origin/main）
+- **2026-06-20 02:03**: workspace push 被 origin 先推的 `72d16b4` 拒绝 → `git pull --ff` 合并 → push `524d3fc` 成功 ✅
 
 ## action items
 
