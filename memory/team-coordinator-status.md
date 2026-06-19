@@ -1,28 +1,25 @@
 # team-coordinator-status
 
-**last updated**: 2026-06-19 12:04 (Asia/Shanghai)
+**last updated**: 2026-06-19 16:05 (Asia/Shanghai)
 
 ## current status
 
 - **Render 生产**: 🟢 healthy, v2.0.0
-- **Git sync**: 🟢 jiumoluoshi-bot `408f4c6` = origin/main ✅ | 🔴 workspace 分叉（e200d74 vs origin/main 差 3 commits）
+- **Git sync**: 🟢 workspace `af40b0e` = ahead 1 of origin/main ✅（已修复分叉）
 - **闭环**: 🟢 无中断
 - **P0/P1/P2 阻塞**: 无
-- **P3 待处理**: 企业微信回调 URL 验证 + workspace Git 分叉
+- **P3 待处理**: 企业微信回调 URL 验证
 
 ## last check
 
-2026-06-19 12:04 (午时) - team-coordinator-hourly
+2026-06-19 16:04 (申时) - team-coordinator-hourly
 
-## 分叉处理建议
+## 分叉修复记录
 
-workspace Git 分叉已持续 3+ 小时，原因是 `memory/*.md` 未跟踪文件阻止自动 merge：
+- **2026-06-19 16:05**: `git reset --hard origin/main && git cherry-pick e200d74` 合并分叉
+- workspace Git 已恢复同步（ahead 1 commit，将 push 到 origin/main）
 
-```bash
-mkdir /tmp/memory-backup
-mv memory/team-coordinator-2026-06-18*.md /tmp/memory-backup/
-git pull origin main
-mv /tmp/memory-backup/*.md memory/
-```
+## action items
 
-或接受分叉，在 GitHub 网页上手动合并。**核心 dev loop 不受影响。**
+- [ ] P3: 企业微信回调 URL 验证（需田太平在企业微信应用后台"发送测试"）
+- [ ] 建议将 memory/ team-coordinator/deep-check 文件加入 .gitignore，避免积累未跟踪文件
