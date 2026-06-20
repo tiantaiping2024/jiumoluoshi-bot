@@ -5,7 +5,7 @@
 ## current status
 
 - **Render 生产**: 🟢 healthy, HTTP 200, v2.0.0
-- **Git sync**: 🟢 workspace `c412b83` = origin/main ✅ | jiumoluoshi-bot `c412b83` ✅ | fay ✅ (local runtime data only)
+- **Git sync**: 🟢 workspace `e77d042` = origin/main ✅ | jiumoluoshi-bot ✅ | fay ✅ (local runtime data only)
 - **闭环**: 🟢 无中断，自 2026-06-06 稳定运行
 - **P0/P1/P2 阻塞**: 无
 - **P3 待处理**: 企业微信回调 URL 验证、Codex + CC Switch + MiniMax 方案决策
