@@ -1,34 +1,20 @@
-# team-coordinator-status
+# 团队协调状态 — 2026-06-21 03:01
 
-**last updated**: 2026-06-21 02:01 (Asia/Shanghai)
+## 最新报告
+`team-coordinator-2026-06-21-03.md`
 
-## current status
+## 状态摘要
+| 维度 | 状态 |
+|------|------|
+| 闭环健康度 | 🟢 完全健康 |
+| 服务 | 🟢 v2.0.0, /api/health 200 |
+| Git 同步 | 🟢 `24e87cec` = origin/main |
+| 深检 | 🟢 连续成功 |
+| P0/P1/P2 | ✅ 无 |
 
-- **Render 生产**: 🟢 healthy, HTTP 200, v2.0.0
-- **Git sync**: 🟢 workspace `c76a1f4` = origin/main ✅ | ahead/behind = 0
-- **jiumoluoshi-bot 子仓库**: 🟢 `c76a1f4` = origin/main ✅
-- **Redis**: 🟢 运行中 (openmusic-redis, 2周+)
-- **闭环**: 🟢 无中断，自 2026-06-06 稳定运行
-- **P0/P1/P2 阻塞**: 无
-- **team-deep-check**: 🔴 cron 丢失（仅 coordinator 可见），上次深检 2026-06-20 20:04
+## P3 遗留
+- 企业微信回调验证（悬而未决）
+- memory 文件积累待归档
 
-## last check
-
-2026-06-21 02:01 (子时) - team-coordinator-hourly
-
-## 分叉修复记录
-
-- **2026-06-19 16:05**: `git reset --hard origin/main && git cherry-pick e200d74` 合并分叉 ✅
-- **2026-06-20 02:03**: Git 完全同步，无分叉风险 ✅
-- **2026-06-20 15:01**: Git 完美同步，ahead/behind = 0 ✅
-- **2026-06-20 19:01**: Git 完美同步，`4c08df9` = origin/main ✅
-- **2026-06-20 22:05**: Git 完美同步，`4250849` = origin/main ✅
-- **2026-06-20 23:01**: jiumoluoshi-bot 子仓库分叉修复，`git reset --hard origin/main` → `42508490` ✅
-- **2026-06-21 00:03**: Git 完美同步，`c76a1f4` = origin/main ✅
-- **2026-06-21 02:01**: Git 完美同步，`c76a1f4` = origin/main ✅ | 🔴 team-deep-check cron 丢失
-
-## action items
-
-- [ ] P3: 企业微信回调 URL 验证（需田太平在企业微信应用后台"发送测试"）
-- [ ] P3: memory/ 文件积累，建议加入 .gitignore 或定期归档
-- [x] 🔴 team-deep-check cron 丢失，需人工重建（仅 coordinator session 可见）
+## 闭环链路
+开发 → Git → Render v2.0.0 → health → cron ✅
