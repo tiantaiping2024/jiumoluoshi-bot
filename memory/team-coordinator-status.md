@@ -1,6 +1,6 @@
 # team-coordinator-status
 
-**最后更新**: 2026-06-21 11:01 (Asia/Shanghai)
+**最后更新**: 2026-06-21 13:01 (Asia/Shanghai)
 
 ## 整体状态: 🟢 完全健康
 
@@ -11,11 +11,11 @@
 ## Git 同步
 | 仓库 | HEAD | origin/main | 状态 |
 |------|------|-------------|------|
-| workspace | `8e896a46` | `8e896a46` | 🟢 |
-| jiumoluoshi-bot | `8e896a46` | `8e896a46` | 🟢 |
+| workspace | `0459d92` | `0459d92` | 🟢 |
+| jiumoluoshi-bot | `0459d92` | `0459d92` | 🟢 |
 
-## 深检连续成功: 5次 (12:00/16:00/20:00/00:00/04:00)
-## team-coordinator: 本次 2026-06-21 11:01 ✅
+## 深检: 上次 2026-06-21 12:00 ✅ 正常，连续成功
+## team-coordinator: 本次 2026-06-21 13:01 ✅
 
 ## 阻塞清单
 ### P0/P1/P2: ✅ 无
@@ -23,6 +23,7 @@
 ### 🟡 P3
 - 企业微信回调 URL 验证（需田太平操作）
 - memory/ 文件积累建议处理
+- aitoearn TikTok 粉丝不足（≥100门槛），无法接单
 
 ## 闭环链路
 ```
@@ -30,5 +31,5 @@
   ↓ cron
 team-coordinator (每h) ✅
   ↓
-team-deep-check (每4h) ✅ 连续5次成功
+team-deep-check (每4h) ✅ 连续正常
 ```
