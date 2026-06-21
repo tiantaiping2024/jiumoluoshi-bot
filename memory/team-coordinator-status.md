@@ -11,10 +11,8 @@
 ## Git 同步
 | 仓库 | HEAD | origin/main | 状态 |
 |------|------|-------------|------|
-| workspace | `44fb4fd` | `44fb4fd` | 🟢 |
-| jiumoluoshi-bot | `44fb4fd9` | `44fb4fd9` | 🟢 |
-
-- **分叉合并**: workspace local `b88a897` ← origin `37f56eb8` → 已 merge ✅
+| workspace | `b9cb37e` | `5d933dbf` | 🟢 待推送 |
+| jiumoluoshi-bot | `5d933dbf` | `5d933dbf` | 🟢 |
 
 ## 深检连续成功: 6次 (20:00✅)
 ## team-coordinator: 本次 2026-06-21 20:04 ✅
