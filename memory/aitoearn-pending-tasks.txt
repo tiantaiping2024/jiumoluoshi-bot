@@ -1,0 +1,2 @@
+{"timestamp": "2026-06-20-18", "taskId": "6a3363e47503490a1176e987", "userTaskId": null, "title": "Promote YOWO TV in TikTok Minis", "type": "promotion", "platforms": ["tiktok"], "reward": 200, "cpeReward": 1000, "accept_ok": false}
+{"timestamp": "2026-06-20-18", "taskId": "6a3363e47503490a1176e987", "userTaskId": null, "title": "Promote YOWO TV in TikTok Minis", "type": "promotion", "platforms": ["tiktok"], "reward": 200, "cpeReward": 1000, "accept_ok": false}
