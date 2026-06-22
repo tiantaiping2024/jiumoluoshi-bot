@@ -11,16 +11,15 @@
 
 ### Cron Jobs
 - **`team-deep-check`** (每4小时): 深检报告，调度: `0 0,4,8,12,16,20 * * *`，sessionTarget=isolated
-- **`team-coordinator-hourly`** (每小时): 每小时状态报告，运行于**两处**: 本地机器 + Render worker/CI (team-coordinator@jiumoluoshi.bot)，两地各自提交导致 Git 分叉 ⚠️
+- **`team-coordinator-hourly`** (每小时): 每小时状态报告，运行于**两处**: 本地机器 + Render worker/CI，两地各自提交导致 Git 分叉 ⚠️
   - 本地: `tiantaiping2024@users.noreply.github.com` 推送 local commits
   - Render CI: `team-coordinator@jiumoluoshi.bot` 推送 origin commits
-  - **已合并** (2026-06-14 12:00): `90718307` = origin/main
+  - **已合并** (2026-06-14 12:00)
 
 ### 报告存储
-- `memory/team-deep-check-YYYY-MM-DD-HH.md` — 4小时深检报告（workspace memory/）
+- `memory/team-deep-check-YYYY-MM-DD-HH.md` — 4小时深检报告
 - `memory/team-coordinator-YYYY-MM-DD-HH.md` — 每小时协调员报告
-- `jiumoluoshi-bot/memory/team-coordinator-YYYY-MM-DD-HH.md` — 同上（repo内副本）
-- `jiumoluoshi-bot/memory/team-coordinator-status.md` — 最新汇总状态
+- `memory/team-coordinator-status.md` — 最新汇总状态
 
 ### 闭环链路
 开发 → Git push → Render 自动部署 → health check → 运营闭环
@@ -35,11 +34,12 @@
 - **问题**: 回调 URL 已更新为 Render 生产地址，需田太平在企业微信应用后台"发送测试"确认消息能到达
 - **状态**: 持续多日未解决，不影响核心闭环
 
-### team-coordinator-hourly 状态（双实例运行）
-- **双实例确认**: `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，导致 Git 分叉
+### team-coordinator-hourly 双实例运行
+- `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，会导致 Git 分叉
   - 本地 commit author: `tiantaiping2024@users.noreply.github.com`
   - Render CI commit author: `team-coordinator@jiumoluoshi.bot`
-- **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD，解决了 team-coordinator-status.md 冲突 ✅
+- **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD ✅
+- **注意**: 两套 Gateway 视野独立，coordinator 报告中的 deep-check "缺失"系视野问题，需以本地 deep-check 报告为准
 
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
@@ -49,7 +49,7 @@
 ## 稳定运行记录
 
 - Render 生产服务持续健康（v2.0.0）
-- Git 同步率: 100%（`ef33738` = origin/main，workspace；`5e90cba` = origin/main，jiumoluoshi-bot）
+- Git 同步率: 100%（`0e4a86f` = origin/main，workspace）
 - 闭环自 2026-06-06 以来无 P0/P1/P2 阻塞
 
 ## 教训
@@ -60,4 +60,4 @@
 
 ---
 
-*最后更新: 2026-06-19 04:04 (Asia/Shanghai)*
+*最后更新: 2026-06-22 08:05 (Asia/Shanghai)*
