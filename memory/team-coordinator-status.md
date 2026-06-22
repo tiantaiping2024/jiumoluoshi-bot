@@ -1,35 +1,20 @@
-# team-coordinator-status — 最新汇总
+# team-coordinator-status.md — 2026-06-22 22:00
 
-**更新时间**: 2026-06-22 20:00 (Asia/Shanghai)
+## 核心状态
+- **服务**: 🟢 Render v2.0.0 健康 (HTTP 200)
+- **Git**: 🟢 `3de9cd6` = origin/main 完美同步，ahead/behind=0
+- **深检**: 🟢 20:00 成功，下次 00:00 CST
+- **coordinator**: 🟢 22:00 本次正常（耗时165ms，lastRunStatus=ok）
 
----
+## 阻塞清单
+- 🔴 aitoearn TikTok 粉丝不足（<100，任务全部失败）
+- 🟡 memory 文件积累（~200+未跟踪 .md）
+- 🟡 企业微信回调验证（需人工操作）
 
-## 整体状态: 🟢 健康
+## 本次检查详情
+- `fay` 和 `jiumoluoshi-bot` 有本地修改（未提交）
+- memory/aitoearn-run-*.md 大量积累，建议归档
+- 无 P0/P1/P2 阻塞
 
-| 维度 | 状态 |
-|------|------|
-| Render 生产服务 | 🟢 v2.0.0, /api/health HTTP 200 |
-| Git 同步 | 🟢 HEAD=origin/main=`506091d` |
-| team-deep-check | 🟢 20:00 正常，16:00 缺失（偶发，已自愈）|
-| 核心闭环 | 🟢 7x24 自动运转 |
-
----
-
-## 已知阻塞
-
-- 🔴 aitoearn TikTok 粉丝不足（≥100），持续无法接单，需人工涨粉
-- 🟡 企业微信回调 URL 验证（田太平人工操作）
-- 🔴 memory 文件积累归档（建议处理）
-
----
-
-## Cron 运行状态
-
-| Job | 调度 | 状态 |
-|-----|------|------|
-| `team-deep-check` | 每4h | 🟢 20:00 正常，16:00 缺失（偶发）|
-| `team-coordinator-hourly` | 每h | 🟢 预期正常（19:00 轻微超时已恢复）|
-
----
-
-*last updated: 2026-06-22 20:00 CST*
+## Git hash
+`3de9cd684d91ec9168ffa1b42236e3cf6f5b817d`
