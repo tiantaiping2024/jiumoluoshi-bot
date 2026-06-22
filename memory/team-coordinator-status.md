@@ -1,44 +1,26 @@
-# Team Coordinator — 最新汇总
+# team-coordinator-status — 最新汇总
 
-**更新时间**: 2026-06-22 14:00 (Asia/Shanghai)
-**下次检查**: 15:00 CST
-
----
-
-## 🟢 整体状态: 完全健康
-
-| 维度 | 状态 | 备注 |
-|------|------|------|
-| 闭环健康度 | 🟢 完全健康 | 核心链路无异常 |
-| 服务可用性 | 🟢 | Render `/api/health` HTTP 200，v2.0.0 |
-| Git 同步 | 🟢 完美 | workspace `d4fb950` = origin/main |
-| Cron 调度 | 🟢 正常 | coordinator 每h，深检下次16:00 |
+**更新时间**: 2026-06-22 16:00 (Asia/Shanghai)
 
 ---
 
-## 🚨 阻塞清单
+## 整体状态: 🟢 健康
 
-### 🔴 活跃阻塞 (需人工介入)
-- **aitoearn TikTok 粉丝不足** — 账号粉丝未达门槛(≥100)，无法接单
-
-### 🟡 P3 遗留
-- **企业微信回调 URL 验证** — 需田太平在企业微信应用后台确认
-- **memory/ 文件积累** — 建议归档
-
----
-
-## ✅ 闭环链路
-
-```
-开发 → Git push → origin/main ✅
-  ↓
-Render v2.0.0 → /api/health ✅
-  ↓
-team-coordinator (每h) ✅
-  ↓
-team-deep-check (每4h) ✅ (下次 16:00)
-```
+| 维度 | 状态 |
+|------|------|
+| Render 生产服务 | 🟢 v2.0.0, /api/health HTTP 200 |
+| Git 同步 | 🟢 HEAD=origin/main=`6a44b76` |
+| team-deep-check | 🟢 12:00 CST 正常，下次 16:00 CST |
+| 核心闭环 | 🟢 7x24 自动运转 |
 
 ---
 
-*team-coordinator — 2026-06-22 14:00*
+## 已知阻塞
+
+- 🔴 aitoearn TikTok 粉丝不足（≥100），持续无法接单，需人工涨粉
+- 🟡 企业微信回调 URL 验证（田太平人工操作）
+- 🟡 memory/ 文件积累归档（建议处理）
+
+---
+
+*last updated: 2026-06-22 16:00 CST*
