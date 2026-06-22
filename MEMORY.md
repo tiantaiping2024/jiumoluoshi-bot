@@ -41,6 +41,11 @@
   - Render CI commit author: `team-coordinator@jiumoluoshi.bot`
 - **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD，解决了 team-coordinator-status.md 冲突 ✅
 
+### team-deep-check cron 运行真相（2026-06-22 澄清）
+- **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
+- **实际情况**: 本地 Gateway `team-deep-check` cron job 完全正常，调度 `0 0,4,8,12,16,20 * * *`，每次准时触发（lastRunStatus=ok，206s执行）
+- **教训**: 两套 Gateway（本地 + Render worker）各自独立，cron job 不共享；本地 deep-check 报告正常生成，coordinator 报告里的"缺失"是视野问题而非真实状态
+
 ## 稳定运行记录
 
 - Render 生产服务持续健康（v2.0.0）
