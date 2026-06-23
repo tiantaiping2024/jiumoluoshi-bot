@@ -1,24 +1,23 @@
-# team-coordinator-status.md — 2026-06-23 20:00
+# team-coordinator-status — 最新汇总
+**更新时间**: 2026-06-24 03:00 (Asia/Shanghai)
 
-## 核心状态
-- **服务**: 🟢 Render v2.0.0 健康 (HTTP 200)
-- **Git**: 🟢 `eda3823` = origin/main，刚推送同步
-- **深检**: 🟡 12:00 正常，16:00 报告缺失（待查）
-- **coordinator**: 🟢 20:00 正常（本次）
+## 整体状态
+🟢 **完全健康** — 核心链路无异常
 
-## 阻塞清单
-- 🔴 aitoearn TikTok 粉丝不足（<100，任务全部失败）
-- 🟡 企业微信回调验证（需人工操作）
-- 🟡 16:00 深检报告缺失（需确认是否正常执行）
+## 关键指标
+| 指标 | 值 | 状态 |
+|------|-----|------|
+| Render 服务 | v2.0.0, /api/health 200 | 🟢 |
+| Git 同步 | `dde20e1` = origin/main | 🟢 |
+| team-deep-check | 00:00正常，下次04:00 | 🟢 |
+| team-coordinator | 03:00正常 | 🟢 |
 
-## Git hash
-`eda3823574e5c80f5a6ed60e7ed03f9e7de03db7`
+## 活跃阻塞
+- 🔴 **aitoearn TikTok 粉丝不足** — 唯一真实阻塞，需人工介入
 
-## 本次操作
-- 20:00 检查，Git 已同步（eda3823 = origin/main）
-- 16:00 深检报告缺失，原因待查（可能本地 deep-check cron 未触发或报告未落地）
-- Render 服务健康
-- aitoearn 每小时执行，全部 TikTok 任务均因粉丝不足失败
+## P3遗留
+- 🟡 企业微信回调验证 — 需田太平操作
 
-## 异常项
-- ⚠️ team-deep-check 16:00 报告不存在，需确认 deep-check cron 是否正常
+## 最后报告
+- `team-coordinator-2026-06-24-03.md` (本次)
+- `team-deep-check-2026-06-24-00.md` (00:00)
