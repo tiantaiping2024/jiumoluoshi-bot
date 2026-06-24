@@ -1,25 +1,36 @@
-# 团队协调状态 — 最新
-**更新时间**: 2026-06-24 19:00 (Asia/Shanghai)
+# team-coordinator 汇总状态
+**最后更新**: 2026-06-24 20:00 (Asia/Shanghai)
 
-## 一句话结论
-🟢 戌时巡检正常，核心链路完全健康。唯一活跃阻塞：aitoearn TikTok 粉丝不足。
+---
 
-## 关键指标
+## 当前状态快照
 
-| 指标 | 值 | 趋势 |
-|------|-----|------|
-| Render 生产 | 🟢 v2.0.0 healthy | 稳定 |
-| Git 同步 | 🟢 e06dfed = origin/main | 稳定 |
-| deep-check 出勤 | 4/5 (80%) | 🟡 16:00连续缺勤 |
-| coordinator | 🟢 每小时正常 | 稳定 |
-| aitoearn 接单 | 🔴 全部失败 | ⚠️ 粉丝不足 |
+| 维度 | 状态 | 最新值 |
+|------|------|--------|
+| 服务 | 🟢 | Render v2.0.0，`/api/health` HTTP 200 |
+| Git | 🟢 | `d6bd5a5` = origin/main = workspace HEAD |
+| team-coordinator | 🟢 | 本次 20:00 正常 |
+| team-deep-check | 🟡 | 5/6次出勤(83%)，16:00偶发缺勤 |
+| aitoearn | 🔴 | TikTok粉丝不足，持续阻塞 |
+
+---
 
 ## 活跃阻塞
-- 🔴 aitoearn TikTok 粉丝 < 100（持续）
 
-## P3 遗留
-- 🟡 企业微信回调验证（需人工）
-- 🟡 16:00 deep-check 偶发缺勤
+| 优先级 | 事项 | 说明 | 处置 |
+|--------|------|------|------|
+| 🔴 P3 | aitoearn TikTok 粉丝不足 | 粉丝<100，无法接单 | 需人工涨粉 |
+| 🟡 P3 | 企业微信回调验证 | 需田太平在企业微信后台测试 | 需人工操作 |
+| 🟡 P4 | 16:00深检缺勤 | 23日、24日各缺一次 | cron偶发，不急 |
 
-## 下次巡检
-- 2026-06-24 20:00 (team-deep-check)
+---
+
+## 闭环链路
+
+```
+开发 ✅ → Git ✅ → Render ✅ → coordinator ✅ → deep-check ✅
+```
+
+---
+
+*team-coordinator — 2026-06-24 20:00*
