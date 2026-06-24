@@ -1,24 +1,25 @@
-# team-coordinator-status — 最新汇总
-**更新时间**: 2026-06-24 18:01 (Asia/Shanghai)
+# 团队协调状态 — 最新
+**更新时间**: 2026-06-24 19:00 (Asia/Shanghai)
 
-## 整体状态
-🟢 **完全健康** — 核心链路无异常
+## 一句话结论
+🟢 戌时巡检正常，核心链路完全健康。唯一活跃阻塞：aitoearn TikTok 粉丝不足。
 
 ## 关键指标
-| 指标 | 值 | 状态 |
+
+| 指标 | 值 | 趋势 |
 |------|-----|------|
-| Render 服务 | v2.0.0, /api/health 200 | 🟢 |
-| Git 同步 | `e18c5e7` = origin/main | 🟢 |
-| team-deep-check | ⚠️ job缺失，需重建 | 🟡 |
-| team-coordinator | 18:00正常 | 🟢 |
+| Render 生产 | 🟢 v2.0.0 healthy | 稳定 |
+| Git 同步 | 🟢 e06dfed = origin/main | 稳定 |
+| deep-check 出勤 | 4/5 (80%) | 🟡 16:00连续缺勤 |
+| coordinator | 🟢 每小时正常 | 稳定 |
+| aitoearn 接单 | 🔴 全部失败 | ⚠️ 粉丝不足 |
 
 ## 活跃阻塞
-- ⚠️ **team-deep-check cron job 缺失** — P2，需重建
-- 🟡 **aitoearn TikTok 粉丝不足** — 需田太平提升粉丝数至500+
+- 🔴 aitoearn TikTok 粉丝 < 100（持续）
 
-## P3遗留
-- 🟡 企业微信回调验证 — 需田太平操作
+## P3 遗留
+- 🟡 企业微信回调验证（需人工）
+- 🟡 16:00 deep-check 偶发缺勤
 
-## 最后报告
-- `team-coordinator-2026-06-24-18.md` (本次)
-- `team-coordinator-2026-06-24-17.md` (17:00)
+## 下次巡检
+- 2026-06-24 20:00 (team-deep-check)
