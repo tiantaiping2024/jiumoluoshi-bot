@@ -9,5 +9,27 @@
     "reward": 0,
     "cpeReward": 0,
     "status": "pending"
+  },
+  {
+    "timestamp": "2026-06-24-15",
+    "taskId": "6a3b44b571f88765b2906216",
+    "title": "Promote YOWO TV",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 0,
+    "cpeReward": 0,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-06-24-17",
+    "taskId": "6a3b44b571f88765b2906216",
+    "title": "Promote YOWO TV",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 0,
+    "cpeReward": 0,
+    "status": "pending"
   }
 ]
