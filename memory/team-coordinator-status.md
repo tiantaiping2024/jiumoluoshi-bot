@@ -1,17 +1,17 @@
-# team-coordinator 实时状态
-**最后更新**: 2026-06-27 14:03 (Asia/Shanghai)
+# team-coordinator 最新状态
+**更新时间**: 2026-06-27 17:13 (Asia/Shanghai)
 
-## 整体闭环
-| 环节 | 状态 |
+## 整体状态
+| 维度 | 状态 |
 |------|------|
-| 开发/生产 | 🟢 `b019124d` = origin/main |
-| Render 服务 | 🟢 `/api/health` 200 |
-| team-coordinator | 🟢 正常 |
-| team-deep-check | 🟢 00:00/04:00/08:00/12:00正常（12:00 AI过载后已补报） |
-| aitoearn | 🔴 TikTok粉丝不足(约142h+) |
+| 闭环健康度 | 🟢 完全健康 |
+| Render 生产 | 🟢 HTTP 200 (v2.0.0) |
+| Git 同步 | 🟢 b019124d = origin/main |
+| team-deep-check | 🟢 (下次 16:00) |
+| aitoearn | 🔴 TikTok粉丝不足 145h+ |
 
 ## 活跃阻塞
-- 🔴 aitoearn TikTok粉丝不足，需人工涨粉至≥100（持续142h+，约5.9天）
+- 🔴 **aitoearn TikTok 粉丝不足**（持续145h+）
 
-## 待处理
-- 🟡 企业微信回调验证（田太平人工操作）
+## 上次报告
+- `memory/team-coordinator-2026-06-27-17.md`
