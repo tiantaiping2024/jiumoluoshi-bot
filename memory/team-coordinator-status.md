@@ -1,33 +1,17 @@
 # team-coordinator 最新状态
-**更新时间**: 2026-06-30 14:03 (Asia/Shanghai) — 未时报
+**更新时间**: 2026-06-30 15:01 (Asia/Shanghai)
 
-## 整体状态
-| 维度 | 状态 |
-|------|------|
-| 闭环健康度 | 🟢 核心链路健康 |
-| Render 生产服务 | 🟢 /api/health HTTP 200，v2.0.0 |
-| Git 同步 | 🟢 bf119840 = origin/main |
-| team-deep-check | 🟢 下次16:00 |
-| aitoearn | 🔴 TikTok粉丝不足 >380h（>15.8天） |
+## 核心状态
+- **闭环**: 🟢 完全健康
+- **Render 生产**: 🟢 /api/health HTTP 200 v2.0.0
+- **Git**: 🟢 0a0b000 = origin/main
+- **team-deep-check**: 🟢 下次 16:00
+- **aitoearn**: 🔴 TikTok粉丝不足 (>390h)
 
-## 活跃阻塞
-| 事项 | 级别 | 持续时间 |
-|------|------|----------|
-| aitoearn TikTok粉丝不足 | 🔴 P1 | >380h（>15.8天） |
-| 企业微信回调验证 | 🟡 P3 | 悬而未决 |
+## 阻塞
+- 🔴 P1: aitoearn TikTok涨粉 (>390h)
+- 🟡 P3: 企业微信回调验证
 
-## 关键指标
-- Render /api/health: 200 ✅
-- Git HEAD: bf119840 ✅ = origin/main
-- aitoearn 任务: 0/7（全部失败）
-- 闭环链路: 完全健康
-
-## 闭环链路（完全正常）
-```
-开发 → Git → Render v2.0.0 ✅
-  ↓ /api/health 200
-team-coordinator 每h ✅（本次14:03）
-team-deep-check 每4h ✅（下次16:00）
-```
-
-*下次报告: 2026-06-30 15:00 CST*
+## 最近报告
+- `team-coordinator-2026-06-30-15.md` (15:01 本次)
+- `team-deep-check-2026-06-30-12.md` (12:00 深检)
