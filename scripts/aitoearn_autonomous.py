@@ -3,7 +3,7 @@
 AiToEarn 7x24 Autonomous Earning Script v2
 策略升级：当首选任务不满足粉丝门槛时，自动降级找更低门槛任务
 """
-import urllib.request, json, yaml, os, sys
+import requests, json, yaml, os, sys
 from datetime import datetime
 
 KEY_FILE = "/Users/tiantaiping/.openclaw/workspace/scripts/aitoearn_key.txt"
@@ -24,28 +24,30 @@ def log(msg):
         f.write(line + "\n")
 
 def mcp_call(name, args=None):
-    payload = json.dumps({
+    payload = {
         "jsonrpc": "2.0", "method": "tools/call",
         "params": {"name": name, "arguments": args or {}}, "id": 1
-    }).encode("utf-8")
-    req = urllib.request.Request(BASE_URL, data=payload, method="POST")
-    req.add_header("x-api-key", API_KEY)
-    req.add_header("Content-Type", "application/json")
-    req.add_header("Accept", "application/json, text/event-stream")
-    req.add_header("User-Agent", UA)
+    }
     try:
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            raw = json.loads(resp.read())
-            content = raw.get("result", {}).get("content", [])
-            if content and content[0].get("type") == "text":
-                text = content[0]["text"]
-                if text.startswith("list:"):
-                    return yaml.safe_load(text)
-                try: return json.loads(text)
-                except: return text
-            return raw
-    except urllib.error.HTTPError as e:
-        return {"_error": f"HTTP {e.code}: {e.read().decode()[:200]}"}
+        resp = requests.post(BASE_URL, json=payload, headers={
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+            "User-Agent": UA
+        }, timeout=25)
+        raw = resp.json()
+        content = raw.get("result", {}).get("content", [])
+        if content and content[0].get("type") == "text":
+            text = content[0]["text"]
+            if text.startswith("list:"):
+                return yaml.safe_load(text)
+            try: return json.loads(text)
+            except: return text
+        return raw
+    except requests.HTTPError as e:
+        return {"_error": f"HTTP {e.response.status_code}: {e.response.text[:200]}"}
+    except Exception as e:
+        return {"_error": str(e)}
 
 log("## 🚀 AiToEarn 自动赚钱任务 v2")
 log(f"**时间:** {TIMESTAMP}")
