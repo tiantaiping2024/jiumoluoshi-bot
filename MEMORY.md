@@ -34,6 +34,14 @@
 - **问题**: 回调 URL 已更新为 Render 生产地址，需田太平在企业微信应用后台"发送测试"确认消息能到达
 - **状态**: 持续多日未解决，不影响核心闭环
 
+### ⭐ aitoearn SSL 问题已自愈（2026-07-02 确认）
+- **之前**: SSL EOF violation 持续22天+（~545h），aitoearn.ai 无法连接
+- **现状**: 2026-07-02 19:00 CST 起 SSL 错误消失，平台连接恢复正常
+- **结论**: 平台方网络/证书问题已自愈，无需人工干预
+- **遗留**: 唯一真实阻塞 = TikTok粉丝 < 100，持续~553h+
+- **问题**: 回调 URL 已更新为 Render 生产地址，需田太平在企业微信应用后台"发送测试"确认消息能到达
+- **状态**: 持续多日未解决，不影响核心闭环
+
 ### team-coordinator-hourly 双实例运行
 - `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，会导致 Git 分叉
   - 本地 commit author: `tiantaiping2024@users.noreply.github.com`
@@ -45,6 +53,13 @@
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
 - **实际情况**: 本地 Gateway `team-deep-check` cron job 完全正常，调度 `0 0,4,8,12,16,20 * * *`，每次准时触发（lastRunStatus=ok，206s执行）
 - **教训**: 两套 Gateway（本地 + Render worker）各自独立，cron job 不共享；本地 deep-check 报告正常生成，coordinator 报告里的"缺失"是视野问题而非真实状态
+
+## 已知问题（续）
+
+### aitoearn TikTok涨粉阻塞（持续悬而未决）
+- **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
+- **持续时间**: ~553h+（约23天+）
+- **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 
 ## 稳定运行记录
 
