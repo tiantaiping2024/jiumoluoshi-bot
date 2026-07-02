@@ -86,5 +86,16 @@
     "reward": 0,
     "cpeReward": 0,
     "status": "pending"
+  },
+  {
+    "timestamp": "2026-07-02-21",
+    "taskId": "6a4643370064e949bfa1837e",
+    "title": "Aitoearn-Promotion",
+    "platforms": [
+      "twitter"
+    ],
+    "reward": 200,
+    "cpeReward": 1000,
+    "status": "pending"
   }
 ]
