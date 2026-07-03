@@ -38,7 +38,8 @@
 - **之前**: SSL EOF violation 持续22天+（~545h），2026-07-02 19:00 CST 起消失，07-03 00:00 deep-check 确认稳定
 - **回归**: 2026-07-03 01:21/02:21 CST 再次出现 SSL EOF violation
 - **自愈**: 2026-07-03 04:18 起连续6次无 SSL 错误，平台连接彻底恢复 ✅
-- **唯一活跃阻塞**: TikTok粉丝 < 100，持续~569h+
+- **偶发回归**: 2026-07-03 12:47 出现连接超时（read timed out），13:08/13:25 连续两次正常，回归已消除 ✅
+- **唯一活跃阻塞**: TikTok粉丝 < 100，持续~572h+
 
 ### team-coordinator-hourly 双实例运行
 - `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，会导致 Git 分叉
