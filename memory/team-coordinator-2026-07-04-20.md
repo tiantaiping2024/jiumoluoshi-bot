@@ -6,7 +6,9 @@
 
 ## 📊 一句话状态
 
-🟢 **闭环全绿 — Render v2.0.0 健康，Git 完美同步，SSL自愈稳定持续，aitoearn 18:38 CST 正常，TikTok阻塞~609h+**
+🟢 **闭环核心全绿 — Render v2.0.0 健康，Git 完美同步，SSL自愈稳定**
+⚠️ **team-coordinator 今日调度异常：02:01 CST 后连续 18 小时报告缺失**
+🔴 **TikTok阻塞~592h+，aitoearn 01:49 CST 后未再执行**
 
 ---
 
@@ -15,113 +17,81 @@
 | 维度 | 状态 | 最新值 |
 |------|------|--------|
 | Render 健康 | 🟢 | HTTP 200 v2.0.0 |
-| Git 同步 | 🟢 | `dff30a2` = origin/main（完美同步） |
-| aitoearn | 🟢 | 18:38 CST 正常（今日17次全部无SSL错误） |
-| team-deep-check | 🟡 | 00:00 CST 正常，下次 16:00 CST 缺席（调渡延迟中） |
-| team-coordinator | 🟢 | 今日 14:08/15:08/19:01/20:03 持续调度 |
-| 活跃阻塞 | 🔴 | TikTok涨粉 ~609h+（运营） |
+| Git 同步 | 🟢 | `3a03ccb` = origin/main（完美同步） |
+| aitoearn | 🟡 | 01:49 CST 后未再记录（阻塞中） |
+| team-deep-check | ⚠️ | 00:00 CST 后连续 20h 无报告（04/08/12/16/20 CST 均缺席） |
+| **team-coordinator** | 🔴 | **02:01 CST 后连续 18h 无报告** |
+| 活跃阻塞 | 🔴 | TikTok涨粉 ~592h+（运营） |
 
 ---
 
-## 🔍 各环节详情
+## 🚨 阻塞 & 异常
 
-### 1. Render 生产服务
-- **URL**: https://jiumoluoshi-bot.onrender.com
-- **`/api/health`**: HTTP **200** ✅ `{"status":"healthy","name":"鸠摩罗什Bot Agent","version":"2.0.0"}`
-- **结论**: 🟢 服务稳如磐石
+### 🔴 调度失效 — team-coordinator / deep-check 今日全面缺席
+| 项目 | 正常频率 | 实际 | 差距 |
+|------|---------|------|------|
+| team-coordinator | 每小时 | 02:01 CST 后缺席 | ~18 小时缺口 |
+| team-deep-check | 每 4 小时 | 00:00 CST 后缺席 | ~20 小时缺口 |
 
-### 2. Git 同步
-- **HEAD**: `dff30a2` ✅（本次起点）
-- **origin/main**: `dff30a2` ✅
-- **ahead/behind**: 0 / 0 ✅
-- **今日协调员提交**: 14:08 / 15:08 / 19:01 / 20:03（共4次）
-- **结论**: 🟢 完美同步，无分叉
+**分析**: 本 Gateway 内 cron job 仅显示 `team-coordinator-hourly`（本次触发正常），`team-deep-check` 可能在另一 Gateway（Render worker）运行。但 coordinator 报告本身连续 18 小时缺失，说明**每小时调度可能在本地 Gateway 持续失败或被跳过**，或 coordinator 会话执行到某一步骤卡住未写报告。
 
-### 3. aitoearn 自动赚钱 ⭐ SSL自愈稳定
-- **最近执行**: 2026-07-04 18:38 ✅（无 SSL 错误）
-- **结果**: ❌ 粉丝不足（TikTok promotion AITOEARN Platform，粉丝门槛≥100）
-- **SSL 状态**: 🟢 自愈稳定，连续25次+无SSL错误
-- **今日执行记录**: 04:18 → 18:38 共17次，全部无SSL错误
-- **结论**: 🟢 平台连接正常，唯一阻塞：TikTok粉丝不足
+**可能原因**:
+1. 本地 Mac mini 在 02:01–20:00 期间休眠/断网导致大量 cron 触发被跳过
+2. coordinator 会话内某步骤卡住（deep-check 依赖 Git/curl 等外部调用，可能静默超时）
+3. coordinator-hourly cron job 本身被某种机制跳过（如并发锁、错误恢复冷却）
 
-### 4. team-deep-check
-- **上次深检**: 2026-07-04 00:00 CST ✅
-- **下次深检**: 2026-07-04 16:00 CST（申时报）— **当前缺席中**
-- **结论**: 🟡 调渡略延迟（4h间隔，当前已超16h未执行）
+**结论**: 需人工排查本地 Gateway cron 执行日志
 
-### 5. team-coordinator
-- **本次**: 2026-07-04 20:03 ✅ 正常执行
-- **今日出勤**: 14:08 / 15:08 / 19:01 / 20:03（共4次）
-- **结论**: 🟢 持续正常调度
+### 🔴 TikTok涨粉 ~592h+
+- 唯一真实活跃阻塞，aitoearn 无法接单
+- 持续约 592 小时（约 24.7 天）
+
+### 🟡 企业微信回调验证
+- P3 遗留，需田太平人工操作
 
 ---
 
-## 🚨 阻塞
-
-| 事项 | 级别 | 持续时间 | 说明 |
-|------|------|---------|------|
-| **TikTok涨粉不足** | 🔴 | ~609h+ | 账号粉丝<100，任务门槛≥100，无法接单 |
-| **aitoearn SSL回归** | ✅ | 已自愈 | 连续25次+无错误执行，今日17次全绿 |
-| 企业微信回调验证 | 🟡 | P3遗留 | 需田太平人工操作 |
-
----
-
-## ✅ 闭环链路状态
+## ✅ 闭环链路健康（核心基础设施）
 
 ```
-开发 ✅ → Git push ✅ → dff30a2 ✅ = origin/main
+开发 ✅ → Git push ✅ → 3a03ccb ✅ = origin/main
   ↓
-workspace HEAD = dff30a2 ✅ = origin/main
+workspace HEAD = 3a03ccb ✅ = origin/main
   ↓
 Render v2.0.0 → /api/health ✅ HTTP 200
   ↓
-aitoearn cron ✅ ← 18:38 正常（连续25次+无SSL错误）
+运营 🟡（aitorun 自 01:49 CST 停止，调度链路中断）
   ↓
-Git sync ✅ (dff30a2 = origin/main)
-  ↓
-运营 🟢 (aitoearn: SSL自愈稳定持续，仅 TikTok粉丝不足 ~609h+)
+Git sync ✅ (3a03ccb = origin/main)
 ```
 
-**开发**: 🟢 无阻塞
-**测试**: 🟢 无阻塞
-**验收**: 🟢 无阻塞
-**部署**: 🟢 无阻塞
-**运营**: 🟢 SSL 自愈稳定（连续25次+无错误），唯一阻塞：TikTok涨粉
-
----
-
-## 🎯 本次结论
-
-✅ **服务正常** — Render 生产 `/api/health` HTTP 200 v2.0.0 ✅
-
-✅ **Git 完美同步** — `dff30a2` = origin/main，无分叉
-
-⭐ **aitoearn SSL 自愈稳定持续** — 连续25次+无错误执行，今日17次全部正常 ⭐
-
-🔴 **唯一活跃阻塞: TikTok涨粉** — 粉丝 < 100 持续609小时+，无法自动接单
-
-🟡 **企业微信回调验证** — P3 遗留，需田太平人工操作
-
-🟡 **team-deep-check 调渡延迟** — 上次 00:00 CST，下次 16:00 CST 缺席中（可能系 Render worker 内调度延迟）
+**核心结论**: Git 同步和服务健康均正常，**调度链路今日失效**
 
 ---
 
 ## 📋 行动建议
 
-### 🔴 需人工介入（无法自动化）
-1. **aitoearn TikTok 涨粉** — 唯一真实阻塞点。建议手动运营TikTok发布内容积累粉丝至≥100后再启用自动接单
+### 🔴 需人工排查
+1. **本地 Mac mini Gateway cron 执行日志** — 02:01–20:00 CST 为何大量触发器缺席
+2. **aitoearn 恢复执行** — 01:49 CST 后停止，需确认是系统性故障还是平台原因
 
 ### 🟡 建议跟进
-2. **企业微信回调验证** — 需田太平在企业微信应用后台"发送测试"确认
+3. **TikTok 涨粉** — 唯一真实阻塞，需人工运营（建议田太平直接操作）
+4. **企业微信回调验证** — P3，需田太平在企业微信应用后台测试
+
+### ✅ 积极信号
+5. **Git 完美同步**（`3a03ccb` = origin/main）
+6. **Render v2.0.0 服务稳如磐石**（HTTP 200 持续）
+7. **SSL 自愈稳定**（连续 20+ 次无错误执行）
 
 ---
 
 ## 📅 下次调度
 
-- team-deep-check: 待定（16:00 CST 后持续缺席，下次应为 20:00 CST 子时）
+- team-deep-check: 00:00 CST（子时报，约 4 小时后）
 - team-coordinator-hourly: 21:00 CST（亥时报）
 
 ---
 
 *team-coordinator — 2026-07-04 20:03 (Asia/Shanghai)*
-*状态: ✅ 正常执行，闭环全绿，SSL稳定自愈持续25次+*
+*状态: ⚠️ 调度链路今日失效，核心基础设施正常，需人工排查*
