@@ -48,6 +48,13 @@
 - **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD ✅
 - **注意**: 两套 Gateway 视野独立，coordinator 报告中的 deep-check "缺失"系视野问题，需以本地 deep-check 报告为准
 
+### 🔴 Token Plan 用量已达上限 P0 阻塞（2026-07-06 02:00 起）
+- **问题**: 已达到 MiniMax Token Plan 用量上限，连续3次（02:00/03:00/04:00 CST）cron job 失败
+- **错误**: `⚠️ 已达到 Token Plan 用量上限：请升级 Token Plan 套餐或购买积分补充用量。 (2056)`
+- **最后成功**: 2026-07-06 01:03 CST
+- **影响**: team-coordinator 和 team-deep-check 均因 Token 上限无法运行
+- **建议修复**: 登录 MiniMax 账户充值或升级套餐
+
 ### 🔴 team-deep-check 模型超时危机（07-04 16:00 起）
 - **问题**: MiniMax-M2.7 连续14+次 LLM timeout，consecutiveErrors=14+
 - **原因**: `models.providers.minimax` 未配置 `timeoutSeconds`，深检任务 token 消耗大（100k-150k+ input tokens）
