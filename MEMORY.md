@@ -48,6 +48,13 @@
 - **分叉处理**: 2026-06-14 12:00 合并 origin/main 到本地 HEAD ✅
 - **注意**: 两套 Gateway 视野独立，coordinator 报告中的 deep-check "缺失"系视野问题，需以本地 deep-check 报告为准
 
+### 🔴 team-deep-check 模型超时危机（07-04 16:00 起）
+- **问题**: MiniMax-M2.7 连续14+次 LLM timeout，consecutiveErrors=14+
+- **原因**: `models.providers.minimax` 未配置 `timeoutSeconds`，深检任务 token 消耗大（100k-150k+ input tokens）
+- **最后成功**: 2026-07-05 04:20 CST（`team-deep-check-2026-07-05-04.md`）
+- **建议修复**: 在 Gateway 配置中添加 `"timeoutSeconds": 300` 到 `models.providers.minimax`
+- **状态**: 供应商持续不稳定，深检任务陷入持续超时循环
+
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
 - **实际情况**: 本地 Gateway `team-deep-check` cron job 完全正常，调度 `0 0,4,8,12,16,20 * * *`，每次准时触发（lastRunStatus=ok，206s执行）
@@ -55,7 +62,7 @@
 
 ## 已知问题（续）
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~649h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~665h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
 - **持续时间**: ~649h+（约27天+）
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
