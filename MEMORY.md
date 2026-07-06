@@ -55,12 +55,12 @@
 - **自愈**: 05:01 起连续成功（05:01/07:00/09:01/10:01 CST），Token 自动恢复
 - **推测**: MiniMax Token Plan 有小时限额，凌晨低谷后自动释放
 
-### 🔴 team-deep-check 模型超时危机（07-04 16:00 起）
-- **问题**: MiniMax-M2.7 连续14+次 LLM timeout，consecutiveErrors=14+
-- **原因**: `models.providers.minimax` 未配置 `timeoutSeconds`，深检任务 token 消耗大（100k-150k+ input tokens）
-- **最后成功**: 2026-07-05 04:20 CST（`team-deep-check-2026-07-05-04.md`）
-- **建议修复**: 在 Gateway 配置中添加 `"timeoutSeconds": 300` 到 `models.providers.minimax`
-- **状态**: 供应商持续不稳定，深检任务陷入持续超时循环
+### 🔴 team-deep-check 模型超时危机（07-05 04:20起，已56h+，P0）
+- **问题**: consecutiveErrors=14+，最后成功 2026-07-05 04:20 CST
+- **原因**: `models.providers.minimax` 未配置 `timeoutSeconds`，深检 token 消耗大（100k-150k+ input）
+- **修复尝试**: 尝试 config.patch → **被拒绝**（路径在 protected config paths 中，Schema 确认字段存在且 kind=hot）
+- **需人工操作**: 在 OpenClaw Gateway 界面手动添加 `timeoutSeconds: 300` 到 `models.providers.minimax`
+- **状态**: 07-06 无深检报告（09:00 CST 应生成但无记录），超时危机持续56h+
 
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
@@ -87,11 +87,6 @@
 - cron job 删除后若无记录难以追溯，应在 workspace 内记录所有 job 配置
 - 外部触发器（如 Render webhook）可作为 cron 的备份触发机制
 
-### 🔴 team-deep-check 模型超时危机（~42h，07-04 16:00起）
-- **问题**: consecutiveErrors=14+，最后成功 2026-07-05 04:20 CST
-- **原因**: `models.providers.minimax` 未配置 `timeoutSeconds`，深检 token 消耗大（100k-150k+ input）
-- **修复**: 添加 `"timeoutSeconds": 300` 到 `models.providers.minimax`（风险：无）
-
 ---
 
-*最后更新: 2026-07-06 10:01 (Asia/Shanghai)*
+*最后更新: 2026-07-06 13:01 (Asia/Shanghai)*
