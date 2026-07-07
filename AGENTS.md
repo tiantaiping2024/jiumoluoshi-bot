@@ -15,7 +15,7 @@ That context may already include:
 - `AGENTS.md`, `SOUL.md`, and `USER.md`
 - recent daily memory such as `memory/YYYY-MM-DD.md`
 - `MEMORY.md` when this is the main session
-
+此外
 Do not manually reread startup files unless:
 
 1. The user explicitly asks
