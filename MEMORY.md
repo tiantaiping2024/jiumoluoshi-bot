@@ -62,6 +62,12 @@
 - **修复验证**: Gateway 已重启（SIGUSR1），PID 949 运行中，15:01 CST 完成
 - **效果**: 下次深检（16:00 CST）应验证修复效果
 
+### 🔴 exec 系统 EAGAIN 危机（2026-07-08 19:00 CST 起）
+- **问题**: 所有 exec 调用均返回 `EAGAIN`（spawn /bin/zsh 失败）
+- **影响**: 无法实时验证 Git/Render 状态，无法执行任何 shell 命令
+- **持续**: 本次报告（21:00 CST）仍为 EAGAIN
+- **状态**: 需田太平确认 Mac mini 系统资源
+
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
 - **实际情况**: 本地 Gateway `team-deep-check` cron job 完全正常，调度 `0 0,4,8,12,16,20 * * *`，每次准时触发（lastRunStatus=ok，206s执行）
