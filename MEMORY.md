@@ -62,11 +62,11 @@
 - **修复验证**: Gateway 已重启（SIGUSR1），PID 949 运行中，15:01 CST 完成
 - **效果**: 下次深检（16:00 CST）应验证修复效果
 
-### 🔴 exec 系统 EAGAIN 危机（2026-07-08 19:00 CST 起）
+### ✅ exec 系统 EAGAIN 危机已自然恢复（2026-07-08 19:00 起，~00:34 CST 恢复）
 - **问题**: 所有 exec 调用均返回 `EAGAIN`（spawn /bin/zsh 失败）
-- **影响**: 无法实时验证 Git/Render 状态，无法执行任何 shell 命令
-- **持续**: 本次报告（21:00 CST）仍为 EAGAIN
-- **状态**: 需田太平确认 Mac mini 系统资源
+- **持续**: 约 5.5 小时（19:00 → 00:34 CST）
+- **恢复**: 00:34 CST coordinator 运行正常，exec 完全恢复
+- **性质**: Mac mini 进程资源短暂耗尽后自然恢复，无需人工干预
 
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
@@ -75,7 +75,7 @@
 
 ## 已知问题（续）
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~805h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~889h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
 - **持续时间**: ~805h+（约33.5天+）
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
