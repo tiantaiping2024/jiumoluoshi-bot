@@ -72,11 +72,11 @@
 - **验证**: 04:00 CST 深检正常运行，exec 全命令正常
 - **状态**: 已排除
 
-### ⚠️ team-coordinator 持续 timeout（2026-07-09，修复中）
+### ✅ team-coordinator timeout 已修复（2026-07-09 08:32 CST）
 - **问题**: consecutiveErrors=3，每次 coordinator 运行读 cron runs history（50条），context 膨胀至 97k tokens，MiniMax M2.7 idle timeout
 - **根因**: cron runs 每次累加 input tokens，300s timeoutSeconds 不够高 context 下使用
-- **修复**: 派分子 agent 尝试将 `models.providers.minimax.timeoutSeconds` 从 300 提升至 600
-- **状态**: 08:32 CST 处理中
+- **修复**: 派分子 agent 将 `models.providers.minimax.timeoutSeconds` 从 300 提升至 600
+- **状态**: 已修复，coordinator 每小时正常运行 ✅
 
 ### team-deep-check cron 运行真相（2026-06-22 澄清）
 - **coordinator 误判**: coordinator 在 Render worker 内运行，看到的 cron 表只有 worker 自己的 job，误报 team-deep-check "缺失"
@@ -85,16 +85,16 @@
 
 ## 已知问题（续）
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~960h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1000h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~960h+（约40天+）
+- **持续时间**: ~1000h+（约41天+）
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
 ## 稳定运行记录
 
 - Render 生产服务持续健康（v2.0.0）
-- Git 同步率: 100%（`760abfc` = origin/main，workspace）
+- Git 同步率: 100%（`5df3359` = origin/main，workspace）
 - 闭环自 2026-06-06 以来无 P0/P1/P2 阻塞（aitoearn TikTok 阻塞为 P1 运营问题，非技术阻塞）
 
 ## 教训
@@ -103,4 +103,4 @@
 - cron job 删除后若无记录难以追溯，应在 workspace 内记录所有 job 配置
 - 外部触发器（如 Render webhook）可作为 cron 的备份触发机制
 
-*最后更新: 2026-07-10 12:00 (Asia/Shanghai)*
+*最后更新: 2026-07-10 16:00 (Asia/Shanghai)*
