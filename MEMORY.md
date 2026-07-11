@@ -103,4 +103,8 @@
 - cron job 删除后若无记录难以追溯，应在 workspace 内记录所有 job 配置
 - 外部触发器（如 Render webhook）可作为 cron 的备份触发机制
 
-*最后更新: 2026-07-10 16:00 (Asia/Shanghai)*
+### ✅ aitoearn-run 日志清理完成（2026-07-11 21:00 CST）
+- 清理 39 个旧 aitoearn-run 文件（保留每日最新2个）
+- 仓库体积大幅减少（delete 1084 lines, add 153 lines）
+
+*最后更新: 2026-07-11 21:00 (Asia/Shanghai)*
