@@ -14,8 +14,7 @@
 - lastRunStatus: 🔴 **error**（LLM request timed out）
 - 根因：context膨胀（cron runs历史input tokens持续累积）→ 600s timeout仍不足
 - 成功最后一次：04:04 CST
-- **已修复：timeoutSeconds 300→1200，Gateway已重启（PID 889）**
-- 自04:36起连续timeout，09:37本次已应用修复
+- 自04:36起连续timeout，需提升timeoutSeconds或清理cron runs历史
 
 ## team-deep-check
 - 上次成功：07-11 00:00 CST
@@ -29,7 +28,7 @@
 
 ## 活跃阻塞
 - 🔴 P1: TikTok涨粉至100+（约1213h+，需人工）
-- 🟡 P2: coordinator连续timeout，timeoutSeconds 300→1200已修复，Gateway已重启
+- 🟡 P2: coordinator连续timeout，需提升timeoutSeconds
 
 ## 下次协调
 - 2026-07-12 10:01 CST
