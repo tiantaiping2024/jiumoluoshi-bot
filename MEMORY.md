@@ -85,7 +85,14 @@
 
 ## 已知问题（续）
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1000h+）
+### 🔴 team-deep-check cron 丢失（2026-07-11 00:00 CST 起，约40h+）
+- **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
+- **最后深检**: 2026-07-11 00:00 CST
+- **发现时间**: 2026-07-12 15:01 CST coordinator 首次发现
+- **状态**: 需人工田太平用 `/openclaw cron add` 重建
+- **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
+
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1300h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
 - **持续时间**: ~1000h+（约41天+）
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
