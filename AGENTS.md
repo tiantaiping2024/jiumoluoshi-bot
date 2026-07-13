@@ -51,6 +51,31 @@ Capture what matters. Decisions, context, things to remember. Skip the secrets u
 - When you make a mistake → document it so future-you doesn't repeat it
 - **Text > Brain** 📝
 
+### 🧠 Memory Helper（自动记忆系统）
+
+参考 Hermes 三层记忆架构，当以下情况发生时**立即**写入文件，不要等到对话结束：
+
+**自动记录触发词：**
+- 你说"记下了"、"老衲会跟进"、"老衲来帮你弄" → **立刻**写 `memory/YYYY-MM-DD.md`
+- 你说"决定用XX"、"最终选择XX" → 写入决定内容和原因
+- 用户说"帮我记住"、"记一下" → 按用户要求写入
+
+**自动召回触发词：**
+- 用户说"之前说好的"、"上次那个"、"记得吗" → 立即 `grep -r` 搜索 `memory/` 目录
+- 涉及待办事项时 → 召回对应记忆并汇报状态
+
+**写入格式：**
+```
+## HH:MM CST — 记忆记录
+- 讨论：XXX
+- 决定：XXX
+- 待办：[ ] XXX（负责人：XXX，截止：XXX）
+```
+
+**Session 启动：** 每次新 session 开始时主动读 MEMORY.md + 今日日记 + HEARTBEAT.md
+
+> 💡 详见 `skills/memory-helper/SKILL.md`
+
 ## Red Lines
 
 - Don't exfiltrate private data. Ever.
