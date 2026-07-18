@@ -1,6 +1,6 @@
 # 鸠摩罗什Bot 团队状态汇总
-**最后更新**: 2026-07-18 12:39 CST
-**下次深检**: 待定（cron job 持续丢失）
+**最后更新**: 2026-07-18 13:06 CST
+**下次深检**: 待重建
 
 ---
 
@@ -18,10 +18,10 @@
 
 | 组件 | 状态 | 最后确认 |
 |------|------|----------|
-| Render 生产 | ✅ v2.0.0 健康 | 12:39 CST |
-| Git 同步 | ✅ 100% (`145867b9` = origin/main) | 12:39 CST |
-| team-deep-check | 🔴 **丢失** | 最后报告 07-16 16:00 CST（约44小时前） |
-| team-coordinator | ⚠️ **连续超时** | consecutiveErrors: 8，LLM timed out |
+| Render 生产 | ✅ v2.0.0 健康 | 13:06 CST |
+| Git 同步 | ✅ 100% (`a130edd` = origin/main) | 13:06 CST |
+| team-deep-check | 🔴 **丢失** | 最后报告 07-16 16:00 CST（~45小时前） |
+| team-coordinator | 🔴 **连续超时** | consecutiveErrors: 35次+，LLM timed out |
 | aitoearn 技术层 | ✅ 正常 | 正常 |
 
 ---
@@ -30,9 +30,9 @@
 
 | 优先级 | 阻塞项 | 时长 | 负责方 | 状态 |
 |--------|--------|------|--------|------|
-| 🔴 P1 | **coordinator 连续超时** | ~8次（约9小时） | 自动容错 | 运行中 |
-| 🔴 P1 | TikTok粉丝<100 | ~1812h（75.5天+） | 人工运营 | 持续 |
-| 🟠 P2 | team-deep-check cron丢失 | ~44h | 人工田太平 | 需重建 |
+| 🔴 P1 | **team-deep-check cron 丢失** | ~45h | **田太平** | 需重建 |
+| 🔴 P1 | coordinator 连续超时 | ~20h+ | 自动容错 | 运行中 |
+| 🔴 P1 | TikTok粉丝<100 | ~76天+ | 人工运营 | 持续 |
 
 ---
 
@@ -40,10 +40,10 @@
 
 | 优先级 | 行动 | 负责方 |
 |--------|------|--------|
-| 🔴 **紧急** | 重建 team-deep-check cron | 田太平 |
-| 🔴 **P1** | TikTok 涨粉至100+ | 人工运营 |
+| 🔴 **紧急** | **重建 team-deep-check cron** | **田太平** |
 | 🟡 关注 | coordinator 超时是否自愈 | 自动 |
+| 🔴 P1 | TikTok 涨粉至100+ | 人工运营 |
 
 ---
 
-*team-coordinator 自动维护 — 2026-07-18 12:39 CST*
+*team-coordinator 自动维护 — 2026-07-18 13:06 CST*
