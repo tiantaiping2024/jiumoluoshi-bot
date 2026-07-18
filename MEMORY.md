@@ -85,10 +85,11 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 丢失（2026-07-11 00:00 CST 起，约40h+）
+### 🔴 team-deep-check cron 再次丢失（2026-07-16 16:00 CST 起，约53h+）
 - **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
-- **最后深检**: 2026-07-11 00:00 CST
-- **发现时间**: 2026-07-12 15:01 CST coordinator 首次发现
+- **最后深检**: 2026-07-16 16:00 CST
+- **当前时间**: 2026-07-18 21:00 CST（约53小时）
+- **发现时间**: 2026-07-12 15:01 CST coordinator 首次发现（07-11 曾丢失约40h后重建，今再次丢失）
 - **状态**: 需人工田太平用 `/openclaw cron add` 重建
 - **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
 
