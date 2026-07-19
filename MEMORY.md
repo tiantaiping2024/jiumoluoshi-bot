@@ -85,14 +85,12 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 第四次丢失（2026-07-16 16:00 CST 起，~66h+）
+### 🔴 team-deep-check cron 持续丢失（第5次，~71h39m+）
 - **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
-- **最后深检**: 2026-07-16 16:00 CST
-- **当前时间**: 2026-07-19 04:09 CST（约66小时）
-- **历史**: 历史上第四次丢失（07-11/07-16 x3）
-- **状态**: 需人工田太平用 `/openclaw cron add` 重建
+- **最后深检**: 2026-07-16 16:00 CST（约71h39m前）
+- **历史丢失次数**: 5次（07-11、07-16 x3、07-19）
+- **状态**: 需人工田太平用 `/openclaw cron add` 重建，**建议 `sessionTarget=current` 替代 `isolated`**
 - **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
-- **建议**: 考虑改为 `sessionTarget=current` 替代 `isolated`
 
 ### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1300h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
