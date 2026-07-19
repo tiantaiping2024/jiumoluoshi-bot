@@ -85,10 +85,11 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 持续丢失（第5次，~71h39m+）
+### 🔴 team-deep-check cron 持续丢失（第6次，~71h39m+）
 - **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
 - **最后深检**: 2026-07-16 16:00 CST（约71h39m前）
-- **历史丢失次数**: 5次（07-11、07-16 x3、07-19）
+- **历史丢失次数**: 6次（07-11、07-16 x3、07-19 x2）
+- **本次深检**: 07-19 08:08 CST 正常运行，但 cron list 条目已丢失（第6次）
 - **状态**: 需人工田太平用 `/openclaw cron add` 重建，**建议 `sessionTarget=current` 替代 `isolated`**
 - **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
 
@@ -114,4 +115,9 @@
 - 清理 39 个旧 aitoearn-run 文件（保留每日最新2个）
 - 仓库体积大幅减少（delete 1084 lines, add 153 lines）
 
-*最后更新: 2026-07-11 21:00 (Asia/Shanghai)*
+### ⚠️ aitoearn-run 日志堆积（07-19 08:08 CST）
+- 07-18 17:00 起连续13个文件未清理（07-18 x7 + 07-19 x6）
+- 上次清理: 07-11 21:00 CST
+- 建议再次执行清理
+
+*最后更新: 2026-07-19 08:08 (Asia/Shanghai)*
