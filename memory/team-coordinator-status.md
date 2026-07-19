@@ -1,7 +1,7 @@
 # team-coordinator-status — 最新汇总
 
-**更新时间**: 2026-07-19 17:05 CST
-**下次更新**: 2026-07-19 18:00 CST
+**更新时间**: 2026-07-19 18:07 CST
+**下次更新**: 2026-07-19 19:00 CST
 
 ---
 
@@ -10,10 +10,10 @@
 | 组件 | 状态 | 最后活动/备注 |
 |------|------|--------------|
 | Render 生产 | ✅ 健康 | v2.0.0，200 OK |
-| Git 同步 | ✅ 100% | `afe2ff4` = origin/main |
-| aitoearn 技术 | ✅ 正常 | 平台 SSL/技术连接无异常，TikTok门槛阻挡接单 |
-| team-coordinator-hourly | ⚠️ lastRunStatus=error | 本次运行正常，上次 timeout |
-| **team-deep-check** | 🔴 **第6次丢失** | 08:08 CST 深检运行正常，但 cron list 条目消失 |
+| Git 同步 | ✅ 100% | `b6d146a` = origin/main |
+| aitoearn 技术 | ✅ 正常 | 17:05/17:18 CST 扫描正常，TikTok门槛阻挡 |
+| team-coordinator-hourly | ✅ 正常 | 本次成功，下次 19:00 CST |
+| **team-deep-check** | 🔴 **第6次持续丢失** | 最后 07-16 16:00，约74小时无深检，cron list 条目消失 |
 
 ---
 
