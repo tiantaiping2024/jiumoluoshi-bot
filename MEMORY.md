@@ -85,14 +85,13 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 已从 gateway 消失（2026-07-20 16:00 CST 确认）
-- **问题**: isolated session 多次崩溃（3次 consecutiveErrors），cron 注册表丢失
-- **漏检**: ~33h+，08次未深检
-- **最后成功**: 2026-07-19 08:08 CST
-- **16:00 CST 深检**: isolated session 本次成功写入报告（说明 isolated session 有时可用）
-- **关键**: isolated session **无法修改 cron 配置**，必须田太平 main session 重建 job
-- **修复方案**: 在 main session 创建新的 `team-deep-check` cron，**必须用 `sessionTarget=current`**
-- **临时影响**: 深检报告生成不稳定，需尽快重建
+### 🔴 team-deep-check cron 第9次丢失（2026-07-20 19:00 CST）
+- **问题**: isolated session 多次崩溃后 cron 注册表丢失
+- **最后成功**: 2026-07-20 16:05 CST（isolated session 写入报告）
+- **漏检**: 19:00 CST 未深检
+- **关键**: isolated session 无法修改 cron 配置，必须田太平 main session 重建
+- **修复方案**: main session 执行 `/openclaw cron add`，必须用 `sessionTarget=current`
+- **规律**: isolated session 在 gateway 重启/上下文切换时更易丢失 cron 绑定
 
 ### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1950h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
@@ -147,4 +146,14 @@
 - 清理 28 个旧日志文件（保留每日最新1个）
 - Git 已 push（commit `1fa75df`）
 
-*最后更新: 2026-07-20 18:00 (Asia/Shanghai)**
+### ⚠️ coordinator 上次 error（MEMORY.md edit 冲突，2026-07-20 18:00）
+- isolated session 并发 edit 冲突，MEMORY.md 更新失败
+- 本次（19:00 CST）已恢复正常
+- 根因: isolated session 内并发 edit 操作互相冲突
+
+### ⚠️ Render `/health` 返回 404（2026-07-20 19:00 CST）
+- `/` 返回 200（landing page）
+- `/health` 返回 404（可能路由变更或端点移除）
+- v2.0.0 仍正常运行（landing page 正常）
+
+*最后更新: 2026-07-20 19:00 (Asia/Shanghai)**
