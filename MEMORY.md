@@ -178,4 +178,9 @@
 - 清理 aitoearn-run 旧日志（保留每日最新1个，删除3个）
 - team-deep-check 连续失败5次，需田太平 main session 重建
 
-*最后更新: 2026-07-20 23:00 (Asia/Shanghai)**
+### ✅ coordinator 02:00 CST 正常
+- isolated session 正常运行
+- aitoearn TikTok 仍阻塞（~82天）
+- deep-check cron 连续失败7次，需 main session 重建
+
+*最后更新: 2026-07-21 02:00 (Asia/Shanghai)**
