@@ -132,9 +132,9 @@
 - 07-19 18时起共21个文件未清理（07-19 x6 + 07-20 x15），上次清理: 07-11
 - 建议再次执行清理
 
-### 🔴 team-deep-check 已从 gateway cron 注册表消失（2026-07-20 16:06 CST）
+### ⚠️ team-deep-check cron 需田太平 main session 重建（isolated session 无法修改 cron）
 - 本 gateway 内找不到 `team-deep-check` job（isolated session 多次崩溃后注册表丢失）
-- 已漏检约32h（08次），需田太平 main session 重建
+- isolated session 多次崩溃导致 cron 注册表丢失，需 main session 重建
 - **必须用 `sessionTarget=current`**
 
 ### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1980h+）
@@ -147,4 +147,4 @@
 - 清理 28 个旧日志文件（保留每日最新1个）
 - Git 已 push（commit `1fa75df`）
 
-*最后更新: 2026-07-20 17:00 (Asia/Shanghai)*
+*最后更新: 2026-07-20 18:00 (Asia/Shanghai)**
