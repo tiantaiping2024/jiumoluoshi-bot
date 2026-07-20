@@ -85,17 +85,18 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 持续丢失（第7次，~25.7h+）
-- **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
-- **最后深检**: 2026-07-19 08:08 CST（约25.7小时前）
-- **历史丢失次数**: 7次（07-11、07-16 x3、07-19 x2、07-20 x1）
-- **本次深检**: 07-20 09:51 coordinator 发现丢失，cron list 中条目第7次消失
-- **状态**: 需人工田太平用 `/openclaw cron add` 重建，**必须改 `sessionTarget=current` 替代 `isolated`**
-- **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
+### 🔴 team-deep-check isolated 连续崩溃（连续3次 error，约32h+）
+- **问题**: `sessionTarget=isolated`，每次运行 900s+ 后 `cron isolated agent run aborted`
+- **最后成功**: 2026-07-19 08:08 CST（约32小时前）
+- **consecutiveErrors**: 3次（12:00/08:00/04:00 CST）
+- **根因**: isolated session 大 context + MiniMax M2.7 API 过载
+- **关键**: isolated session **无法修改 cron 配置**，必须田太平 main session 执行修复
+- **修复命令**: `/openclaw cron update 916e81f2-d2e3-4aa3-8387-76aa65c641b8 --session-target current`
+- **临时影响**: 深检报告无法自动生成，需人工 main session 介入
 
 ### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1950h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~80天+
+- **持续时间**: ~81天+
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
@@ -129,4 +130,19 @@
 - `fay` 是独立项目目录，不应出现在鸠摩罗什Bot repo
 - 建议加入 .gitignore
 
-*最后更新: 2026-07-20 09:51 (Asia/Shanghai)*
+### ⚠️ aitoearn-run 日志堆积（07-20 15:37 CST）
+- 07-19 18时起共21个文件未清理（07-19 x6 + 07-20 x15），上次清理: 07-11
+- 建议再次执行清理
+
+### 🔴 team-deep-check 已从 gateway cron 注册表消失（2026-07-20 16:06 CST）
+- 本 gateway 内找不到 `team-deep-check` job（isolated session 多次崩溃后注册表丢失）
+- 已漏检约32h（08次），需田太平 main session 重建
+- **必须用 `sessionTarget=current`**
+
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1980h+）
+- **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
+- **持续时间**: ~82天+
+- **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
+- **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
+
+*最后更新: 2026-07-20 16:06 (Asia/Shanghai)*
