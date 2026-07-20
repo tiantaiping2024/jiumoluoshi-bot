@@ -160,4 +160,17 @@
 - isolated session 正常运行，成功提交 Git（commit `65981af`）
 - team-deep-check 连续失败5次（20:00 CST + 本次 21:00 CST），最后成功仍是 07-19 08:08 CST（约37h）
 
-*最后更新: 2026-07-20 21:00 (Asia/Shanghai)**
+### ✅ team-deep-check 16:05 CST 仍成功写入报告（isolated session 崩溃前最后一搏）
+- 16:05 CST isolated session 在崩溃前成功写入 `team-deep-check-2026-07-20-16.md`
+- 之后 20:00/22:00 CST 均失败，连续失败5次（20:00/16:00/12:00/08:00/04:00）
+- **最后成功**: 2026-07-20 16:05 CST（约6小时前）
+
+### ✅ coordinator 22:00 CST 正常
+- isolated session 正常运行，成功提交 Git（commit `260d588`）
+- 清理 aitoearn-run 日志 12 个（保留每日最新1个）
+- team-deep-check 连续失败5次，需田太平 main session 重建
+
+### ✅ Git 完全同步（2026-07-20 22:00 CST）
+- `260d588` = origin/main，100% 同步
+
+*最后更新: 2026-07-20 22:00 (Asia/Shanghai)**
