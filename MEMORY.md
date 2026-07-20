@@ -85,14 +85,14 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check isolated 连续崩溃（连续3次 error，约32h+）
-- **问题**: `sessionTarget=isolated`，每次运行 900s+ 后 `cron isolated agent run aborted`
-- **最后成功**: 2026-07-19 08:08 CST（约32小时前）
-- **consecutiveErrors**: 3次（12:00/08:00/04:00 CST）
-- **根因**: isolated session 大 context + MiniMax M2.7 API 过载
-- **关键**: isolated session **无法修改 cron 配置**，必须田太平 main session 执行修复
-- **修复命令**: `/openclaw cron update 916e81f2-d2e3-4aa3-8387-76aa65c641b8 --session-target current`
-- **临时影响**: 深检报告无法自动生成，需人工 main session 介入
+### 🔴 team-deep-check cron 已从 gateway 消失（2026-07-20 16:00 CST 确认）
+- **问题**: isolated session 多次崩溃（3次 consecutiveErrors），cron 注册表丢失
+- **漏检**: ~33h+，08次未深检
+- **最后成功**: 2026-07-19 08:08 CST
+- **16:00 CST 深检**: isolated session 本次成功写入报告（说明 isolated session 有时可用）
+- **关键**: isolated session **无法修改 cron 配置**，必须田太平 main session 重建 job
+- **修复方案**: 在 main session 创建新的 `team-deep-check` cron，**必须用 `sessionTarget=current`**
+- **临时影响**: 深检报告生成不稳定，需尽快重建
 
 ### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1950h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
@@ -116,11 +116,9 @@
 - 清理 39 个旧 aitoearn-run 文件（保留每日最新2个）
 - 仓库体积大幅减少（delete 1084 lines, add 153 lines）
 
-### 🔴 team-coordinator-hourly 连续失败（自07-19 19:00起，~14.8小时）
-- **问题**: cron runs history（50条）读取导致 context 膨胀至100k+ tokens，MiniMax M2.7 idle timeout
-- **错误类型**: "LLM request timed out" 或 "cron isolated agent run aborted"
-- **状态**: cron 调度器正常触发（每整点），但 agent 执行层持续失败，约20次连续
-- **建议**: 改 `sessionTarget=current` 替代 `isolated`，或减少 cron runs 读取量
+### ✅ team-coordinator-hourly 本轮正常（17:00 CST）
+- **本轮**: isolated session 正常运行，成功提交 Git + 清理日志
+- **状态**: lastRunStatus=ok，cron 调度正常
 
 ### ⚠️ aitoearn-run 日志堆积（07-20 09:51 CST）
 - 07-19 起共14个文件未清理（07-19 x7 + 07-20 x7），上次清理: 07-11
@@ -145,4 +143,8 @@
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
-*最后更新: 2026-07-20 16:06 (Asia/Shanghai)*
+### ✅ aitoearn-run 日志清理完成（2026-07-20 17:00 CST）
+- 清理 28 个旧日志文件（保留每日最新1个）
+- Git 已 push（commit `1fa75df`）
+
+*最后更新: 2026-07-20 17:00 (Asia/Shanghai)*
