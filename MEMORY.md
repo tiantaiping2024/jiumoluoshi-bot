@@ -85,17 +85,17 @@
 
 ## 已知问题（续）
 
-### 🔴 team-deep-check cron 持续丢失（第6次，~71h39m+）
+### 🔴 team-deep-check cron 持续丢失（第7次，~25.7h+）
 - **问题**: cron list 仅显示 `team-coordinator-hourly`，`team-deep-check` 已消失
-- **最后深检**: 2026-07-16 16:00 CST（约71h39m前）
-- **历史丢失次数**: 6次（07-11、07-16 x3、07-19 x2）
-- **本次深检**: 07-19 08:08 CST 正常运行，但 cron list 条目已丢失（第6次）
-- **状态**: 需人工田太平用 `/openclaw cron add` 重建，**建议 `sessionTarget=current` 替代 `isolated`**
+- **最后深检**: 2026-07-19 08:08 CST（约25.7小时前）
+- **历史丢失次数**: 7次（07-11、07-16 x3、07-19 x2、07-20 x1）
+- **本次深检**: 07-20 09:51 coordinator 发现丢失，cron list 中条目第7次消失
+- **状态**: 需人工田太平用 `/openclaw cron add` 重建，**必须改 `sessionTarget=current` 替代 `isolated`**
 - **临时影响**: 深检报告缺失，但 coordinator 每小时正常运行，技术闭环无影响
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1300h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1950h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~1000h+（约41天+）
+- **持续时间**: ~80天+
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
@@ -115,9 +115,18 @@
 - 清理 39 个旧 aitoearn-run 文件（保留每日最新2个）
 - 仓库体积大幅减少（delete 1084 lines, add 153 lines）
 
-### ⚠️ aitoearn-run 日志堆积（07-19 08:08 CST）
-- 07-18 17:00 起连续13个文件未清理（07-18 x7 + 07-19 x6）
-- 上次清理: 07-11 21:00 CST
+### 🔴 team-coordinator-hourly 连续失败（自07-19 19:00起，~14.8小时）
+- **问题**: cron runs history（50条）读取导致 context 膨胀至100k+ tokens，MiniMax M2.7 idle timeout
+- **错误类型**: "LLM request timed out" 或 "cron isolated agent run aborted"
+- **状态**: cron 调度器正常触发（每整点），但 agent 执行层持续失败，约20次连续
+- **建议**: 改 `sessionTarget=current` 替代 `isolated`，或减少 cron runs 读取量
+
+### ⚠️ aitoearn-run 日志堆积（07-20 09:51 CST）
+- 07-19 起共14个文件未清理（07-19 x7 + 07-20 x7），上次清理: 07-11
 - 建议再次执行清理
 
-*最后更新: 2026-07-19 08:08 (Asia/Shanghai)*
+### ⚠️ `fay` 目录未加入 .gitignore
+- `fay` 是独立项目目录，不应出现在鸠摩罗什Bot repo
+- 建议加入 .gitignore
+
+*最后更新: 2026-07-20 09:51 (Asia/Shanghai)*
