@@ -308,13 +308,14 @@
 
 *最后更新: 2026-07-22 12:35 (Asia/Shanghai)*
 
-### ✅ team-deep-check 16:00 CST 正常
+### ✅ coordinator 16:00 CST 正常
 - isolated session 正常运行
-- Git push 成功（commit `bc3c4fa`），100% 同步
-- 清理3个旧 aitoearn-run 日志并 push
-- Render `/api/health` → `{"status":"healthy"}` ✅（v2.0.0）
+- Git push 成功（commit `178e9cf`），100% 同步
+- 清理7个旧 aitoearn-run 日志（保留每日最新1个），现存仅 16 时1个
+- Render `/api/health` → `{"status":"healthy","name":"鸠摩罗什Bot Agent","version":"2.0.0"}` ✅
 - aitoearn 15:33 CST 扫描正常，4个任务全被 TikTok 粉丝门槛拦截
 - team-deep-check cron job 正常（lastRunStatus=ok，下次 20:00 CST）
+- aitoearn TikTok 仍阻塞（~85天）
 - 团队技术闭环 100%，业务闭环唯一阻塞 TikTok
 
-*最后更新: 2026-07-22 16:00 (Asia/Shanghai)*
+*最后更新: 2026-07-22 16:35 (Asia/Shanghai)*
