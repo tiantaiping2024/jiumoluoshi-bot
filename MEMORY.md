@@ -319,3 +319,17 @@
 - 团队技术闭环 100%，业务闭环唯一阻塞 TikTok
 
 *最后更新: 2026-07-22 16:35 (Asia/Shanghai)*
+
+### ✅ coordinator 18:01 CST 正常（17:00 CST 失败已恢复）
+- isolated session 正常运行，报告已写入 `team-coordinator-2026-07-22-18.md`
+- Git push 成功（commit `d6ae528`），100% 同步 `d6ae528` = origin/main
+- 17:00 CST coordinator 运行失败（exec git submodule 失败），18:00 CST 也失败（LLM timeout），18:01 CST 本次成功
+- 根因：isolated session context 历史过大，导致后续请求 timeout
+- Render `/api/health` → `{"status":"healthy","name":"鸠摩罗什Bot Agent","version":"2.0.0"}` ✅
+- aitoearn 16:17/17:29 CST 扫描正常，4个任务全被 TikTok 粉丝门槛拦截
+- deep-check 16:00 CST 正常，下次 20:00 CST
+- aitoearn TikTok 仍阻塞（~85天）
+- 团队技术闭环 100%，业务闭环唯一阻塞 TikTok
+- ⚠️ isolated session context 膨胀问题再次出现，coordinator prompt/history 需关注
+
+*最后更新: 2026-07-22 18:10 (Asia/Shanghai)*
