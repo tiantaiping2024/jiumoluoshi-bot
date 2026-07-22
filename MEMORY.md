@@ -260,7 +260,7 @@
 - deep-check 04:00 CST 成功写入报告
 - **唯一真实阻塞**: exec EAGAIN（系统层）+ TikTok（运营层）
 
-*最后更新: 2026-07-22 04:04 (Asia/Shanghai)**
+*最后更新: 2026-07-22 08:00 (Asia/Shanghai)**
 
 ### ✅ coordinator 05:00 CST 正常（exec EAGAIN 仍持续 ~15h）
 - isolated session 正常运行，报告已写入 `team-coordinator-2026-07-22-05.md`
