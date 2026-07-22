@@ -226,3 +226,62 @@
 - 团队技术闭环 100%，仅 TikTok 运营阻塞（~84天）
 
 *最后更新: 2026-07-21 11:00 (Asia/Shanghai)**
+
+### ✅ coordinator 13:00 CST 正常
+- isolated session 正常运行
+- Git push 成功（commit `54b2eb9`），100% 同步
+- 12:00 CST deep-check 正常（Git/Render/aitoearn 均健康）
+- aitoearn-run 日志已清理（07/11~07/21 每日保留1个最新）
+- `fay` 子模块已加入 .gitignore，技术闭环 100%
+- TikTok 运营阻塞 ~1992h+（83天+），唯一真实阻塞
+
+### ⚠️ coordinator 15:00 CST exec EAGAIN（isolated session）
+- exec 工具持续返回 EAGAIN，无法执行 Git push
+- cron job 本身 `lastRunStatus=ok`，isolated session 正常触发
+- 报告已写入 `memory/team-coordinator-2026-07-21-15.md`，下次 exec 恢复时可 push
+- 状态: 与之前间歇性 EAGAIN 问题一致
+
+### ⚠️ coordinator 16:00 CST exec EAGAIN 持续
+- isolated session 正常运行（cron trigger ✅）
+- exec 仍报 EAGAIN，Git push 待恢复后补推
+- 报告已写入 `memory/team-coordinator-2026-07-21-16.md`
+- aitoearn 15:27 CST 扫描正常，4个任务全被TikTok粉丝门槛拦截
+
+### ✅ team-deep-check 04:00 CST 成功写入报告
+- isolated session 在 overloaded/retry 后成功写入 `team-deep-check-2026-07-22-04.md`
+- 07-21 08:00 CST 起报告连续缺失（MEMORY 记录无对应文件）
+- exec EAGAIN 持续约13小时，Git 积压约14小时未推送
+- aitoearn TikTok 仍 P1 阻塞（~2050h+ / 84天+）
+
+### ✅ coordinator 04:00 CST 正常（exec EAGAIN 仍持续）
+- isolated session 正常运行，报告已写入
+- Git push 仍无法执行（EAGAIN ~14h，Mac mini 系统资源问题）
+- aitoearn TikTok 仍阻塞（~84天）
+- deep-check 04:00 CST 成功写入报告
+- **唯一真实阻塞**: exec EAGAIN（系统层）+ TikTok（运营层）
+
+*最后更新: 2026-07-22 04:04 (Asia/Shanghai)**
+
+### ✅ coordinator 05:00 CST 正常（exec EAGAIN 仍持续 ~15h）
+- isolated session 正常运行，报告已写入 `team-coordinator-2026-07-22-05.md`
+- Git push 仍无法执行（EAGAIN ~15h，Mac mini 系统资源问题）
+- deep-check 04:00 CST 成功写入报告
+- 清理旧 aitoearn-run 日志
+- aitoearn TikTok 仍阻塞（~85天）
+- **唯一真实阻塞**: exec EAGAIN（系统层）+ TikTok（运营层）
+
+### ✅ coordinator 06:00 CST 正常（exec EAGAIN 仍持续 ~16h）
+- isolated session 正常运行，报告已写入 `team-coordinator-2026-07-22-06.md`
+- Git push 仍无法执行（EAGAIN ~16h，Mac mini 系统资源问题）
+- deep-check 04:00 CST 成功写入报告
+- aitoearn TikTok 仍阻塞（~85天）
+- **唯一真实阻塞**: exec EAGAIN（系统层）+ TikTok（运营层）
+
+### ✅ coordinator 07:00 CST 正常（exec EAGAIN 仍持续 ~17h）
+- isolated session 正常运行，报告已写入 `team-coordinator-2026-07-22-07.md`
+- Git push 仍无法执行（EAGAIN ~17h，Mac mini 系统资源问题）
+- deep-check 04:00 CST 成功写入报告
+- aitoearn TikTok 仍阻塞（~85天）
+- 状态汇总已更新至 `team-coordinator-status.md`
+- **唯一真实阻塞**: exec EAGAIN（系统层）+ TikTok（运营层）
+- ⚠️ exec EAGAIN 已超过17小时未见自愈，建议田太平 main session 介入检查 Mac mini 资源
