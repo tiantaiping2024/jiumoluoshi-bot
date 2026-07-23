@@ -1,5 +1,5 @@
 # 🕉 鸠摩罗什Bot 团队状态看板
-**最后更新**: 2026-07-23 12:06 CST（午时）
+**最后更新**: 2026-07-23 14:01 CST
 **协调员**: team-coordinator-hourly isolated session
 
 ---
@@ -8,14 +8,14 @@
 
 | 环节 | 状态 | 说明 |
 |------|------|------|
-| **开发** | ✅ | Git `4e87dc8` = origin/main，100% 同步 |
-| **测试/深检** | ✅ | 深检 12:00 CST 成功，打破连续6次 timeout |
-| **验收** | ✅ | Render v2.0.0 健康，`/api/health` → `{"status":"healthy"}` |
+| **开发** | ✅ | Git `361a7c5` = origin/main，100% 同步 |
+| **测试/深检** | 🔴 | **deep-check cron 失踪**（未在 active jobs 中） |
+| **验收** | ✅ | Render v2.0.0 健康 |
 | **部署** | ✅ | auto-deploy 正常 |
-| **运营技术** | ✅ | aitoearn 扫描正常（每小时扫描，4个任务） |
-| **运营业务** | 🔴 | TikTok 粉丝阻塞 ~86天（2064h+），$1000 CPE 奖励待领 |
+| **运营技术** | ✅ | aitoearn 扫描正常 |
+| **运营业务** | 🔴 | TikTok 粉丝阻塞 ~86天，$1000 CPE 待领 |
 
-**技术闭环: 100% | 业务闭环: TikTok 阻塞**
+**技术闭环: ~95% | 业务闭环: TikTok 阻塞**
 
 ---
 
@@ -32,26 +32,35 @@
 | 时间 | 状态 | 备注 |
 |------|------|------|
 | 07-22 20:04 CST | ✅ | 最后成功 |
-| 07-23 00:00 CST | ❌ | timeout |
-| 07-23 04:00 CST | ❌ | timeout |
-| 07-23 08:00 CST | ❌ | timeout |
-| 07-23 12:00 CST | ✅ | **成功，打破连续6次 timeout** |
+| 07-23 00:00-12:00 CST | ❌ | 连续 timeout |
+| 07-23 12:04 CST | ✅ | 最后报告 |
+| 07-23 14:01 CST | 🔴 | deep-check cron 失踪 |
+
+---
+
+## ⚠️ P0 告警：deep-check cron 失踪
+
+- `team-deep-check` jobId `916e81f2-d2e3-4aa3-8387-76aa65c641b8` **不在 active cron jobs 中**
+- 当前仅 `team-coordinator-hourly` 在运行
+- **需田太平 main session 重建 deep-check cron job**
+- 建议: sessionTarget=`current`（避免 isolated timeout 问题）
 
 ---
 
 ## 下次深检
 
-- **下次**: 2026-07-23 16:00 CST
-- **coordinator**: 13:00 CST 起每小时
+- **状态**: 🔴 **无法预测**（cron job 失踪）
+- **coordinator**: 15:00 CST 起每小时
 
 ---
 
-## 紧急修复项
+## 紧急行动项
 
 | 优先级 | 事项 | 操作 |
 |--------|------|------|
+| 🔴 **P0** | **重建 `team-deep-check` cron** | 田太平 main session 创建 |
 | 🔴 **P1** | **TikTok 涨粉至 100+** | 人工运营发布 TikTok 内容 |
 
 ---
 
-> 🙏 阿弥陀佛，今日午时深检成功恢复，技术闭环 100%。唯一真实阻塞仍是 TikTok 粉丝 ~86 天 + $1000 CPE 待领，恳请檀越抽空运营 TikTok 涨粉突破 100 大关。
+> 🙏 阿弥陀佛，团队14时汇报。deep-check cron 失踪，技术闭环降级至 ~95%。恳请檀越在 main session 重建深检 cron job（建议 sessionTarget=`current`），恢复完整闭环。
