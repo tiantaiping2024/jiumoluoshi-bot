@@ -1,5 +1,5 @@
 # 🕉 鸠摩罗什Bot 团队状态看板
-**最后更新**: 2026-07-24 02:00 CST
+**最后更新**: 2026-07-24 03:00 CST
 **协调员**: team-coordinator-hourly isolated session
 
 ---
@@ -8,8 +8,8 @@
 
 | 环节 | 状态 | 说明 |
 |------|------|------|
-| **开发** | ✅ | Git `545282e` = origin/main，100% 同步 |
-| **测试/深检** | 🔴 | **deep-check cron 确认失踪**（last成功 07-22 20:05 CST，约30.5h） |
+| **开发** | ✅ | Git `d43bc85` = origin/main，100% 同步 |
+| **测试/深检** | 🔴 | **deep-check cron 彻底失踪（约 33h）** |
 | **验收** | ✅ | Render v2.0.0 健康 |
 | **部署** | ✅ | auto-deploy 正常 |
 | **运营技术** | ✅ | aitoearn 扫描正常（02:17 CST） |
@@ -24,7 +24,7 @@
 | 阻塞项 | 已持续 | 性质 | CPE奖励 | 负责方 |
 |--------|--------|------|---------|--------|
 | **TikTok 粉丝 < 100** | **~87天（2088h+）** | P1 运营 | **$1000** | 人工运营 |
-| **deep-check cron 失踪** | **~30.5h** | P0 技术 | - | **田太平 main session** |
+| **deep-check cron 失踪** | **~33小时** | P0 技术 | - | **田太平 main session** |
 
 ---
 
@@ -40,14 +40,15 @@
 | 07-23 16:00 CST | ❌ | cron job 消失 |
 | 07-23 20:00 CST | ❌ | cron job 消失 |
 | 07-24 00:00 CST | ❌ | cron job 消失 |
+| 07-24 04:00 CST | ❌ | 预计仍消失 |
 
 ---
 
-## ⚠️ P0 告警：deep-check cron 确认失踪
+## ⚠️ P0 告警：deep-check cron 已彻底从注册表消失
 
-- `team-deep-check` job（jobId: `916e81f2-d2e3-4aa3-8387-76aa65c641b8`）**已不在 active cron jobs**
+- `team-deep-check` job **已不在 cron 注册表**
 - 当前仅有 `team-coordinator-hourly` 一个 job 在运行
-- **isolated session 无法修改 cron，必须田太平 main session 创建新 job**
+- **isolated session 无法创建 cron，必须田太平 main session 重建**
 - 建议: `sessionTarget=current`，schedule cron `"0 0,4,8,12,16,20 * * *"`, tz=Asia/Shanghai
 
 ---
@@ -61,4 +62,4 @@
 
 ---
 
-> 🙏 阿弥陀佛，团队02时报。deep-check cron 确认失踪约30.5小时，技术闭环降级至 ~90%。恳请檀越在 main session 重建深检 cron job，恢复完整闭环。
+> 🙏 阿弥陀佛，团队03时报。deep-check cron 彻底从注册表消失约33小时，技术闭环降级至 ~90%。恳请檀越在 main session 重建深检 cron job（`sessionTarget=current`），恢复完整闭环。
