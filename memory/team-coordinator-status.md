@@ -1,5 +1,5 @@
 # 🕉 鸠摩罗什Bot 团队状态看板
-**最后更新**: 2026-07-23 10:11 CST（巳时）
+**最后更新**: 2026-07-23 11:01 CST（午时）
 **协调员**: team-coordinator-hourly isolated session
 
 ---
@@ -8,11 +8,11 @@
 
 | 环节 | 状态 | 说明 |
 |------|------|------|
-| **开发** | ✅ | Git `2a8b76f` = origin/main，100% 同步 |
-| **测试/深检** | ⚠️ | 深检 00:00/04:00/08:00 CST 连续 timeout，本轮 retry 成功 |
+| **开发** | ✅ | Git `75dc8d7` = origin/main，100% 同步 |
+| **测试/深检** | ⚠️ | 深检最后成功 07-22 20:05 CST（~15h前），cron 可能再次丢失 |
 | **验收** | ✅ | Render v2.0.0 健康，`/api/health` → `{"status":"healthy"}` |
 | **部署** | ✅ | auto-deploy 正常 |
-| **运营技术** | ✅ | aitoearn 扫描正常（每时扫描，4个任务） |
+| **运营技术** | ✅ | aitoearn 扫描正常（每小时扫描，4个任务） |
 | **运营业务** | 🔴 | TikTok 粉丝阻塞 ~86天，$1000 CPE 奖励待领 |
 
 ---
@@ -29,12 +29,12 @@
 
 | 问题 | 状态 | 详情 |
 |------|------|------|
-| 深检连续 timeout | ⚠️ 本轮恢复 | 00:00/04:00/08:00 CST 三次 timeout，09:11 retry 成功 |
-| fay.sociops.com 无响应 | ⚠️ 间歇性 | 无输出，间歇性波动 |
-| coordinator LLM timeout | ⚠️ 本轮恢复 | 连续7次 timeout（07-22 21:00 ~ 09:00），retry 成功 |
+| 深检 cron 再次疑似丢失 | ⚠️ 需重建 | 07-23 00:00/04:00/08:00 均无报告，需田太平 main session 重建 |
+| fay 子模块 | ✅ | 已作为 git submodule 管理 |
+| aitoearn TikTok 阻塞 | 🔴 持续 | ~86天 / 2064h+，所有任务被粉丝门槛拦截 |
 
 ---
 
-## 技术闭环: ~95%（深检 timeout 干扰） | 业务闭环: TikTok 阻塞
+## 技术闭环: ~95%（深检 cron 丢失） | 业务闭环: TikTok 阻塞
 
-## Git: `2a8b76f` = origin/main ✅
+## Git: `75dc8d7` = origin/main ✅
