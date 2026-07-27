@@ -34,11 +34,11 @@
 
 ---
 
-## 🔴 紧急阻塞：Render 生产服务离线
+## 正常确认
 
-**问题**: `jiumoluoshi-bot.onrender.com` 约 2 小时不可达（最后正常 13:00 CST）
-**影响**: 鸠摩罗什Bot 生产服务下线，用户无法访问
-**建议**: 田太平 main session 介入，检查 Render Dashboard 实例状态，必要时冷启动
+- **jiumoluoshi-bot.onrender.com**: ✅ 200 OK，`{"status":"healthy","name":"鸠摩罗什Bot Agent","version":"2.0.0"}`
+- **aitoearn.onrender.com**: 🔴 下线（已知状态，非紧急）
+- Render v2.0.0 生产服务正常运行
 
 ## 汇总
 
