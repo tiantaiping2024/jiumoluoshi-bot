@@ -97,5 +97,27 @@
     "reward": 200,
     "cpeReward": 1000,
     "status": "pending"
+  },
+  {
+    "timestamp": "2026-07-29-05",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-07-29-07",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
   }
 ]
