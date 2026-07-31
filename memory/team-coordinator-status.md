@@ -1,5 +1,5 @@
 # 🕉 鸠摩罗什Bot 团队状态看板
-**最后更新**: 2026-08-01 01:00 CST
+**最后更新**: 2026-08-01 02:00 CST
 **协调员**: team-coordinator-hourly isolated session
 
 ---
@@ -8,11 +8,11 @@
 
 | 环节 | 状态 | 说明 |
 |------|------|------|
-| **开发** | ✅ | Git 已同步（commit `45e7219`） |
-| **测试/深检** | ⚠️ | 08:00 CST 深检成功；cron consecutiveErrors=39，需田太平 main session 排查 |
+| **开发** | ✅ | Git 已同步（commit `e6cbc4d`） |
+| **测试/深检** | ⚠️ | 深检 07-31 08:00 CST 成功；cron consecutiveErrors=39，需田太平 main session 排查 |
 | **验收** | ✅ | `jiumoluoshi-bot.onrender.com/api/health` → `200 OK`，v2.0.0 |
 | **部署** | ✅ | Render 生产服务健康 |
-| **aitoean 技术** | ✅ | SSL 稳定，扫描正常运行 |
+| **aitoean 技术** | ✅ | SSL 稳定，01:17 CST 扫描正常运行 |
 | **aitoean 业务** | 🔴 | TikTok promotion task 已接单但未提交（$100+CPE$790）；TikTok涨粉仍是真实阻塞 |
 
 **技术闭环: ~95% | 业务闭环: 阻塞中**
@@ -23,9 +23,9 @@
 
 | 阻塞项 | 已持续 | 性质 | 奖励 | 负责方 |
 |--------|--------|------|------|--------|
-| **TikTok promotion task 已接未提交** | ~72h+ | P1 业务 | **$100 + CPE$790** | 需人工登录 aitoearn.ai 确认并提交成果 |
+| **TikTok promotion task 已接未提交** | ~73h+ | P1 业务 | **$100 + CPE$790** | 需人工登录 aitoearn.ai 确认并提交成果 |
 | **TikTok涨粉 <100** | ~93天+ | P1 运营 | CPE$1000 | 需人工运营 TikTok 账号涨粉 |
-| **team-deep-check cron consecutiveErrors=39** | ~4天 | P1 技术 | - | 需田太平 main session 重建 |
+| **team-deep-check cron consecutiveErrors=39** | ~42h | P1 技术 | - | 需田太平 main session 重建 |
 
 ---
 
@@ -33,11 +33,11 @@
 
 | 时间 | 状态 | 错误 |
 |------|------|------|
-| 08-01 01:00 CST | ✅ ok | Git sync, Render healthy, TikTok task still pending ~72h |
+| 08-01 02:00 CST | ✅ ok | Git sync, Render healthy, TikTok task re-accepted 01:17 CST |
+| 08-01 01:00 CST | ✅ ok | Git sync, Render healthy, TikTok task pending ~72h |
 | 08-01 00:00 CST | ✅ ok | Git sync, Render healthy |
 | 07-31 23:00 CST | ✅ ok | Git push 成功 (`45e7219`) |
 | 07-31 15:00 CST | ✅ ok | Git push 成功 (`d9b5d40`) |
-| 07-31 14:00 CST | ✅ ok | Git push 成功 (`7b74cde`) |
 
 ---
 
@@ -58,18 +58,20 @@
 | 服务 | URL | 状态 |
 |------|-----|------|
 | **生产** | `jiumoluoshi-bot.onrender.com/` | ✅ 200 OK |
-| **生产 API** | `jiumoluoshi-bot.onrender.com/api/health` | ✅ 200 OK `{"status":"healthy","version":"2.0.0"}` |
+| **生产 API** | `jiumoluoshi-bot.onrender.com/api/health` | ✅ 200 OK `{"status":"healthy","name":"鸠摩罗什Bot Agent","version":"2.0.0"}` |
 | **aitoearn.com** | `https://aitoearn.ai/` | ✅ 200 OK |
 
 ---
 
 ## aitoearn 任务状态（关键变更）
 
-> ⚠️ **重要发现**：TikTok promotion task 报错 "**been taken by this account**"（已被本账号接单但未提交）。说明该任务已在平台侧被接单，但从未提交成果，导致奖励无法到账。持续~72h+。
+> ⚠️ **重要发现**：TikTok promotion task 报错 "**been taken by this account**"（已被本账号接单但未提交）。说明该任务已在平台侧被接单，但从未提交成果，导致奖励无法到账。持续~73h+。
+
+> ✅ **新进展**：01:17 CST 再次接单成功（userTaskId=6a6cd8bd1d12d8450b09b49f），平台允许重新接单。
 
 | 任务 | 平台 | 奖励 | CPE | 状态 | 说明 |
 |------|------|------|-----|------|------|
-| TikTok promotion task | TikTok | $100 | CPE$790 | **🔴 已接单未提交** | 平台显示已接，约72h+，需人工提交 |
+| TikTok promotion task | TikTok | $100 | CPE$790 | **🔴 已接单未提交** | 平台显示已接，约73h+，需人工提交 |
 | TikTok promotion AITOEARN Platform | TikTok | $0 | CPE$1000 | 🔴 pending | 粉丝不足（<100） |
 
 ---
@@ -92,4 +94,4 @@
 
 ---
 
-*状态看板 | team-coordinator-hourly | 2026-08-01 00:03 CST*
+*状态看板 | team-coordinator-hourly | 2026-08-01 02:00 CST*
