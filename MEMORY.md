@@ -93,11 +93,18 @@
 - **修复方案**: main session 执行 `/openclaw cron add`，必须用 `sessionTarget=current`
 - **规律**: isolated session 在 gateway 重启/上下文切换时更易丢失 cron 绑定
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1950h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~2232h+）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~81天+
+- **持续时间**: ~93天+
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
+
+### 🔴 新增 P1 阻塞（2026-08-01/02）
+- **Git 324 commits 落后**: 本地 `790285e` vs origin `f764114`，25天未同步
+- **Railway aitoearn 服务宕机**: `aitoearn.onrender.com/api/health` → 404，约30h+
+- **TikTok task pending ~89h**: $100+CPE$790 任务已接未提交，需人工平台提交
+- **team-deep-check consecutiveErrors=39**: 深检cron再次失踪，isolated无法重建
+- **coordinator 自身 timeout**: 大量 cron runs history 累加 input tokens，context膨胀导致频繁 timeout
 
 ## 稳定运行记录
 
