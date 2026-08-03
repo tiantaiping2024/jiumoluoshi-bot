@@ -559,5 +559,49 @@
     "reward": 100,
     "cpeReward": 790,
     "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-03-07",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-03-10",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-03-13",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-03-16",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
   }
 ]
