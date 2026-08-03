@@ -1,7 +1,7 @@
 # 鸠摩罗什Bot 团队状态汇总
 
-**最后更新:** 2026-08-03 13:01 CST
-**报告:** `team-coordinator-2026-08-03-13.md`
+**最后更新:** 2026-08-03 16:02 CST
+**报告:** `team-coordinator-2026-08-03-16.md`
 
 ---
 
@@ -20,18 +20,19 @@
 
 ## Git 状态
 
-- HEAD: `99465ac` = origin/main
+- HEAD: `05d4b64` = origin/main
 - 同步状态: 100%
 
 ---
 
 ## 活跃阻塞
 
-1. **TikTok promotion task pending ~120h** — 需人工提交/放弃
-2. **TikTok粉丝 <100** — 持续~93天，需人工运营涨粉
+1. **aitoean 平台 404 / 扫描进程未部署** — ~5天+
+2. **TikTok promotion task pending ~125h** — 需人工提交/放弃
+3. **TikTok粉丝 <100** — 持续~93天，需人工运营涨粉
 
 ---
 
 ## 下次深检
 
-- 2026-08-03 16:00 CST（team-deep-check cron）
+- 2026-08-03 20:00 CST（team-deep-check cron）
