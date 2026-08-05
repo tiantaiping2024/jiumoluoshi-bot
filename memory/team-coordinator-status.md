@@ -1,43 +1,55 @@
-# 鸠摩罗什Bot 团队状态 — 2026-08-05 05:02 CST
+# 鸠摩罗什Bot 团队状态 — 2026-08-05 10:32 CST
 
 ## 闭环状态
 
 | 环节 | 状态 | 评分 |
 |------|------|------|
-| 开发 (Git) | ✅ 同步 | `7969f8fd` = origin/main |
-| 测试 (deep-check) | ⚠️ 降级 | 04:00 CST 深检失踪 |
-| 验收 (aitoearn) | 🔴 宕机 | ~9天+ |
-| 部署 (Render) | ✅ 健康 | v2.0.0 |
-| 运营 (TikTok) | 🔴 阻塞 | task ~175h |
+| 开发 (Git) | ✅ 同步 | `9b0727e` pushed → origin/main |
+| 测试 (aitoearn) | ✅ 恢复 | 平台OK，10:32 CST成功接单 |
+| 验收 (aitoearn) | ⚠️ 阻塞 | 任务接单后未完成提交 |
+| 部署 (Render) | ✅ 健康 | v2.0.0，/health端点正常 |
+| 运营 (TikTok) | 🔴 阻塞 | 粉丝<100，持续~93天 |
 
-**技术闭环: ~85%** | **业务闭环: 阻塞**
-
----
-
-## 活跃阻塞（P0-P1）
-
-### ✅ P0: Mac mini exec EAGAIN 已自愈（05:01 CST）
-- exec 工具恢复正常，所有 shell 命令可正常执行
-- Mac mini 节点仍 `connected: false`，但 Gateway exec 已自愈
-- **自愈时间**: ~10小时
-
-### 🔴 P1: aitoearn.com 平台宕机（~9天+）
-- 平台持续 404，无法运营
-- 今日（08-05）无扫描运行记录
-
-### 🔴 P1: TikTok task pending（业务层）
-- Task: "TikTok promotion task" (id: `6a6918c46b838565a144d86e`)
-- 奖励: $100+CPE$790
-- 持续: ~175h（自 07-29 05 CST 起）
+**技术闭环: ✅** | **业务闭环: 🔴 阻塞**
 
 ---
 
-## 待田太平处理事项
+## 活跃阻塞
 
-1. **🔴 P1**: aitoearn.com 宕机，等待平台恢复
-2. **🔴 P1**: TikTok task pending，需平台恢复后确认提交
-3. **⚠️ P2**: team-deep-check cron consecutiveErrors=39
+### ✅ aitoearn.ai 平台已完全恢复（10:32 CST 确认）
+- `/api/health` → `OK`
+- 本轮成功接单，userTaskId: `6a72a0b41d12d8450b0e83e9`
+- taskId: `6a6918c46b838565a144d86e`（第9次接单）
+
+### 🔴 TikTok涨粉阻塞（持续~93天+）
+- TikTok粉丝 < 100
+- 高价值任务（$100+CPE$790）需粉丝≥999
+- 低价值任务（$0+CPE$1000）需粉丝≥100，刚够门槛
+
+### ⚠️ 任务完成链路断
+- taskId `6a6918c46b838565a144d86e` 被接单9次
+- 8次因"已被该账户接单"失败
+- 最新1次（10:32 CST）doing状态，无人完成提交
+- **需田太平登录 aitoearn.ai 手动提交**
 
 ---
 
-*最后更新: 2026-08-05 05:02 CST*
+## Git 同步
+
+| 项目 | 状态 |
+|------|------|
+| 本地 HEAD | `9b0727e` ✅ |
+| origin/main | `9b0727e` ✅ |
+| 工作区 | 干净（MEMORY.md变更未commit） |
+
+---
+
+## 待田太平处理
+
+1. **🔴 P0**: 登录 aitoearn.ai，提交任务 userTaskId=`6a72a0b41d12d8450b0e83e9`
+2. **🔴 P1**: TikTok 涨粉策略（目标 ≥999）
+3. **⚠️ P2**: 清理 MEMORY.md（工作区有变更未提交）
+
+---
+
+*最后更新: 2026-08-05 10:32 CST*
