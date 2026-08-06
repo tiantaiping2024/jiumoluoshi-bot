@@ -130,5 +130,115 @@
     "reward": 100,
     "cpeReward": 790,
     "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-05-21",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-00",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-02",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-05",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-07",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-11",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-13",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-16",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-19",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
+  },
+  {
+    "timestamp": "2026-08-06-21",
+    "taskId": "6a6918c46b838565a144d86e",
+    "title": "TikTok promotion task",
+    "platforms": [
+      "tiktok"
+    ],
+    "reward": 100,
+    "cpeReward": 790,
+    "status": "pending"
   }
 ]
