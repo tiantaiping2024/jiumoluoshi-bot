@@ -1,6 +1,4 @@
-# team-coordinator-status
-
-**Last updated:** 2026-08-10 11:06 CST
+**Last updated:** 2026-08-10 17:29 CST
 
 ## 当前阻塞项 🔴
 
@@ -21,11 +19,18 @@
 - aitoearn.ai 平台正常，扫描持续运行
 - 今日已成功接取 1 个 TikTok promotion task（$100+CPE$790）
 - Git 与 origin 完全同步
-- coordinator abort cascade 已稳定
+- coordinator abort cascade 已打破（04:04 CST恢复正常后持续至11:06 CST）
 
-## aitoearn 任务状态（11:06 CST）
+## ⚠️ 新增风险：Abort Cascade 回归
 
-- TikTok fans≥999：可接单（$100+CPE$790），已接1个
+- **现象**: 12:04 CST 起 coordinator 连续多次 `AbortError: agent run aborted`
+- **最近成功**: 11:06 CST（`942572e`）
+- **根因**: 上下文历史过大导致 isolated session idle timeout
+- **需田太平 main session 介入**: 调高 `models.providers.minimax.timeoutSeconds` 至 900+
+
+## aitoearn 任务状态（17:29 CST）
+
+- TikTok fans≥999：可接单（$100+CPE$790），已接1个doing
 - TikTok fans≥100：粉丝不足，无法接单（$0+CPE$1000）
 - 平台 slots: 1/4（fans≥999档位紧张）
 
