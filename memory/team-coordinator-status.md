@@ -1,10 +1,10 @@
 # Team Coordinator Status
 
-**Last updated:** 2026-08-27 03:03 CST
+**Last updated:** 2026-08-27 05:10 CST
 
 ## 🚨 Active Blockers
 
-### P1 - Render 生产服务下线 (~16h+)
+### P1 - Render 生产服务下线 (~20h+)
 - **Status:** 🔴 Down
 - **URL:** `jiumoluoshi-bot.onrender.com` → 404 Not Found
 - **Impact:** 无法验收和部署
@@ -17,16 +17,17 @@
 - **Impact:** 59 条 pending 任务无一转化
 - **Action:** 需人工运营 TikTok 涨粉
 
-### P1 - team-deep-check cron 失踪
-- **Status:** 🔴 失踪
-- **最后成功:** 2026-08-26 20:00 CST（`team-deep-check-2026-08-26-20.md`）
-- **isolated session:** 无法重建 cron，必须田太平 main session 介入
-- **Action:** 田太平 main session 重建 `team-deep-check` cron job
+### P1 - team-deep-check cron 连续报错200次
+- **Status:** 🔴 严重
+- **Job ID:** `77493094-f094-4c1b-975f-855e2683312f`
+- **consecutiveErrors:** 200
+- **runningAtMs:** 1787778627503（当前有实例在跑但持续报错）
+- **最后成功:** 2026-08-26 20:00 CST
+- **Action:** 需田太平 main session 删除重建 cron job
 
 ## 🟡 Warnings
 
-- Git 本地落后 1 commit → **已推送** ✅（03:03 CST commit `64140c3`）
-- coordinator `lastRunStatus=error`（isolated session context 膨胀）
+- coordinator `lastRunStatus=error`，`runningAtMs=1787778627503`（当前有实例在跑）
 - aitoearn.onrender.com 超时（已知下线）
 - fay 子模块 modified content（未跟踪）
 
@@ -34,12 +35,12 @@
 
 - aitoearn.ai 平台正常（health OK）
 - aitoearn 扫描正常运行（每30分钟）
-- 本地代码无问题
+- Git 已同步
 
 ## 📊 Last Run Summary
 
 | Report | Time | Status |
 |--------|------|--------|
-| deep-check | 2026-08-26 20:07 CST | ✅ 成功写入 |
-| coordinator | 2026-08-27 03:00 CST | ✅ 本次完成 |
-| aitoearn scan | 2026-08-27 02:29 CST | ✅ 正常（3个任务，粉丝不足） |
+| coordinator | 2026-08-27 05:00 CST | ✅ 本次完成 |
+| deep-check | 2026-08-26 20:07 CST | ⚠️ 连续报错200次 |
+| aitoearn scan | 2026-08-27 04:36 CST | ✅ 正常（3个任务，粉丝不足） |
