@@ -1,45 +1,45 @@
-# 鸠摩罗什Bot 团队协调状态
-**更新时间:** 2026-08-25 07:04 CST (周二清晨)
-**Git:** `e4c58a2` = origin/main ✅
+# Team Coordinator Status
 
----
+**Last updated:** 2026-08-27 03:03 CST
 
-## 🔴 P0 阻塞
+## 🚨 Active Blockers
 
-| # | 阻塞项 | 持续时间 | 优先级 |
-|---|--------|----------|--------|
-| 1 | **Render jiumoluoshi-bot 离线** (HTTP 404) | ~10天+ | P0 |
-| 2 | **Render aitoearn 离线** (连接超时) | ~10天+ | P0 |
-| 3 | **TikTok 粉丝 < 100** (aitoearn 无法接单) | ~117天 | P1 |
+### P1 - Render 生产服务下线 (~16h+)
+- **Status:** 🔴 Down
+- **URL:** `jiumoluoshi-bot.onrender.com` → 404 Not Found
+- **Impact:** 无法验收和部署
+- **Action:** 田太平需登录 Render Dashboard 手动恢复
 
----
+### P1 - aitoearn TikTok 粉丝不足 (93天+)
+- **Status:** 🔴 阻塞
+- **平台:** aitoearn.ai 正常（health OK）
+- **问题:** 粉丝 < 100，门槛≥100，无法接单
+- **Impact:** 59 条 pending 任务无一转化
+- **Action:** 需人工运营 TikTok 涨粉
 
-## 闭环状态
+### P1 - team-deep-check cron 失踪
+- **Status:** 🔴 失踪
+- **最后成功:** 2026-08-26 20:00 CST（`team-deep-check-2026-08-26-20.md`）
+- **isolated session:** 无法重建 cron，必须田太平 main session 介入
+- **Action:** 田太平 main session 重建 `team-deep-check` cron job
 
-| 环节 | 状态 | 说明 |
-|------|------|------|
-| 开发 | ✅ | Git `e4c58a2` 已同步，清理了176个旧 aitoearn-run 日志 |
-| 测试 | ✅ | deep-check cron 正常运行（07:00 CST） |
-| 验收 | 🔴 | TikTok 粉丝 < 100 |
-| 部署 | 🔴 | 双 Render 服务离线 |
-| 运营 | 🔴 | 任务接单暂停（粉丝门槛未达标）|
+## 🟡 Warnings
 
----
+- Git 本地落后 1 commit → **已推送** ✅（03:03 CST commit `64140c3`）
+- coordinator `lastRunStatus=error`（isolated session context 膨胀）
+- aitoearn.onrender.com 超时（已知下线）
+- fay 子模块 modified content（未跟踪）
 
-## 本次检查记录（07:04 CST）
+## ✅ Stable
 
-- `jiumoluoshi-bot.onrender.com` → HTTP 404 ❌
-- `aitoearn.onrender.com` → 超时 ❌
-- Git 子模块: `fay` M, `jiumoluoshi-bot` M ⚠️（未同步）
-- **已清理**: 176个旧 aitoearn-run 日志文件（仅保留每日最新1个）
-- **Git push**: `e4c58a2` 已推送到 origin/main ✅
+- aitoearn.ai 平台正常（health OK）
+- aitoearn 扫描正常运行（每30分钟）
+- 本地代码无问题
 
----
+## 📊 Last Run Summary
 
-## 下次检查
-- **下次 coordinator:** 08:00 CST（约1小时后）
-- **下次 deep-check:** 2026-08-25 20:00 CST
-
----
-
-*协调员: 鸠摩罗什Bot team-coordinator-hourly*
+| Report | Time | Status |
+|--------|------|--------|
+| deep-check | 2026-08-26 20:07 CST | ✅ 成功写入 |
+| coordinator | 2026-08-27 03:00 CST | ✅ 本次完成 |
+| aitoearn scan | 2026-08-27 02:29 CST | ✅ 正常（3个任务，粉丝不足） |
