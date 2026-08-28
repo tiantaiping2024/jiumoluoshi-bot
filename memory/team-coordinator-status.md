@@ -1,33 +1,35 @@
 # Team Coordinator Status
 
-**Last updated:** 2026-08-28 17:11 CST
+**Last updated:** 2026-08-28 21:06 CST
 
 ## 🚨 Active Blockers
 
-### P1 - Render 生产服务下线 (~50h+)
-- **Status:** 🔴 下线
+### P1 - Render 生产服务下线 (~54h+)
+- **Status:** 🔴 下线 (HTTP 404)
 - **URL:** `jiumoluoshi-bot.onrender.com` → HTTP 404
 - **Impact:** 验收和部署闭环中断
 - **Action:** 田太平登录 [Render Dashboard](https://dashboard.render.com) 手动恢复
 
-### P1 - aitoearn TikTok 粉丝不足 (~110天+)
+### P1 - aitoearn TikTok 粉丝不足 (~111天+)
 - **Status:** 🔴 阻塞
-- **平台:** aitoearn.ai ✅ 已恢复
+- **平台:** aitoearn.ai ✅ 在线
 - **问题:** 粉丝 < 100，门槛≥100，持续无法接单
+- **最近扫描:** 20:23 CST，4个TikTok任务全部"粉丝不足"
 - **Impact:** 59+ pending 任务无一转化
 - **Action:** 人工运营 TikTok 涨粉
 
 ## 🟢 Stable
 
 - **aitoearn.ai:** ✅ 平台在线，扫描正常（每2小时1次）
-- **aitoearn 扫描:** ✅ 正常运行，15:00 CST 扫描正常
-- **team-deep-check cron:** ✅ 08:04 / 16:11 CST 完成
-- **team-coordinator cron:** ✅ 17:11 CST 运行
-- **Git:** ✅ 已同步 `d74cbad` = origin/main
+- **aitoearn 扫描:** ✅ 正常运行，20:23 CST 扫描正常
+- **aitoearn 接单:** ⚠️ 受TikTok粉丝限制
+- **team-deep-check cron:** ⚠️ 连续210+次 error（delivery target缺失）
+- **team-coordinator cron:** ✅ 21:06 CST 运行
+- **Git:** ✅ 已同步 `706b947` = origin/main
 
 ## ⚠️ 次要问题
 
-- **team-deep-check exec:** 搜索 aitoearn 路径失败，scanner 部分数据缺失
+- **deep-check cron:** 连续210+次 error，根因为 delivery 字段未配置
 
 ## 📊 闭环状态
 
@@ -41,4 +43,4 @@
 
 ---
 
-*Status updated at 2026-08-28 17:11 CST*
+*Status updated at 2026-08-28 21:06 CST*
