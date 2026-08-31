@@ -1,30 +1,26 @@
-# 团队协调状态 - 2026-08-31 21:00 CST
+# Team Coordinator Status — 2026-08-31 22:00 CST
+
+## 当前阻塞（按优先级）
+
+| 优先级 | 问题 | 持续时间 | 状态 |
+|--------|------|----------|------|
+| 🔴 P0 | jiumoluoshi-bot.onrender.com 下线 | ~104h | 未处理 |
+| 🔴 P1 | TikTok 粉丝 < 100 | ~90天 | 未处理 |
+| ⚠️ P2 | jiumoluoshi-bot 子模块未同步 | 新增 | 未处理 |
 
 ## 闭环状态
-| 环节 | 状态 | 备注 |
-|------|------|------|
-| 开发 | ⚠️ 待同步 | jiumoluoshi-bot 落后 origin 21 commits（3天+） |
-| 测试 | ✅ 正常 | aitoearn.ai health OK |
-| 验收 | 🔴 下线 | jiumoluoshi-bot.onrender.com 404（~102h+） |
-| 部署 | 🔴 下线 | 需 Render 重建 |
-| 运营 | 🔴 阻塞 | TikTok粉丝 < 100，持续~90天 |
 
-## 关键阻塞
-- 🔴 **P0: jiumoluoshi-bot.onrender.com 404 下线（~102h，需 Render 重建）**
-- 🔴 **P1: TikTok粉丝不足（~90天）**，无法在 aitoearn 变现
+- ✅ 开发：workspace 已同步，子模块有待更新
+- ✅ 测试：aitoearn.ai 每小时扫描正常
+- 🔴 验收：jiumoluoshi-bot.onrender.com HTTP 404
+- 🔴 部署：生产下线，Render 需重建
+- 🔴 运营：TikTok 粉丝不足，任务无法接取
 
-## Git
-- workspace: ✅ 已同步（21:00 CST pull 确认 up to date）
-- jiumoluoshi-bot: ⚠️ 落后 origin/main 21 commits（最后同步 2026-08-28 18:24）
+## 最近报告
+- team-coordinator-2026-08-31-22.md ✅ 已生成
+- team-deep-check-2026-08-31-20.md ✅ 已生成
+- aitoearn-run-2026-08-31-21.md ✅ 已生成
 
-## aitoearn 扫描状态
-- 扫描正常：每小时运行，本地有 memory/aitoearn-run-2026-08-31-{15-20}.md 记录
-- 平台：3个任务待接取，全部 TikTok，粉丝门槛≥100
-- 阻塞：账号粉丝 < 100，任务无法接取
-
-## 需人工介入
-1. 🔴 **P0**: 登录 Render Dashboard 重建 jiumoluoshi-bot
-2. 🔴 **P1**: TikTok 涨粉至 ≥100
-3. ⚠️ git pull 同步 jiumoluoshi-bot 本地分支（21 commits 落后）
-
-*Updated: 2026-08-31 21:00 CST*
+## 下次检查
+- 下一小时协调员报告：2026-08-31 23:00 CST
+- 下一深检报告：2026-08-31 00:00 CST（明日）
