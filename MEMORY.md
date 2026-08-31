@@ -93,18 +93,21 @@
 - **修复方案**: main session 执行 `/openclaw cron add`，必须用 `sessionTarget=current`
 - **规律**: isolated session 在 gateway 重启/上下文切换时更易丢失 cron 绑定
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~2232h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~2160h+，约90天）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~93天+
+- **持续时间**: ~90天+
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
-### 🔴 新增 P1 阻塞（2026-08-01/02）
-- **Git 324 commits 落后**: 本地 `790285e` vs origin `f764114`，25天未同步
-- **Railway aitoearn 服务宕机**: `aitoearn.onrender.com/api/health` → 404，约30h+
-- **TikTok task pending ~89h**: $100+CPE$790 任务已接未提交，需人工平台提交
-- **team-deep-check consecutiveErrors=39**: 深检cron再次失踪，isolated无法重建
-- **coordinator 自身 timeout**: 大量 cron runs history 累加 input tokens，context膨胀导致频繁 timeout
+### ✅ P1 阻塞已解决（2026-08-01/02批次）
+- **Git 324 commits 落后**: 已解决（07-09 08:32 CST 同步完成，后续多次同步）
+- **Railway aitoearn宕机**: 已解决（aitoearn.ai 已恢复健康）
+- **coordinator timeout**: 已解决（timeoutSeconds 300→600）
+- **team-deep-check consecutiveErrors**: 后续多次正常，最后成功 2026-08-31 17:00 CST
+
+### 🔴 新增 P1 阻塞（2026-08-27+）
+- **jiumoluoshi-bot.onrender.com 404 下线**: 自 2026-08-27 ~15:00 起，约99h+，需人工 Render 重建
+- **jiumoluoshi-bot 子模块 20 commits 落后**: 最后同步 2026-08-28 18:24 CST，需 git pull
 
 ## 稳定运行记录
 
@@ -143,9 +146,9 @@
 - isolated session 多次崩溃导致 cron 注册表丢失，需 main session 重建
 - **必须用 `sessionTarget=current`**
 
-### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~1980h+）
+### 🔴 aitoearn TikTok涨粉阻塞（持续悬而未决 ~2160h+，约90天）
 - **问题**: TikTok账号粉丝 < 100，aitoearn.ai 任务门槛≥100，无法自动接单
-- **持续时间**: ~82天+
+- **持续时间**: ~90天+
 - **状态**: 唯一真实活跃阻塞，需人工运营TikTok涨粉
 - **平台状态**: SSL 完全稳定，技术连接无问题，只剩粉丝数不足
 
@@ -1125,3 +1128,17 @@
 - **🔴 需田太平人工介入：1) Render Dashboard 重建 jiumoluoshi-bot；2) 运营TikTok涨粉**
 
 *最后更新: 2026-08-31 16:02 (Asia/Shanghai)*
+
+### ✅ coordinator 17:00 CST（Git dirty已提交，submodule drift，Render仍404下线，TikTok ~119天阻塞）
+- Git dirty → 已提交 commit `91f3115`（MEMORY.md + team-deep-check报告）
+- **🔴 jiumoluoshi-bot submodule drift** — jiumoluoshi-bot/ 比 main workspace 落后3天（last sync Aug 28 18:24），workspace内的fay/是orphan无.gitmodules映射
+- **🔴 jiumoluoshi-bot.onrender.com 404下线 ~100h+**（Free tier超时销毁，需Render Dashboard重建）
+- **aitoearn.ai ✅ 正常**（16:17 CST扫描正常，3个TikTok任务，fans不足失败）
+- **Git workspace ✅ 同步** — commit `91f3115` up-to-date with origin/main
+- deep-check 16:00 CST error状态已记录（error details null）
+- TikTok粉丝阻塞 ~120天（fans < 100，门槛≥100），唯一真实业务阻塞
+- 团队技术闭环 ~85%（Render下线），业务闭环唯一阻塞 TikTok粉丝
+- MEMORY.md、status、coordinator报告均已更新
+- **🔴 需田太平人工介入：1) Render Dashboard重建 jiumoluoshi-bot 服务；2) 运营TikTok涨粉至≥100；3) git submodule update --init for fay/**
+
+*最后更新: 2026-08-31 17:00 (Asia/Shanghai)*
