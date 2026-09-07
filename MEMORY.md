@@ -39,7 +39,7 @@
 - **回归**: 2026-07-03 01:21/02:21 CST 再次出现 SSL EOF violation
 - **自愈**: 2026-07-03 04:18 起连续6次无 SSL 错误，平台连接彻底恢复 ✅
 - **偶发回归**: 2026-07-03 12:47 出现连接超时（read timed out），13:08/13:25 连续两次正常，回归已消除 ✅
-- **唯一活跃阻塞**: TikTok粉丝 < 100，持续~609h+
+- **唯一活跃阻塞**: TikTok粉丝 < 100，持续~3144h+
 
 ### team-coordinator-hourly 双实例运行
 - `team-coordinator-hourly` 在本地机器和 Render worker 两处各自运行，会导致 Git 分叉
@@ -193,7 +193,7 @@
 - aitoearn TikTok 仍阻塞（~82天）
 - deep-check cron 连续失败7次，需 main session 重建
 
-*最后更新: 2026-07-21 04:00 (Asia/Shanghai)**
+*最后更新: 2026-09-07 20:00 (Asia/Shanghai)**
 
 ### ✅ team-deep-check 04:00 CST 正常（isolated retry 成功）
 - isolated session 在 overloaded/retry 后仍成功写入报告
