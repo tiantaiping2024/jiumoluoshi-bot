@@ -1,5 +1,5 @@
 # Team Coordinator Status Card
-**最后更新**: 2026-09-09 10:01 CST
+**最后更新**: 2026-09-09 16:05 CST
 
 ## 🔴 P0 阻塞
 | 问题 | 持续时间 | 状态 |
@@ -17,15 +17,16 @@
 |------|----------|------|
 | deep-check cron 失踪 | ~6天 | 上次成功 09-04 20:03 |
 
-## 今日运行 (09-09 00:00-10:00)
-- ✅ Git 同步: `bb785c0` = origin/main
-- ✅ aitoearn.ai 平台可访问（扫描正常）
-- 🔴 jiumoluoshi-bot.onrender.com 404 下线约14天
-- 🔴 aitoearn.onrender.com 连接失败
+## 今日运行 (09-09 00:00-16:00)
+- ✅ Git 同步: `8a84169` = origin/main（16:05 CST push）
+- ✅ aitoearn.ai 平台正常（14次扫描，00-14时每小时）
+- 🔴 jiumoluoshi-bot.onrender.com 404 下线 ~14天
+- 🔴 aitoearn.onrender.com 连接超时 ~14天
+- ⚠️ coordinator 14:00/15:00 CST 运行失败未提交
 
 ## 闭环状态
 - 技术闭环: ~55%（Render 下线为主因）
 - 业务闭环: ~0%（TikTok 粉丝阻塞）
 
 ## Git
-- HEAD: `bb785c0` (origin/main 同步)
+- HEAD: `8a84169` (origin/main 同步)
