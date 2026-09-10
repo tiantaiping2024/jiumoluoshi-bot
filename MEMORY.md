@@ -193,7 +193,7 @@
 - aitoearn TikTok 仍阻塞（~82天）
 - deep-check cron 连续失败7次，需 main session 重建
 
-*最后更新: 2026-09-07 20:00 (Asia/Shanghai)**
+*最后更新: 2026-09-10 17:01 (Asia/Shanghai)**
 
 ### ✅ team-deep-check 04:00 CST 正常（isolated retry 成功）
 - isolated session 在 overloaded/retry 后仍成功写入报告
