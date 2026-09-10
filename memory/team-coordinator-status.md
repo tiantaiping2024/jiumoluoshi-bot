@@ -1,5 +1,5 @@
 # 鸠摩罗什Bot 团队协调状态
-**更新时间**: 2026-09-10 07:01 CST
+**更新时间**: 2026-09-10 08:09 CST
 
 ## 综合状态
 
@@ -14,18 +14,19 @@
 ## 闭环链路状态
 
 ### ✅ 开发 — 正常
-- Git 100% 同步，commit `f7e4cdf` = origin/main
+- Git 100% 同步，commit `6fdde0a` = origin/main
 - 每日 coordinator 报告自动归档
 
 ### ✅ 测试 — 正常
 - aitoearn.ai 平台健康（health OK）
 - 每小时自动扫描任务市场
-- 06:43 CST 扫描正常，3个 TikTok 任务待接
+- 07:43 CST 扫描正常，3个 TikTok 任务待接
 
-### 🔴 验收 — 中断（~19h）
-- deep-check cron 中断约19小时
+### 🔴 验收 — 中断（~20h）
+- deep-check cron 中断约20小时
 - 最后成功: 2026-09-09 12:00 CST
 - isolated session 无法重建 cron
+- coordinator cron 自身 lastRunStatus=error
 
 ### 🔴 部署 — 下线（~15天）
 - jiumoluoshi-bot.onrender.com 404 下线
@@ -43,7 +44,7 @@
 
 1. **🔴 P0**: Render jiumoluoshi-bot 下线 ~15天（田太平需重建）
 2. **🔴 P1**: TikTok 粉丝不足 ~134天（需人工运营涨粉）
-3. **⚠️ P2**: deep-check cron 失踪 ~19h（田太平 main session 重建）
+3. **⚠️ P2**: deep-check cron 失踪 ~20h（田太平 main session 重建）
 
 ---
 
@@ -51,7 +52,7 @@
 
 - **Git 同步率**: 100% ✅
 - **aitoearn 扫描**: 正常 ✅
-- **aitoean 平台**: 健康 ✅
+- **aitoearn 平台**: 健康 ✅
 - **Render 生产**: 下线 🔴
 - **TikTok 接单**: 阻塞 🔴
 - **deep-check**: 中断 ⚠️
